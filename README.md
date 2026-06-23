@@ -6,6 +6,10 @@
 
 *Greater Bay Area (粤港澳大湾区) cultural-confidence project · 非物质文化遗产活态传承*
 
+### 🔗 Live demo → **https://tuffhell.github.io/cantomesh/**
+
+<sub>Animated 水墨 ink-wash canvas · offline 平仄 verifier (runs entirely in your browser)</sub>
+
 </div>
 
 ---
@@ -94,6 +98,7 @@ docs/          ARCHITECTURE.md
 - [x] 平仄 / 押韵 symbolic verifier (offline, tested)
 - [x] Claude-backed generate→verify→repair pipeline
 - [x] Web demo + REST API
+- [x] Animated public site (GitHub Pages) with browser-side 平仄 verifier
 - [ ] 依字行腔 melody mapping → Singing-Voice-Synthesis guide track
 - [ ] Pose-tracked 水墨 canvas service (MediaPipe BlazePose)
 - [ ] Vocal & Cantonese tone-contour assessment

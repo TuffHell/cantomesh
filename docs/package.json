@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "private": true,
+  "name": "cantomesh-web",
+  "description": "Static client for the CANTOMESH 平仄 engine (offline verifier + ink-wash canvas)."
+}

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-HK">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CANTOMESH · 粤脉·镜 — 平仄引擎</title>
+<title>CANTOMESH · 粵脈·鏡 — 平仄引擎</title>
 <style>
   :root {
     --ink: #1a1714;
@@ -17,7 +17,7 @@
     --ze: #b23a2e;
     --space: clamp(1rem, 0.6rem + 1.6vw, 2rem);
     --radius: 14px;
-    --serif: "Songti SC", "STSong", "Noto Serif SC", serif;
+    --serif: "Songti TC", "Songti SC", "STSong", "Noto Serif TC", "PMingLiU", serif;
   }
   * { box-sizing: border-box; }
   body {
@@ -59,17 +59,20 @@
   button:hover { filter: brightness(1.08); transform: translateY(-1px); }
   button:active { transform: translateY(0); }
   button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
-  .verse { font-size: 1.5rem; line-height: 2.2; letter-spacing: .12em; }
+  .verse { font-size: 1.5rem; line-height: 2.3; letter-spacing: .12em; }
   .ch { display: inline-block; text-align: center; padding: 0 .12em; position: relative; }
   .ch .mark { display: block; font-size: .6rem; letter-spacing: 0; }
   .ch.ping .mark { color: var(--ping); }
   .ch.ze .mark { color: var(--ze); }
   .ch .jp { display: block; font-size: .55rem; color: #8a8170; font-family: ui-monospace, monospace; }
+  .ch .tone { display: block; font-size: .55rem; }
+  .ch.ping .tone { color: var(--ping); }
+  .ch.ze .tone { color: var(--ze); }
   .lineno { color: var(--gold); font-size: .85rem; margin-right: .6rem; }
   .score { font-size: 2.4rem; color: var(--jade); letter-spacing: .05em; }
   .score.bad { color: var(--vermilion); }
   .violations { margin: .6rem 0 0; padding-left: 1.2rem; color: var(--vermilion); }
-  .violations:empty::after { content: "全部通过 ✓ 平仄与押韵无误"; color: var(--jade); }
+  .violations:empty::after { content: "全數通過 ✓ 平仄與押韻無誤"; color: var(--jade); }
   .legend { font-size: .8rem; color: #6b6356; display: flex; gap: 1.2rem; margin-top: .4rem; }
   .legend b.ping { color: var(--ping); } .legend b.ze { color: var(--ze); }
   .note { font-size: .85rem; color: var(--gold); }
@@ -80,40 +83,40 @@
 <body>
 <header>
   <div class="brand">
-    <h1>粤脉 · 镜</h1><span class="en">CANTOMESH 平仄 Engine</span>
+    <h1>粵脈 · 鏡</h1><span class="en">CANTOMESH 平仄 Engine</span>
   </div>
-  <p>神经-符号引擎：Claude 起草，符号化「平仄 / 押韵」校验器据《粤剧梆黄体》规则裁定。
-  无密钥时进入<strong>评估模式</strong>，仍可对任意唱词作平仄分析。</p>
+  <p>神經-符號引擎：Claude 起草，符號化「平仄 / 押韻」校驗器據《粵劇梆黃體》規則裁定。
+  無密鑰時進入<strong>評估模式</strong>，仍可對任意唱詞作平仄分析。</p>
 </header>
 
 <main>
   <section class="card">
-    <h2>① 跨代翻译 · Modern → 粤剧唱词</h2>
-    <p class="hint">输入现代白话或流行歌词，引擎生成符合平仄的唱词（需设置 ANTHROPIC_API_KEY）。</p>
-    <textarea id="modern" placeholder="例：我们这一代，要把粤剧唱给世界听。"></textarea>
+    <h2>① 跨代翻譯 · Modern → 粵劇唱詞</h2>
+    <p class="hint">輸入現代白話或流行歌詞，引擎生成符合平仄的唱詞（需設置 ANTHROPIC_API_KEY）。</p>
+    <textarea id="modern" placeholder="例：我哋呢一代，要將粵劇唱畀世界聽。"></textarea>
     <div class="row">
-      <label>句数 lines<input id="lines" type="number" value="4" min="2" max="16" /></label>
-      <button id="btn-translate">生成唱词</button>
+      <label>句數 lines<input id="lines" type="number" value="4" min="2" max="16" /></label>
+      <button id="btn-translate">生成唱詞</button>
       <span id="t-note" class="note"></span>
     </div>
   </section>
 
   <section class="card">
-    <h2>② 平仄校验 · Verify</h2>
-    <p class="hint">粘贴任意中文唱词，逐字标注平仄与粤拼，并据规则评分（完全离线）。</p>
-    <textarea id="verse-in" placeholder="例：大湾花开千川月&#10;粤韵声声爱国家"></textarea>
+    <h2>② 平仄校驗 · Verify</h2>
+    <p class="hint">貼上任意中文唱詞，逐字標註平仄、九聲與粵拼，並據規則評分（完全離線）。</p>
+    <textarea id="verse-in" placeholder="例：大灣花開千川月&#10;粵韻聲聲愛國家"></textarea>
     <div class="row">
-      <button id="btn-analyze">校验平仄</button>
-      <button class="ghost" id="btn-sample">载入示例</button>
+      <button id="btn-analyze">校驗平仄</button>
+      <button class="ghost" id="btn-sample">載入示例</button>
     </div>
     <div class="legend">
-      <span><b class="ping">平</b> 阴平/阳平（非入声）</span>
-      <span><b class="ze">仄</b> 上去入声</span>
+      <span><b class="ping">平</b> 陰平／陽平（非入聲）</span>
+      <span><b class="ze">仄</b> 上 · 去 · 入聲</span>
     </div>
   </section>
 
   <section class="card" id="result" hidden>
-    <h2>校验结果 · Report</h2>
+    <h2>校驗結果 · Report</h2>
     <div class="row" style="align-items:center;justify-content:space-between">
       <div><span id="score" class="score">—</span><span class="muted"> / 100</span></div>
     </div>
@@ -122,7 +125,7 @@
   </section>
 </main>
 
-<footer>粤脉·镜 CANTOMESH · 非遗活态传承 · 端侧多模态 AI 生态 — AIGC 平仄引擎 v0.1</footer>
+<footer>粵脈·鏡 CANTOMESH · 非遺活態傳承 · 端側多模態 AI 生態 — AIGC 平仄引擎 v0.1</footer>
 
 <script>
 const $ = (id) => document.getElementById(id);
@@ -151,17 +154,18 @@ function renderReport(report) {
     tag.className = "lineno";
     tag.textContent = line.role + " L" + line.index;
     div.appendChild(tag);
-    let pi = 0;
     detail.forEach((d) => {
       const span = document.createElement("span");
       span.className = "ch";
-      const pz = d.jyutping ? line.pingze[pi++] : null;
+      const pz = d.pingze;
       if (pz === "平") span.classList.add("ping");
       if (pz === "仄") span.classList.add("ze");
+      if (d.jyutping) span.title = d.char + " " + d.jyutping + " · " + (d.tone_name || "") + " · " + pz;
       span.innerHTML =
         d.char +
         '<span class="mark">' + (pz || "·") + "</span>" +
-        '<span class="jp">' + (d.jyutping || "?") + "</span>";
+        '<span class="jp">' + (d.jyutping || "?") + "</span>" +
+        '<span class="tone">' + (d.tone_name || "") + "</span>";
       div.appendChild(span);
     });
     verse.appendChild(div);
@@ -180,11 +184,11 @@ $("btn-analyze").onclick = async () => {
   const text = $("verse-in").value.trim();
   if (!text) return;
   try { renderReport(await post("/api/analyze", { text })); }
-  catch (e) { alert("校验失败：" + e.message); }
+  catch (e) { alert("校驗失敗：" + e.message); }
 };
 
 $("btn-sample").onclick = () => {
-  $("verse-in").value = "大湾花开千川月\n粤韵声声爱国家";
+  $("verse-in").value = "大灣花開千川月\n粵韻聲聲愛國家";
 };
 
 $("btn-translate").onclick = async () => {
@@ -197,7 +201,7 @@ $("btn-translate").onclick = async () => {
     });
     $("t-note").textContent = res.note || ("模型：" + (res.model || "—"));
     if (res.verse) { $("verse-in").value = res.verse; renderReport(res.report); }
-  } catch (e) { $("t-note").textContent = "失败：" + e.message; }
+  } catch (e) { $("t-note").textContent = "失敗：" + e.message; }
 };
 </script>
 </body>

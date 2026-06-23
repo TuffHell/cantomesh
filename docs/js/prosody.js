@@ -15,6 +15,12 @@ const CHECKED = ["p", "t", "k"];
 const RHYME_GROUPS = { aa: ["aa", "a"], ang: ["ang", "aang"], oeng: ["oeng", "eng"] };
 const LINE_SPLIT = /[\n，,。；;！!？?]+/;
 
+// The 九聲六調 (nine tones / six contours) of Cantonese. 入聲 (checked) syllables
+// carry only tones 1/3/6 — 陰入 / 中入 / 陽入. Surfacing the names lets the demo
+// teach the tone system, not just gate it.
+const SMOOTH_TONE_NAMES = { 1: "陰平", 2: "陰上", 3: "陰去", 4: "陽平", 5: "陽上", 6: "陽去" };
+const CHECKED_TONE_NAMES = { 1: "陰入", 3: "中入", 6: "陽入" };
+
 // --- tones ---
 function stripTone(jp) {
   const s = jp.trim().toLowerCase();
@@ -40,6 +46,13 @@ export function isChecked(jp) {
 export function pingZe(jp) {
   if (isChecked(jp)) return ZE;
   return PING_TONES.has(toneOf(jp)) ? PING : ZE;
+}
+
+export function toneName(jp) {
+  const tone = toneOf(jp);
+  if (tone === 0) return null;
+  if (isChecked(jp)) return CHECKED_TONE_NAMES[tone] || "入聲";
+  return SMOOTH_TONE_NAMES[tone] || null;
 }
 
 // --- rhyme ---
@@ -79,10 +92,10 @@ function analyzeLines(linesSyllables) {
 
     lines.push({ index: i, role, pingze, end_pingze: endPz, end_rime: end ? rime(end) : null, coverage });
 
-    if (endPz === null) { violations.push(`L${i} (${role}): 无法标音，无法判定句末平仄`); return; }
-    if (role === "上句" && endPz !== ZE) violations.push(`L${i} (上句): 句末应为仄，实为${PING}`);
+    if (endPz === null) { violations.push(`L${i} (${role}): 無法標音，無法判定句末平仄`); return; }
+    if (role === "上句" && endPz !== ZE) violations.push(`L${i} (上句): 句末應為仄，實為${PING}`);
     if (role === "下句") {
-      if (endPz !== PING) violations.push(`L${i} (下句): 句末应为平，实为${ZE}`);
+      if (endPz !== PING) violations.push(`L${i} (下句): 句末應為平，實為${ZE}`);
       xiaRimes.push([i, groupOf(end)]);
     }
   });
@@ -90,7 +103,7 @@ function analyzeLines(linesSyllables) {
   if (xiaRimes.length >= 2) {
     const anchor = xiaRimes[0][1];
     for (const [idx, grp] of xiaRimes.slice(1))
-      if (grp !== anchor) violations.push(`L${idx} (下句): 韵脚 '${grp}' 与首个下句韵脚 '${anchor}' 不押韵`);
+      if (grp !== anchor) violations.push(`L${idx} (下句): 韻腳 '${grp}' 與首個下句韻腳 '${anchor}' 不押韻`);
   }
 
   return { lines, violations, score: Math.max(0, 100 - 15 * violations.length) };
@@ -101,6 +114,11 @@ export function splitLines(text) {
   return text.split(LINE_SPLIT).map((s) => s.trim()).filter(Boolean);
 }
 
+function charEntry(char, jp) {
+  if (!jp) return { char, jyutping: null, tone: null, tone_name: null, pingze: null };
+  return { char, jyutping: jp, tone: toneOf(jp), tone_name: toneName(jp), pingze: pingZe(jp) };
+}
+
 export function verifyText(text) {
   const lines = splitLines(text);
   const perLine = [];
@@ -108,7 +126,7 @@ export function verifyText(text) {
   for (const line of lines) {
     const pairs = romanize(line);
     perLine.push(pairs.map(([, jp]) => jp));
-    charDetail.push(pairs.map(([c, jp]) => ({ char: c, jyutping: jp })));
+    charDetail.push(pairs.map(([c, jp]) => charEntry(c, jp)));
   }
   const report = analyzeLines(perLine);
   return {

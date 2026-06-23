@@ -39,7 +39,7 @@ def translate(
             "verse": modern_text,
             "report": report,
             "iterations": 0,
-            "note": "评估模式：已分析输入文本的平仄与押韵。设置 ANTHROPIC_API_KEY 以启用生成。",
+            "note": "評估模式：已分析輸入文本的平仄與押韻。設置 ANTHROPIC_API_KEY 以啟用生成。",
         }
 
     feedback: str | None = None

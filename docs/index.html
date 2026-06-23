@@ -1,10 +1,21 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-HK">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>粤脉·镜 CANTOMESH · 平仄引擎</title>
-<meta name="description" content="粤脉·镜 CANTOMESH — 粤剧神经-符号平仄引擎。Claude 起草，符号校验器据梆黄体平仄/押韵裁定。粤港澳大湾区非遗活态传承。" />
+<title>粵脈·鏡 CANTOMESH · 平仄引擎</title>
+<meta name="description" content="粵脈·鏡 CANTOMESH — 粵劇神經-符號平仄引擎。Claude 起草，符號校驗器據梆黃體平仄／押韻裁定，逐字標註九聲六調與粵拼。粵港澳大灣區非遺活態傳承。" />
+<meta name="theme-color" content="#b23a2e" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20x='2.5'%20y='2.5'%20width='27'%20height='27'%20rx='6'%20fill='%23f4efe6'%20stroke='%23b23a2e'%20stroke-width='2.5'/%3E%3Ctext%20x='16'%20y='23'%20font-size='19'%20text-anchor='middle'%20fill='%23b23a2e'%20font-family='serif'%3E粵%3C/text%3E%3C/svg%3E" />
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="zh_HK" />
+<meta property="og:title" content="粵脈·鏡 CANTOMESH · 平仄引擎" />
+<meta property="og:description" content="粵劇神經-符號平仄引擎：Claude 起草，符號校驗器逐字裁定平仄、押韻與九聲六調。完全離線運行於瀏覽器。" />
+<meta property="og:url" content="https://tuffhell.github.io/cantomesh/" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="粵脈·鏡 CANTOMESH · 平仄引擎" />
+<meta name="twitter:description" content="粵劇神經-符號平仄引擎：逐字裁定平仄、押韻與九聲六調，完全離線。" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -13,55 +24,73 @@
 
 <div class="wrap">
   <header class="hero">
-    <div class="seal" aria-hidden="true"><span>粤脉</span><span>之镜</span></div>
-    <h1>粤脉 · 镜</h1>
+    <div class="seal" aria-hidden="true"><span>粵脈</span><span>之鏡</span></div>
+    <h1>粵脈 · 鏡</h1>
     <div class="en">CANTOMESH · 平仄 Engine</div>
-    <p class="tagline">让粤港澳大湾区青年，成为<span class="draw">文化主权的主动持有者</span>。
-      神经-符号引擎：Claude 起草，符号校验器据《粤剧梆黄体》平仄与押韵裁定。</p>
-    <div class="scroll-cue" aria-hidden="true">向下 · 校验平仄 ↓</div>
+    <p class="tagline">讓粵港澳大灣區青年，成為<span class="draw">文化主權的主動持有者</span>。
+      神經-符號引擎：Claude 起草，符號校驗器據《粵劇梆黃體》平仄與押韻裁定。</p>
+    <div class="scroll-cue" aria-hidden="true">向下 · 校驗平仄 ↓</div>
   </header>
 
   <main>
-    <section class="panel">
+    <section class="panel" aria-labelledby="verify-h">
       <div class="card">
-        <div class="eyebrow">② Verify · 平仄校验</div>
-        <h2>逐字裁定 平仄与押韵</h2>
-        <p class="hint">粘贴任意中文唱词，引擎逐字标注平仄、粤拼，并据规则评分。完全离线运行——
-          符号化的规则即是可审计的非遗诚信。</p>
-        <textarea id="verse-in" placeholder="大湾花开千川月&#10;粤韵声声爱国家" aria-label="输入唱词"></textarea>
+        <div class="eyebrow">② Verify · 平仄校驗</div>
+        <h2 id="verify-h">逐字裁定 平仄與押韻</h2>
+        <p class="hint">貼上任意中文唱詞，引擎逐字標註平仄、粵拼與九聲，並據規則評分。完全離線運行——
+          符號化的規則，就是可審計的非遺誠信。</p>
+        <textarea id="verse-in" placeholder="大灣花開千川月&#10;粵韻聲聲愛國家" aria-label="輸入唱詞"></textarea>
         <div class="controls">
-          <button id="btn-analyze">校验平仄</button>
-          <button class="ghost" id="btn-sample">载入示例</button>
-          <span class="hint" style="margin:0">⌘/Ctrl + Enter</span>
+          <button id="btn-analyze">校驗平仄</button>
+          <span class="ex-label">示例</span>
+          <div id="examples" class="examples"></div>
+          <span class="hint kbd">⌘/Ctrl + Enter</span>
         </div>
         <div class="legend">
-          <span><b class="ping">平</b> 阴平 / 阳平（非入声）</span>
-          <span><b class="ze">仄</b> 上 · 去 · 入声</span>
+          <span><b class="ping">平</b> 陰平 · 陽平（非入聲）</span>
+          <span><b class="ze">仄</b> 上 · 去 · 入聲</span>
         </div>
+
+        <details class="tones" open>
+          <summary>九聲六調 · 粵語聲調體系</summary>
+          <p class="hint">粵語有「九聲六調」：六個舒聲調，加上三個收 -p／-t／-k 的入聲。平仄之分，全繫於此。</p>
+          <div class="tone-grid">
+            <span class="t ping">陰平<b>詩</b><i>si1</i></span>
+            <span class="t ze">陰上<b>史</b><i>si2</i></span>
+            <span class="t ze">陰去<b>試</b><i>si3</i></span>
+            <span class="t ping">陽平<b>時</b><i>si4</i></span>
+            <span class="t ze">陽上<b>市</b><i>si5</i></span>
+            <span class="t ze">陽去<b>事</b><i>si6</i></span>
+            <span class="t ze">陰入<b>色</b><i>sik1</i></span>
+            <span class="t ze">中入<b>錫</b><i>sek3</i></span>
+            <span class="t ze">陽入<b>食</b><i>sik6</i></span>
+          </div>
+        </details>
       </div>
 
-      <div class="card" id="result" hidden>
-        <div class="eyebrow">Report · 校验结果</div>
+      <div class="card" id="result" aria-live="polite" hidden>
+        <div class="eyebrow">Report · 校驗結果</div>
         <div class="score-row">
           <span id="score" class="score">—</span><span class="of">/ 100</span>
+          <span id="verdict" class="verdict"></span>
         </div>
         <div id="verse" class="verse"></div>
         <ul id="violations" class="violations"></ul>
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel" aria-labelledby="translate-h">
       <div class="card note-card">
-        <div class="eyebrow">① Translate · 跨代翻译</div>
-        <h2>现代心声 → 粤剧唱词</h2>
-        <p class="hint">将现代白话或流行歌词，经 <strong>Claude 起草 → 平仄校验 → 违规重写</strong>
-          的神经-符号回路，生成地道唱词。生成需 API 密钥，运行于
-          <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">FastAPI 后端</a>；
-          本页为公开静态演示，专注离线平仄校验。</p>
+        <div class="eyebrow">① Translate · 跨代翻譯</div>
+        <h2 id="translate-h">現代心聲 → 粵劇唱詞</h2>
+        <p class="hint">將現代白話或流行歌詞，經 <strong>Claude 起草 → 平仄校驗 → 違規重寫</strong>
+          的神經-符號回路，生成地道唱詞。生成需 API 密鑰，運行於
+          <a href="https://github.com/tuffhell/cantomesh" target="_blank" rel="noopener">FastAPI 後端</a>；
+          本頁為公開靜態演示，專注離線平仄校驗。</p>
         <p class="hint" style="margin:0">
-          本地启用：<code>uvicorn app.main:app --reload</code> ·
-          设置 <code>ANTHROPIC_API_KEY</code> 即开启生成。详见
-          <a href="https://github.com/TuffHell/cantomesh#quickstart" target="_blank" rel="noopener">仓库说明</a>。
+          本地啟用：<code>uvicorn app.main:app --reload</code> ·
+          設置 <code>ANTHROPIC_API_KEY</code> 即開啟生成。詳見
+          <a href="https://github.com/tuffhell/cantomesh#quickstart" target="_blank" rel="noopener">倉庫說明</a>。
         </p>
       </div>
     </section>
@@ -69,9 +98,13 @@
 </div>
 
 <footer>
-  粤脉·镜 CANTOMESH · 唱念做打 · 文场/武场 · 平仄 · 亮相 — 非遗活态传承 · 端侧多模态 AI 生态<br />
-  <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">github.com/TuffHell/cantomesh</a>
+  粵脈·鏡 CANTOMESH · 唱念做打 · 文場／武場 · 平仄 · 亮相 — 非遺活態傳承 · 端側多模態 AI 生態<br />
+  <a href="https://github.com/tuffhell/cantomesh" target="_blank" rel="noopener">github.com/tuffhell/cantomesh</a>
 </footer>
+
+<noscript>
+  <p style="text-align:center;color:#8f2c22">本頁的平仄校驗於瀏覽器端運行，請啟用 JavaScript 以使用。</p>
+</noscript>
 
 <script type="module" src="js/app.js"></script>
 </body>

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CANTOMESH · 粤脉·镜 — 平仄引擎</title>
+<style>
+  :root {
+    --ink: #1a1714;
+    --paper: #f4efe6;
+    --paper-2: #ece4d6;
+    --vermilion: #b23a2e;
+    --gold: #b8893a;
+    --jade: #3f6f5f;
+    --line: #d8cdb8;
+    --ping: #3f6f5f;
+    --ze: #b23a2e;
+    --space: clamp(1rem, 0.6rem + 1.6vw, 2rem);
+    --radius: 14px;
+    --serif: "Songti SC", "STSong", "Noto Serif SC", serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--serif); line-height: 1.6;
+    background-image: radial-gradient(transparent 60%, rgba(0,0,0,.03));
+  }
+  header {
+    padding: var(--space) var(--space) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
+  .brand h1 { font-size: clamp(1.6rem, 1rem + 3vw, 2.8rem); margin: 0; letter-spacing: .12em; }
+  .brand .en { color: var(--vermilion); letter-spacing: .35em; font-size: .8rem; text-transform: uppercase; }
+  header p { color: #5a5247; max-width: 60ch; margin: .4rem 0 var(--space); }
+  main { max-width: 980px; margin: 0 auto; padding: var(--space); display: grid; gap: var(--space); }
+  .card {
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: var(--space);
+    box-shadow: 0 1px 0 #fff inset, 0 10px 30px -20px rgba(0,0,0,.4);
+  }
+  .card h2 { margin: 0 0 .2rem; font-size: 1.15rem; letter-spacing: .08em; }
+  .card .hint { color: #6b6356; font-size: .85rem; margin: 0 0 .8rem; }
+  textarea, input[type=number] {
+    width: 100%; font-family: var(--serif); font-size: 1.05rem;
+    background: var(--paper); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 10px; padding: .7rem .8rem;
+  }
+  textarea { min-height: 5.5rem; resize: vertical; }
+  .row { display: flex; gap: .8rem; align-items: end; flex-wrap: wrap; margin-top: .7rem; }
+  .row label { font-size: .8rem; color: #6b6356; display: grid; gap: .25rem; }
+  .row input[type=number] { width: 6rem; }
+  button {
+    appearance: none; cursor: pointer; font-family: var(--serif);
+    background: var(--vermilion); color: #fff; border: none;
+    padding: .65rem 1.4rem; border-radius: 999px; font-size: 1rem; letter-spacing: .1em;
+    transition: transform .12s ease, filter .12s ease;
+  }
+  button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  button:active { transform: translateY(0); }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .verse { font-size: 1.5rem; line-height: 2.2; letter-spacing: .12em; }
+  .ch { display: inline-block; text-align: center; padding: 0 .12em; position: relative; }
+  .ch .mark { display: block; font-size: .6rem; letter-spacing: 0; }
+  .ch.ping .mark { color: var(--ping); }
+  .ch.ze .mark { color: var(--ze); }
+  .ch .jp { display: block; font-size: .55rem; color: #8a8170; font-family: ui-monospace, monospace; }
+  .lineno { color: var(--gold); font-size: .85rem; margin-right: .6rem; }
+  .score { font-size: 2.4rem; color: var(--jade); letter-spacing: .05em; }
+  .score.bad { color: var(--vermilion); }
+  .violations { margin: .6rem 0 0; padding-left: 1.2rem; color: var(--vermilion); }
+  .violations:empty::after { content: "全部通过 ✓ 平仄与押韵无误"; color: var(--jade); }
+  .legend { font-size: .8rem; color: #6b6356; display: flex; gap: 1.2rem; margin-top: .4rem; }
+  .legend b.ping { color: var(--ping); } .legend b.ze { color: var(--ze); }
+  .note { font-size: .85rem; color: var(--gold); }
+  footer { text-align: center; color: #8a8170; font-size: .75rem; padding: var(--space); }
+  .muted { opacity: .6; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>粤脉 · 镜</h1><span class="en">CANTOMESH 平仄 Engine</span>
+  </div>
+  <p>神经-符号引擎：Claude 起草，符号化「平仄 / 押韵」校验器据《粤剧梆黄体》规则裁定。
+  无密钥时进入<strong>评估模式</strong>，仍可对任意唱词作平仄分析。</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>① 跨代翻译 · Modern → 粤剧唱词</h2>
+    <p class="hint">输入现代白话或流行歌词，引擎生成符合平仄的唱词（需设置 ANTHROPIC_API_KEY）。</p>
+    <textarea id="modern" placeholder="例：我们这一代，要把粤剧唱给世界听。"></textarea>
+    <div class="row">
+      <label>句数 lines<input id="lines" type="number" value="4" min="2" max="16" /></label>
+      <button id="btn-translate">生成唱词</button>
+      <span id="t-note" class="note"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>② 平仄校验 · Verify</h2>
+    <p class="hint">粘贴任意中文唱词，逐字标注平仄与粤拼，并据规则评分（完全离线）。</p>
+    <textarea id="verse-in" placeholder="例：大湾花开千川月&#10;粤韵声声爱国家"></textarea>
+    <div class="row">
+      <button id="btn-analyze">校验平仄</button>
+      <button class="ghost" id="btn-sample">载入示例</button>
+    </div>
+    <div class="legend">
+      <span><b class="ping">平</b> 阴平/阳平（非入声）</span>
+      <span><b class="ze">仄</b> 上去入声</span>
+    </div>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <h2>校验结果 · Report</h2>
+    <div class="row" style="align-items:center;justify-content:space-between">
+      <div><span id="score" class="score">—</span><span class="muted"> / 100</span></div>
+    </div>
+    <div id="verse" class="verse"></div>
+    <ul id="violations" class="violations"></ul>
+  </section>
+</main>
+
+<footer>粤脉·镜 CANTOMESH · 非遗活态传承 · 端侧多模态 AI 生态 — AIGC 平仄引擎 v0.1</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+async function post(path, body) {
+  const r = await fetch(path, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+
+function renderReport(report) {
+  $("result").hidden = false;
+  const score = $("score");
+  score.textContent = report.score;
+  score.className = "score" + (report.ok ? "" : " bad");
+
+  const verse = $("verse");
+  verse.innerHTML = "";
+  report.lines.forEach((line, i) => {
+    const detail = report.char_detail[i] || [];
+    const div = document.createElement("div");
+    const tag = document.createElement("span");
+    tag.className = "lineno";
+    tag.textContent = line.role + " L" + line.index;
+    div.appendChild(tag);
+    let pi = 0;
+    detail.forEach((d) => {
+      const span = document.createElement("span");
+      span.className = "ch";
+      const pz = d.jyutping ? line.pingze[pi++] : null;
+      if (pz === "平") span.classList.add("ping");
+      if (pz === "仄") span.classList.add("ze");
+      span.innerHTML =
+        d.char +
+        '<span class="mark">' + (pz || "·") + "</span>" +
+        '<span class="jp">' + (d.jyutping || "?") + "</span>";
+      div.appendChild(span);
+    });
+    verse.appendChild(div);
+  });
+
+  const ul = $("violations");
+  ul.innerHTML = "";
+  report.violations.forEach((v) => {
+    const li = document.createElement("li");
+    li.textContent = v;
+    ul.appendChild(li);
+  });
+}
+
+$("btn-analyze").onclick = async () => {
+  const text = $("verse-in").value.trim();
+  if (!text) return;
+  try { renderReport(await post("/api/analyze", { text })); }
+  catch (e) { alert("校验失败：" + e.message); }
+};
+
+$("btn-sample").onclick = () => {
+  $("verse-in").value = "大湾花开千川月\n粤韵声声爱国家";
+};
+
+$("btn-translate").onclick = async () => {
+  const modern_text = $("modern").value.trim();
+  if (!modern_text) return;
+  $("t-note").textContent = "生成中…";
+  try {
+    const res = await post("/api/translate", {
+      modern_text, lines: Number($("lines").value) || 4,
+    });
+    $("t-note").textContent = res.note || ("模型：" + (res.model || "—"));
+    if (res.verse) { $("verse-in").value = res.verse; renderReport(res.report); }
+  } catch (e) { $("t-note").textContent = "失败：" + e.message; }
+};
+</script>
+</body>
+</html>

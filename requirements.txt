@@ -1,0 +1,10 @@
+# --- Runtime core (required) ---
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+
+# --- Optional: enables LLM-backed generation (set ANTHROPIC_API_KEY) ---
+anthropic>=0.40
+
+# --- Optional: full character->Jyutping coverage (else bundled fallback dict) ---
+pycantonese>=3.4

@@ -1,7 +1,7 @@
 [project]
 name = "cantomesh"
 version = "0.1.0"
-description = "Neuro-symbolic Cantonese opera (粤剧) 平仄 versification engine — AIGC core of the CANTOMESH heritage ecosystem."
+description = "Neuro-symbolic Cantonese opera (粵劇) 平仄 versification engine — AIGC core of the CANTOMESH heritage ecosystem."
 requires-python = ">=3.9"
 
 [tool.pytest.ini_options]

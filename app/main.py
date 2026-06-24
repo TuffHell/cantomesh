@@ -17,10 +17,10 @@ from app import __version__
 from app.api.routes import router
 
 app = FastAPI(
-    title="CANTOMESH · 粤脉·镜 平仄 Engine",
+    title="CANTOMESH · 粵脈·鏡 平仄 Engine",
     version=__version__,
     description="Neuro-symbolic Cantonese opera versification: Claude drafts, "
-    "a symbolic 平仄/押韵 verifier enforces the heritage rules.",
+    "a symbolic 平仄/押韻 verifier enforces the heritage rules.",
 )
 
 app.include_router(router)

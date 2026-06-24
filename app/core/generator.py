@@ -15,10 +15,10 @@ from dataclasses import dataclass
 DEFAULT_MODEL = os.environ.get("CANTOMESH_MODEL", "claude-sonnet-4-6")
 
 _SYSTEM = (
-    "你是一位粤剧撰曲名家，精通梆黄体、依字行腔、平仄与押韵。"
-    "你将现代白话或流行歌词改写为地道的粤剧唱词。"
-    "规则：上句（单数句）句末用仄声；下句（双数句）句末用平声且全部下句押同一韵。"
-    "只输出唱词，每句一行，不要解释、不要标点以外的内容。"
+    "你是一位粵劇撰曲名家，精通梆黃體、依字行腔、平仄與押韻。"
+    "你將現代白話或流行歌詞改寫為地道的粵劇唱詞。"
+    "規則：上句（單數句）句末用仄聲；下句（雙數句）句末用平聲，且全部下句押同一韻。"
+    "一律以繁體中文書寫；只輸出唱詞，每句一行，不要解釋、不要標點以外的內容。"
 )
 
 
@@ -36,12 +36,12 @@ def llm_available() -> bool:
 
 def _build_user_prompt(modern_text: str, lines: int, feedback: str | None) -> str:
     parts = [
-        f"请将以下现代文字改写为 {lines} 句粤剧唱词：",
+        f"請將以下現代文字改寫為 {lines} 句粵劇唱詞：",
         modern_text.strip(),
     ]
     if feedback:
         parts.append(
-            "上一稿存在以下平仄/押韵问题，请针对性修正后重写：\n" + feedback
+            "上一稿存在以下平仄／押韻問題，請針對性修正後重寫：\n" + feedback
         )
     return "\n\n".join(parts)
 
@@ -58,8 +58,8 @@ def generate(
         return GenerationResult(
             text="",
             available=False,
-            note="未检测到 ANTHROPIC_API_KEY，已切换为「评估模式」。"
-            "设置密钥后即可启用 Claude 驱动的生成。",
+            note="未偵測到 ANTHROPIC_API_KEY，已切換為「評估模式」。"
+            "設置密鑰後即可啟用 Claude 驅動的生成。",
         )
 
     chosen = model or DEFAULT_MODEL
@@ -69,7 +69,7 @@ def generate(
         return GenerationResult(
             text="",
             available=False,
-            note="已设置密钥但未安装 anthropic SDK，请 `pip install anthropic`。",
+            note="已設置密鑰但未安裝 anthropic SDK，請 `pip install anthropic`。",
         )
 
     client = anthropic.Anthropic()

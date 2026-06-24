@@ -12,8 +12,8 @@
   --ze: #b23a2e;
   --space: clamp(1rem, 0.6rem + 1.8vw, 2.2rem);
   --radius: 16px;
-  --serif: "Songti SC", "STSong", "Noto Serif SC", "SimSun", serif;
-  --kai: "Kaiti SC", "STKaiti", "KaiTi", var(--serif);
+  --serif: "Songti TC", "Songti SC", "STSong", "Noto Serif TC", "Noto Serif CJK TC", "PMingLiU", "SimSun", serif;
+  --kai: "Kaiti TC", "Kaiti SC", "STKaiti", "DFKai-SB", "BiauKai", var(--serif);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -183,12 +183,74 @@ button.ghost:hover { border-color: var(--vermilion); color: var(--vermilion); }
 .legend b.ping { color: var(--ping); }
 .legend b.ze { color: var(--ze); }
 
+/* ---------- Example chips ---------- */
+.ex-label { font-size: 0.8rem; color: var(--ink-soft); letter-spacing: 0.2em; }
+.examples { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.kbd { margin: 0 0 0 auto; }
+button.chip {
+  font-family: var(--serif);
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+  padding: 0.38rem 0.9rem;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.chip-note { font-size: 0.68rem; color: var(--ink-soft); letter-spacing: 0.02em; }
+button.chip:hover .chip-note { color: var(--vermilion); }
+
+/* ---------- 九聲六調 tone table ---------- */
+details.tones { margin-top: 1.2rem; border-top: 1px solid var(--line); padding-top: 0.9rem; }
+details.tones summary {
+  cursor: pointer;
+  font-family: var(--kai);
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  font-size: 1rem;
+}
+details.tones summary::marker { color: var(--vermilion); }
+details.tones .hint { margin: 0.6rem 0 0.8rem; }
+.tone-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.tone-grid .t {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(244, 239, 230, 0.6);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.tone-grid .t b { font-family: var(--kai); font-size: 1.15rem; font-weight: 400; }
+.tone-grid .t i { font-family: ui-monospace, monospace; font-style: normal; font-size: 0.72rem; opacity: 0.8; }
+.tone-grid .t.ping { border-color: rgba(63, 111, 95, 0.5); }
+.tone-grid .t.ping b { color: var(--ping); }
+.tone-grid .t.ze b { color: var(--ze); }
+@media (max-width: 560px) { .tone-grid { grid-template-columns: repeat(2, 1fr); } }
+
 /* ---------- Report ---------- */
 #result { margin-top: var(--space); }
 .score-row { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.6rem; }
 .score { font-family: var(--kai); font-size: 3rem; color: var(--jade); letter-spacing: 0.04em; }
 .score.bad { color: var(--vermilion); }
 .score-row .of { color: var(--ink-soft); }
+.verdict {
+  margin-left: auto;
+  align-self: center;
+  font-family: var(--kai);
+  font-size: 1.1rem;
+  letter-spacing: 0.18em;
+  padding: 0.2rem 0.9rem;
+  border-radius: 999px;
+  color: var(--jade);
+  border: 1px solid var(--jade);
+}
+.verdict.bad { color: var(--vermilion); border-color: var(--vermilion); }
 
 .verse { font-size: clamp(1.4rem, 1rem + 2vw, 2rem); line-height: 2.5; }
 .verse-line { margin: 0.4rem 0; display: flex; align-items: flex-end; flex-wrap: wrap; }
@@ -213,9 +275,12 @@ button.ghost:hover { border-color: var(--vermilion); color: var(--vermilion); }
 .ch.ping .mark { color: var(--ping); }
 .ch.ze .mark { color: var(--ze); }
 .ch .jp { font-size: 0.5rem; color: var(--ink-soft); font-family: ui-monospace, monospace; margin-top: 1px; }
+.ch .tone { font-size: 0.5rem; line-height: 1; margin-top: 1px; opacity: 0.85; }
+.ch.ping .tone { color: var(--ping); }
+.ch.ze .tone { color: var(--ze); }
 
 .violations { margin: 1rem 0 0; padding-left: 1.2rem; color: var(--vermilion); font-size: 0.95rem; }
-.violations:empty::after { content: "✓ 平仄与押韵全数通过"; color: var(--jade); list-style: none; margin-left: -1.2rem; }
+.violations:empty::after { content: "✓ 平仄與押韻全數通過"; color: var(--jade); list-style: none; margin-left: -1.2rem; }
 
 /* ---------- Generation note + footer ---------- */
 .note-card { margin-top: var(--space); border-left: 3px solid var(--gold); }

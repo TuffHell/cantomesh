@@ -1,10 +1,10 @@
 <div align="center">
 
-# 粤脉 · 镜 · CANTOMESH
+# 粵脈 · 鏡 · CANTOMESH
 
-### Neuro-symbolic 平仄 engine for Cantonese Opera (粤剧) — the AIGC core of a living-heritage ecosystem
+### Neuro-symbolic 平仄 engine for Cantonese Opera (粵劇) — the AIGC core of a living-heritage ecosystem
 
-*Greater Bay Area (粤港澳大湾区) cultural-confidence project · 非物质文化遗产活态传承*
+*Greater Bay Area (粵港澳大灣區) cultural-confidence project · 非物質文化遺產活態傳承*
 
 ### 🔗 Live demo → **https://tuffhell.github.io/cantomesh/**
 
@@ -16,13 +16,13 @@
 
 CANTOMESH turns modern Chinese into singable **Cantonese opera verse**, and
 verifies any verse against the genuine rules of the form — **平仄 (level/oblique
-tone)** and **押韵 (rhyme)** — using a transparent symbolic engine, not a black box.
+tone)** and **押韻 (rhyme)** — using a transparent symbolic engine, not a black box.
 
 This repository is the **first runnable vertical slice** of the larger CANTOMESH
-mobile ecosystem (on-device segmentation, AR 寻面 face mesh, reactive 文场/武场
+mobile ecosystem (on-device segmentation, AR 尋面 face mesh, reactive 文場/武場
 acoustic engine). It implements the **Cross-Era Translation** pipeline:
 
-> **Claude drafts the verse → a symbolic 平仄/押韵 verifier judges it → violations
+> **Claude drafts the verse → a symbolic 平仄/押韻 verifier judges it → violations
 > are fed back for repair.** The neural half is creative; the symbolic half is
 > deterministic, offline, and unit-tested — so the heritage rules are *enforced,
 > not approximated.*
@@ -35,6 +35,10 @@ acoustic engine). It implements the **Cross-Era Translation** pipeline:
 - **Runs with zero data and zero key.** No training corpus required; the symbolic
   verifier works offline. The bundled Jyutping fallback means even romanization
   needs no heavy install.
+- **Cantonese to the bone.** The UI and bundled corpus are Traditional Chinese —
+  the script Cantonese opera is actually written in — and every glyph is annotated
+  with its full **九聲六調** tone name (陰平…陽入) and Jyutping, so the engine
+  *teaches* the tone system instead of merely gating on it.
 - **Honest about the LLM.** Generation uses Claude *when a key is present*; without
   one the engine degrades to a still-useful **assess-only** mode.
 
@@ -61,7 +65,7 @@ pip install anthropic pycantonese   # generation + full Jyutping coverage
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET`  | `/api/health` | status + whether the LLM is configured |
-| `POST` | `/api/analyze` | `{ "text": "..." }` → 平仄/押韵 report (offline) |
+| `POST` | `/api/analyze` | `{ "text": "..." }` → 平仄/押韻 report (offline) |
 | `POST` | `/api/translate` | `{ "modern_text": "...", "lines": 4 }` → generated verse + report |
 
 Example:
@@ -69,14 +73,14 @@ Example:
 ```bash
 curl -s localhost:8000/api/analyze \
   -H 'content-type: application/json' \
-  -d '{"text":"大湾花开千川月\n粤韵声声爱国家"}' | python3 -m json.tool
+  -d '{"text":"大灣花開千川月\n粵韻聲聲愛國家"}' | python3 -m json.tool
 ```
 
 ## How the verifier reads a couplet
 
 ```
-上句 L1  大(仄) 湾(平) 花(平) 开(平) 千(平) 川(平) 月(仄)   ← ends 仄 ✓
-下句 L2  粤(仄) 韵(仄) 声(平) 声(平) 爱(仄) 国(仄) 家(平)   ← ends 平 ✓  韵脚 aa
+上句 L1  大(仄) 灣(平) 花(平) 開(平) 千(平) 川(平) 月(仄)   ← ends 仄 ✓
+下句 L2  粵(仄) 韻(仄) 聲(平) 聲(平) 愛(仄) 國(仄) 家(平)   ← ends 平 ✓  韻腳 aa
                                                           score: 100 / 100
 ```
 
@@ -95,10 +99,10 @@ docs/          ARCHITECTURE.md
 
 ## Roadmap
 
-- [x] 平仄 / 押韵 symbolic verifier (offline, tested)
+- [x] 平仄 / 押韻 symbolic verifier (offline, tested)
 - [x] Claude-backed generate→verify→repair pipeline
 - [x] Web demo + REST API
-- [x] Animated public site (GitHub Pages) with browser-side 平仄 verifier
+- [x] Animated public site (GitHub Pages) — Traditional-Chinese / Cantonese UI, browser-side 平仄 verifier with 九聲六調 annotation
 - [ ] 依字行腔 melody mapping → Singing-Voice-Synthesis guide track
 - [ ] Pose-tracked 水墨 canvas service (MediaPipe BlazePose)
 - [ ] Vocal & Cantonese tone-contour assessment
@@ -108,4 +112,4 @@ docs/          ARCHITECTURE.md
 Early-stage competition prototype. **Not yet licensed** — all rights reserved
 pending a deliberate license choice. Open an issue before reuse.
 
-<sub>粤脉·镜 CANTOMESH · 唱念做打 · 文场/武场 · 平仄 · 亮相 — 让大湾区青年成为文化主权的主动持有者。</sub>
+<sub>粵脈·鏡 CANTOMESH · 唱念做打 · 文場/武場 · 平仄 · 亮相 — 讓大灣區青年成為文化主權的主動持有者。</sub>

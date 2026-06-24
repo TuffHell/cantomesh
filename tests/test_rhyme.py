@@ -1,4 +1,4 @@
-"""Unit tests for rhyme (押韵) analysis."""
+"""Unit tests for rhyme (押韻) analysis."""
 
 from app.core.rhyme import group_of, rhymes, rime
 

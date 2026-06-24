@@ -1,4 +1,4 @@
-"""Unit tests for stanza-level 平仄 + 押韵 rules (operates on Jyutping directly)."""
+"""Unit tests for stanza-level 平仄 + 押韻 rules (operates on Jyutping directly)."""
 
 from app.core.prosody import analyze_lines
 
@@ -37,7 +37,7 @@ def test_rhyme_mismatch_flagged():
     ]
     report = analyze_lines(lines)
     assert len(report.violations) == 1
-    assert "不押韵" in report.violations[0]
+    assert "不押韻" in report.violations[0]
 
 
 def test_unromanized_syllables_reported():

@@ -26,7 +26,7 @@ def health() -> HealthResponse:
 
 @router.post("/analyze")
 def analyze(req: AnalyzeRequest) -> dict:
-    """Verify supplied verse against 平仄 + 押韵 rules (fully offline)."""
+    """Verify supplied verse against 平仄 + 押韻 rules (fully offline)."""
     return verify_text(req.text)
 
 

@@ -1,12 +1,12 @@
-"""Stanza-level 平仄 + 押韵 checking for Cantonese opera couplets.
+"""Stanza-level 平仄 + 押韻 checking for Cantonese opera couplets.
 
-Cantonese opera uses 板腔体 with alternating 上句 / 下句 rather than strict 律詩
+Cantonese opera uses 板腔體 with alternating 上句 / 下句 rather than strict 律詩
 metre. The rules enforced here are the load-bearing ones a 撰曲 (librettist)
 actually cares about:
 
   R1  上句 (odd lines, 1-indexed) end on 仄.
   R2  下句 (even lines) end on 平.
-  R3  All 下句 share one rhyme (押韵一致).
+  R3  All 下句 share one rhyme (押韻一致).
 
 Each rule violation is reported with its line index and an explanation, and the
 stanza receives a 0-100 score. Unromanizable characters are tracked separately
@@ -64,15 +64,15 @@ def analyze_lines(lines_syllables: list[list[str | None]]) -> StanzaReport:
         )
 
         if end_pz is None:
-            report.violations.append(f"L{i} ({role}): 无法标音，无法判定句末平仄")
+            report.violations.append(f"L{i} ({role}): 無法標音，無法判定句末平仄")
             continue
 
         # R1 / R2: line-ending 平仄.
         if role == "上句" and end_pz != ZE:
-            report.violations.append(f"L{i} (上句): 句末应为仄，实为{PING}")
+            report.violations.append(f"L{i} (上句): 句末應為仄，實為{PING}")
         if role == "下句":
             if end_pz != PING:
-                report.violations.append(f"L{i} (下句): 句末应为平，实为{ZE}")
+                report.violations.append(f"L{i} (下句): 句末應為平，實為{ZE}")
             xia_rimes.append((i, group_of(end)))
 
     # R3: 下句 rhyme consistency.
@@ -81,7 +81,7 @@ def analyze_lines(lines_syllables: list[list[str | None]]) -> StanzaReport:
         for idx, grp in xia_rimes[1:]:
             if grp != anchor:
                 report.violations.append(
-                    f"L{idx} (下句): 韵脚 '{grp}' 与首个下句韵脚 '{anchor}' 不押韵"
+                    f"L{idx} (下句): 韻腳 '{grp}' 與首個下句韻腳 '{anchor}' 不押韻"
                 )
 
     report.score = max(0, 100 - 15 * len(report.violations))

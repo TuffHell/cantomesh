@@ -119,3 +119,85 @@ export function verifyText(text) {
     ok: report.violations.length === 0,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Additional interactive tools (client-side, backed by the bundled dictionary).
+// ---------------------------------------------------------------------------
+
+export function lookup(ch) {
+  return BUNDLED[ch] || null;
+}
+
+// Per-character annotation of arbitrary text: Jyutping + tone + 平/仄 + rime.
+export function annotate(text) {
+  const out = [];
+  let covered = 0, total = 0;
+  for (const ch of text) {
+    if (ch === "\n") { out.push({ br: true }); continue; }
+    if (isCJK(ch)) {
+      total++;
+      const jp = BUNDLED[ch] || null;
+      if (jp) covered++;
+      out.push({
+        char: ch, jyutping: jp,
+        tone: jp ? toneOf(jp) : null,
+        pingze: jp ? pingZe(jp) : null,
+        rime: jp ? rime(jp) : null,
+      });
+    } else if (ch.trim()) {
+      out.push({ char: ch, punct: true });
+    }
+  }
+  return { tokens: out, coverage: total ? covered / total : 1, total };
+}
+
+// Find characters that rhyme with a query char (or raw Jyutping syllable).
+export function findRhymes(query, { limit = 160 } = {}) {
+  const q = (query || "").trim();
+  if (!q) return { target: null, group: null, total: 0, results: [] };
+  const targetJp = isCJK(q[0]) ? BUNDLED[q[0]] : q;
+  if (!targetJp) return { target: null, group: null, total: 0, results: [], unknown: q };
+  const g = groupOf(targetJp);
+  const seen = new Set();
+  const results = [];
+  for (const ch in BUNDLED) {
+    const jp = BUNDLED[ch];
+    if (groupOf(jp) !== g) continue;
+    if (seen.has(ch)) continue;
+    seen.add(ch);
+    results.push({ char: ch, jyutping: jp, pingze: pingZe(jp), tone: toneOf(jp) });
+  }
+  results.sort((a, b) =>
+    a.pingze !== b.pingze ? (a.pingze === PING ? -1 : 1) : a.tone - b.tone
+  );
+  return { target: targetJp, group: g, total: results.length, results: results.slice(0, limit) };
+}
+
+// Classic 平仄 line templates (一三五不论 flexibility noted in UI).
+export const TEMPLATES = {
+  "七字 · 上句（仄收）": "仄仄平平平仄仄",
+  "七字 · 下句（平收）": "平平仄仄仄平平",
+  "五字 · 上句（仄收）": "仄仄平平仄",
+  "五字 · 下句（平收）": "平平仄仄平",
+};
+
+// Compare a line against a 平/仄 template, position by position.
+export function checkTemplate(line, template) {
+  const pairs = romanize(line);
+  const cells = [];
+  let matches = 0, compared = 0;
+  pairs.forEach(([ch, jp], i) => {
+    const expected = template[i] || null;
+    const actual = jp ? pingZe(jp) : null;
+    const ok = expected && actual ? expected === actual : null;
+    if (ok !== null) { compared++; if (ok) matches++; }
+    cells.push({ char: ch, jyutping: jp, expected, actual, ok });
+  });
+  return {
+    cells,
+    lengthOk: pairs.length === template.length,
+    expectedLen: template.length,
+    actualLen: pairs.length,
+    matches, compared,
+  };
+}

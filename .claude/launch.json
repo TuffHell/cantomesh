@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cantomesh-web",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/static-server.mjs"],
+      "port": 8099
+    }
+  ]
+}

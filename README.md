@@ -8,7 +8,7 @@
 
 ### 🔗 Live demo → **https://tuffhell.github.io/cantomesh/**
 
-<sub>Animated 水墨 ink-wash canvas · offline 平仄 verifier (runs entirely in your browser)</sub>
+<sub>4 offline tools — 平仄 verify · 粤拼 annotate · 韵脚 rhyme finder · 句式 templates — over a <b>20,000-character</b> Jyutping dictionary, all in your browser</sub>
 
 </div>
 
@@ -99,6 +99,7 @@ docs/          ARCHITECTURE.md
 - [x] Claude-backed generate→verify→repair pipeline
 - [x] Web demo + REST API
 - [x] Animated public site (GitHub Pages) with browser-side 平仄 verifier
+- [x] 20,000+ char Jyutping dictionary (pycantonese + simplified fallback) + 3 more tools: 粤拼 annotate, 韵脚 rhyme finder, 句式 template checker
 - [ ] 依字行腔 melody mapping → Singing-Voice-Synthesis guide track
 - [ ] Pose-tracked 水墨 canvas service (MediaPipe BlazePose)
 - [ ] Vocal & Cantonese tone-contour assessment

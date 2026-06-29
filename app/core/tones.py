@@ -79,3 +79,24 @@ def ping_ze(jyutping: str) -> str:
     if is_checked(jyutping):
         return ZE
     return PING if tone in PING_TONES else ZE
+
+
+# 九聲六調 (nine tones / six contours). Tones 1/4 are 平; the rest are 仄.
+# 入聲 (checked) syllables carry only tones 1/3/6, named 陰入 / 中入 / 陽入.
+# Surfacing the names turns the verifier into a teacher, not just a gate.
+# (Tone-name idea salvaged from community PR #1 by @gutentag-cloud.)
+_SMOOTH_TONE_NAMES = {
+    1: "陰平", 2: "陰上", 3: "陰去",
+    4: "陽平", 5: "陽上", 6: "陽去",
+}
+_CHECKED_TONE_NAMES = {1: "陰入", 3: "中入", 6: "陽入"}
+
+
+def tone_name(jyutping: str) -> str | None:
+    """Return the traditional Cantonese tone name (九聲), or None if unmarked."""
+    tone = tone_of(jyutping)
+    if tone == 0:
+        return None
+    if is_checked(jyutping):
+        return _CHECKED_TONE_NAMES.get(tone, "入聲")
+    return _SMOOTH_TONE_NAMES.get(tone)

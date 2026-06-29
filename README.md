@@ -6,9 +6,9 @@
 
 *Greater Bay Area (粤港澳大湾区) cultural-confidence project · 非物质文化遗产活态传承*
 
-### 🔗 Live demo → **https://tuffhell.github.io/cantomesh/**
+### 🔗 Play live → **https://tuffhell.github.io/cantomesh/**
 
-<sub>4 offline tools — 平仄 verify · 粤拼 annotate · 韵脚 rhyme finder · 句式 templates — over a <b>20,000-character</b> Jyutping dictionary, all in your browser</sub>
+<sub><b>梨園闖關 — an educational game</b>: clear levels to learn 平仄 / 押韵 / 九聲六調, earn stars, and unlock 臉譜 opera masks. Every answer is graded live by the symbolic engine. Plus a <a href="https://tuffhell.github.io/cantomesh/tools.html">練功房 / toolkit</a> (4 tools over a 20,000-char Jyutping dictionary). All offline, in your browser.</sub>
 
 </div>
 
@@ -100,6 +100,7 @@ docs/          ARCHITECTURE.md
 - [x] Web demo + REST API
 - [x] Animated public site (GitHub Pages) with browser-side 平仄 verifier
 - [x] 20,000+ char Jyutping dictionary (pycantonese + simplified fallback) + 3 more tools: 粤拼 annotate, 韵脚 rhyme finder, 句式 template checker
+- [x] **梨園闖關 educational game** — engine-graded levels (辨平仄 / 對句押韵 / 判合律), 九聲六調 tone names, star progression, 寻面 opera-mask unlocks, localStorage save
 - [ ] 依字行腔 melody mapping → Singing-Voice-Synthesis guide track
 - [ ] Pose-tracked 水墨 canvas service (MediaPipe BlazePose)
 - [ ] Vocal & Cantonese tone-contour assessment

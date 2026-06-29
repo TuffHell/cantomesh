@@ -42,6 +42,17 @@ export function pingZe(jp) {
   return PING_TONES.has(toneOf(jp)) ? PING : ZE;
 }
 
+// 九聲六調 tone names (idea salvaged from community PR #1 by @gutentag-cloud).
+const SMOOTH_TONE_NAMES = { 1: "陰平", 2: "陰上", 3: "陰去", 4: "陽平", 5: "陽上", 6: "陽去" };
+const CHECKED_TONE_NAMES = { 1: "陰入", 3: "中入", 6: "陽入" };
+
+export function toneName(jp) {
+  const t = toneOf(jp);
+  if (!t) return null;
+  if (isChecked(jp)) return CHECKED_TONE_NAMES[t] || "入聲";
+  return SMOOTH_TONE_NAMES[t] || null;
+}
+
 // --- rhyme ---
 export function rime(jp) { return splitSyllable(jp)[1]; }
 
@@ -141,6 +152,7 @@ export function annotate(text) {
       out.push({
         char: ch, jyutping: jp,
         tone: jp ? toneOf(jp) : null,
+        toneName: jp ? toneName(jp) : null,
         pingze: jp ? pingZe(jp) : null,
         rime: jp ? rime(jp) : null,
       });

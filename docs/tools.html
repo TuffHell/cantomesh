@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>粤脉·镜 CANTOMESH · 粤剧平仄工具台</title>
+<meta name="description" content="粤脉·镜 CANTOMESH — 粤剧神经-符号引擎工具台：平仄校验、粤拼标注、韵脚检索、句式模板。20,000+ 字粤拼库，完全离线运行。" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html">
+    <span class="seal" aria-hidden="true">粤脉<br/>之镜</span>
+    <span class="word"><b>粤脉 · 镜</b><i>CANTOMESH</i></span>
+  </a>
+  <nav class="top-links">
+    <span class="dictstat" id="dictstat">粤拼库 · 加载中…</span>
+    <a href="index.html">🎭 闯关</a>
+    <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">GitHub ↗</a>
+  </nav>
+</div>
+
+<header class="hero" id="top">
+  <canvas id="ink" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <p class="kicker">粤剧 · 神经-符号引擎 · 粤港澳大湾区非遗活态传承</p>
+    <h1>平仄工具台</h1>
+    <p class="lede">为撰曲而生的四件工具：<b>校验平仄</b>、<b>粤拼标注</b>、<b>韵脚检索</b>、<b>句式模板</b>。
+      二万余字粤拼库，全在浏览器内离线运算——规则透明，即是可审计的非遗诚信。</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-tab="verify">① 平仄校验</button>
+    <button class="tab" data-tab="annotate">② 粤拼标注</button>
+    <button class="tab" data-tab="rhyme">③ 韵脚检索</button>
+    <button class="tab" data-tab="template">④ 句式模板</button>
+    <button class="tab" data-tab="translate">⑤ 跨代生成</button>
+  </div>
+
+  <!-- 1 -->
+  <section class="panel" id="panel-verify">
+    <div class="card">
+      <h2>平仄校验 <small>Verify</small></h2>
+      <p class="hint">按行或标点分句。上句（单数）句末须仄；下句（双数）句末须平且押同一韵。</p>
+      <textarea id="verify-in" rows="3" placeholder="大湾花开千川月&#10;粤韵声声爱国家"></textarea>
+      <div class="controls">
+        <button id="verify-run" class="primary">校验</button>
+        <button id="verify-sample" class="ghost">示例</button>
+        <span class="kbd">⌘/Ctrl + Enter</span>
+        <span class="legend"><b class="ping">平</b>阴平/阳平 · <b class="ze">仄</b>上去入声</span>
+      </div>
+    </div>
+    <div class="card out" id="verify-out"></div>
+  </section>
+
+  <!-- 2 -->
+  <section class="panel" id="panel-annotate" hidden>
+    <div class="card">
+      <h2>粤拼标注 <small>Annotate</small></h2>
+      <p class="hint">粘贴任意中文（简繁皆可），逐字标注粤拼、声调与平仄，并显示标音覆盖率。</p>
+      <textarea id="annotate-in" rows="3" placeholder="我哋一齐撑粤剧，唱到全世界。"></textarea>
+      <div class="controls">
+        <button id="annotate-run" class="primary">标注</button>
+        <button id="annotate-sample" class="ghost">示例</button>
+      </div>
+    </div>
+    <div class="card out" id="annotate-out"></div>
+  </section>
+
+  <!-- 3 -->
+  <section class="panel" id="panel-rhyme" hidden>
+    <div class="card">
+      <h2>韵脚检索 <small>Rhyme</small></h2>
+      <p class="hint">输入一个汉字或粤拼（如 <code>家</code> 或 <code>gaa1</code>），检索同韵母组的字，按平/仄分列。</p>
+      <div class="controls">
+        <input id="rhyme-in" class="oneline" placeholder="家 / gaa1" />
+        <button id="rhyme-run" class="primary">检索</button>
+      </div>
+    </div>
+    <div class="card out" id="rhyme-out"></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="panel" id="panel-template" hidden>
+    <div class="card">
+      <h2>句式模板 <small>Template</small></h2>
+      <p class="hint">选择平仄模板，逐位比对你的句子是否合律。</p>
+      <div class="controls">
+        <select id="tmpl-select" class="oneline"></select>
+      </div>
+      <textarea id="tmpl-in" rows="2" placeholder="粤韵声声爱国家"></textarea>
+      <div class="controls">
+        <button id="tmpl-run" class="primary">比对</button>
+        <button id="tmpl-sample" class="ghost">示例</button>
+      </div>
+    </div>
+    <div class="card out" id="tmpl-out"></div>
+  </section>
+
+  <!-- 5 -->
+  <section class="panel" id="panel-translate" hidden>
+    <div class="card">
+      <h2>跨代生成 <small>Translate</small></h2>
+      <p class="hint">将现代白话 / 流行歌词，经 <b>Claude 起草 → 平仄校验 → 违规重写</b> 的神经-符号回路生成唱词。</p>
+      <p class="note">生成需调用大模型，密钥不能置于公开页面，故运行于
+        <a href="https://github.com/TuffHell/cantomesh#quickstart" target="_blank" rel="noopener">FastAPI 后端</a>。
+        本工具台为公开静态站，专注离线分析四件套。本地启用：
+        <code>uvicorn app.main:app --reload</code> 并设置 <code>ANTHROPIC_API_KEY</code>。</p>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  粤脉·镜 CANTOMESH · 唱念做打 · 文场/武场 · 平仄 · 亮相 · 端侧多模态 AI 生态<br/>
+  <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">github.com/TuffHell/cantomesh</a>
+</footer>
+
+<script type="module">
+  import { BUNDLED } from "./js/jyutping-data.js";
+  document.getElementById("dictstat").textContent =
+    `粤拼库 · ${Object.keys(BUNDLED).length.toLocaleString()} 字`;
+</script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

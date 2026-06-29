@@ -6,6 +6,7 @@ from app.core.tones import (
     is_checked,
     ping_ze,
     split_syllable,
+    tone_name,
     tone_of,
 )
 
@@ -48,3 +49,12 @@ def test_checked_overrides_level_tone():
     # 月 is jyut6 -> tone 6 already 仄, but the override matters for tone-1 入聲.
     assert ping_ze("jyut6") == ZE
     assert ping_ze("sik1") == ZE         # 識 high 入聲, tone 1 but checked -> 仄
+
+
+def test_tone_name_九聲():
+    assert tone_name("si1") == "陰平"     # 詩
+    assert tone_name("si4") == "陽平"     # 時
+    assert tone_name("si6") == "陽去"     # 事
+    assert tone_name("sik1") == "陰入"    # 識 (checked tone 1)
+    assert tone_name("sik6") == "陽入"    # 食 (checked tone 6)
+    assert tone_name("aa") is None        # unmarked

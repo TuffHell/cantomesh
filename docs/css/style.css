@@ -305,6 +305,39 @@ body.game { background: var(--bg); }
 .mask-name span { color: var(--muted); }
 .mask-line { color: var(--muted); font-size: 0.9rem; margin: 0.2rem 0 0; }
 
+/* narrative intro */
+.intro { position: relative; min-height: 82vh; display: grid; place-items: center; overflow: hidden; }
+.intro #ink { position: absolute; inset: 0; width: 100%; height: 100%; }
+.intro-in { position: relative; z-index: 1; max-width: 32ch; text-align: center; padding: 2rem 1rem; }
+.intro .kicker { font-family: var(--kai); color: var(--vermilion); letter-spacing: 0.3em; margin-bottom: 1rem; }
+.beat { font-family: var(--kai); font-size: clamp(1.3rem, 1rem + 2.4vw, 2.1rem); line-height: 1.9; margin: 0.6rem 0; opacity: 0; animation: rise 1.1s var(--ease) both; }
+.intro-cta { margin-top: 1.8rem; display: flex; gap: 0.8rem; justify-content: center; opacity: 0; animation: rise 1.1s var(--ease) both; }
+
+/* impact / mission band */
+.impact { display: grid; grid-template-columns: minmax(200px, 0.85fr) 1.6fr; gap: 1rem; margin-top: 1.4rem; }
+@media (max-width: 640px) { .impact { grid-template-columns: 1fr; } }
+.impact-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.3rem; box-shadow: var(--shadow); }
+.impact-card h3 { font-family: var(--kai); margin: 0 0 0.7rem; font-size: 1.05rem; letter-spacing: 0.08em; }
+.stats-card .stat-row { display: flex; gap: 1.6rem; }
+.stat-row > div { display: flex; flex-direction: column; }
+.stat-row b { font-family: var(--kai); font-size: 1.9rem; color: var(--jade); line-height: 1; }
+.stat-row span { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; }
+.mission-card { border-left: 3px solid var(--gold); }
+.mission-card p { margin: 0; font-size: 0.95rem; color: var(--ink); }
+.mission-card b { color: var(--vermilion-deep); }
+#replay-intro { text-decoration: none; color: var(--vermilion); font-size: 0.92rem; }
+
+/* interactive cartoon opera figures */
+.opera-figure { display: block; overflow: visible; user-select: none; touch-action: manipulation; }
+.hero-figure { position: absolute; right: clamp(-12px, 3vw, 60px); bottom: -8px; z-index: 1; pointer-events: none; }
+.hero-figure .opera-figure { pointer-events: auto; width: clamp(120px, 22vw, 210px); height: auto; filter: drop-shadow(0 16px 22px rgba(0,0,0,0.18)); }
+.intro-figure { display: flex; justify-content: center; margin-bottom: 0.4rem; }
+.intro-figure .opera-figure { width: clamp(150px, 42vw, 196px); height: auto; filter: drop-shadow(0 14px 20px rgba(0,0,0,0.2)); }
+.result-figure { display: flex; justify-content: center; }
+.result-figure .opera-figure { width: 148px; height: auto; filter: drop-shadow(0 12px 18px rgba(0,0,0,0.2)); }
+@media (min-width: 620px) { .g-hero-in { padding-right: 240px; } }
+@media (max-width: 619px) { .hero-figure { display: none; } }  /* mobile: keep nav clear; intro+win figures remain */
+
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {

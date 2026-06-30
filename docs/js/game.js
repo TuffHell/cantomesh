@@ -2,20 +2,49 @@
 import { pingZe, toneName, lookup, groupOf, verifyText, toneOf } from "./prosody.js";
 import { WORLDS, STAGES, STAGE_IDS, MASKS } from "./levels.js";
 import { maskSVG } from "./masks.js";
+import { createOperaFigure } from "./opera-figure.js";
 
 const SAVE_KEY = "cantomesh.quest.v1";
 const app = document.getElementById("app");
+
+// Animated opera figures: track them so each screen change tears down rAF loops.
+let figures = [];
+function clearFigures() { figures.forEach((f) => f.destroy()); figures = []; }
+function mountFigure(sel, opts) {
+  const host = document.querySelector(sel);
+  if (!host) return null;
+  const f = createOperaFigure(opts);
+  host.append(f.el);
+  figures.push(f);
+  return f;
+}
 
 /* ---------------- persistence ---------------- */
 function load() {
   try {
     const raw = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if (raw && raw.stars) return raw;
+    if (raw && raw.stars) return { stats: { correct: 0, total: 0, seen: {} }, seenIntro: false, ...raw };
   } catch { /* ignore */ }
-  return { stars: {}, cleared: {}, masks: [] };
+  return { stars: {}, cleared: {}, masks: [], stats: { correct: 0, total: 0, seen: {} }, seenIntro: false };
 }
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(progress)); } catch { /* ignore */ } }
 let progress = load();
+
+// Measured-pedagogy tracking (a learning-outcomes signal — the OperAR / ASIA lesson).
+function recordAnswer(ok, chars) {
+  progress.stats.total++;
+  if (ok) progress.stats.correct++;
+  for (const c of chars) if (lookup(c)) progress.stats.seen[c] = true;
+  save();
+}
+function roundChars(r) {
+  if (r.kind === "tone") return [r.char];
+  if (r.kind === "rhyme") return [...r.shang, ...r.xiaPrefix];
+  if (r.kind === "verify") return [...r.couplet.replace(/\n/g, "")];
+  return [];
+}
+const masteredCount = () => Object.keys(progress.stats.seen).length;
+const accuracy = () => progress.stats.total ? Math.round((progress.stats.correct / progress.stats.total) * 100) : 0;
 
 const totalStars = () => Object.values(progress.stars).reduce((a, b) => a + b, 0);
 const maxStars = () => STAGES.length * 3;
@@ -104,9 +133,11 @@ const buildRound = (r) => BUILDERS[r.kind](r);
 
 /* ---------------- screens ---------------- */
 function renderMap() {
+  clearFigures();
   const pct = Math.round((totalStars() / maxStars()) * 100);
   let html = `
     <header class="g-hero"><canvas id="ink" aria-hidden="true"></canvas>
+      <div class="hero-figure" id="hero-fig" aria-hidden="true"></div>
       <div class="g-hero-in">
         <p class="kicker">粵劇 · 平仄闖關 · 寓教於戲</p>
         <h1>梨園闖關</h1>
@@ -114,12 +145,27 @@ function renderMap() {
         <div class="statline">
           <span>★ ${totalStars()} / ${maxStars()}</span>
           <span>面譜 ${progress.masks.length} / 4</span>
+          <a href="#" id="replay-intro">序章 ↻</a>
           <a class="tools-link" href="tools.html">練功房 · 工具 ↗</a>
         </div>
         <div class="pbar"><i style="width:${pct}%"></i></div>
       </div>
     </header>
-    <main class="wrap">`;
+    <main class="wrap">
+      <section class="impact">
+        <div class="impact-card stats-card">
+          <h3>學藝成效</h3>
+          <div class="stat-row">
+            <div><b>${masteredCount()}</b><span>已習字</span></div>
+            <div><b>${accuracy()}%</b><span>答對率</span></div>
+            <div><b>${progress.stats.total}</b><span>累計答題</span></div>
+          </div>
+        </div>
+        <div class="impact-card mission-card">
+          <h3>使命 · 文化人人可及</h3>
+          <p>粤劇乃聯合國非遺，卻日漸式微。本作以<b>零門檻、零硬件、全離線</b>之姿，讓大灣區青年與全球華人皆可親手習藝——傳承，人人可及。評分全由<b>透明的符號引擎</b>實時裁定。</p>
+        </div>
+      </section>`;
 
   if (progress.masks.length) {
     html += `<section class="mask-shelf"><h3>已解鎖臉譜</h3><div class="masks">` +
@@ -148,6 +194,34 @@ function renderMap() {
 
   app.querySelectorAll(".stage:not(.locked)").forEach((b) =>
     b.addEventListener("click", () => startStage(b.dataset.stage)));
+  $("#replay-intro")?.addEventListener("click", (e) => { e.preventDefault(); renderIntro(); });
+  mountFigure("#hero-fig", { role: "daan", size: 210 });
+  bootInk();
+}
+
+/* ---------------- narrative intro (story-first onboarding) ---------------- */
+const INTRO_BEATS = [
+  "百年粵韻，唱念做打，曾響徹珠江兩岸。",
+  "如今老倌漸老，戲臺漸冷——這一棒，誰來接？",
+  "今日由你執筆：闖關習藝，讓粵劇在你聲中重生。",
+];
+function renderIntro() {
+  clearFigures();
+  app.innerHTML = `<main class="wrap intro"><canvas id="ink" aria-hidden="true"></canvas>
+    <div class="intro-in">
+      <div class="intro-figure" id="intro-fig" aria-hidden="true"></div>
+      <p class="kicker">梨園闖關 · 序</p>
+      ${INTRO_BEATS.map((b, i) => `<p class="beat" style="animation-delay:${0.3 + i * 0.9}s">${b}</p>`).join("")}
+      <div class="intro-cta" style="animation-delay:${0.3 + INTRO_BEATS.length * 0.9}s">
+        <button class="primary" id="begin">拜師學藝 →</button>
+        <button class="ghost" id="skip">略過</button>
+      </div>
+    </div></main>`;
+  const done = () => { progress.seenIntro = true; save(); renderMap(); };
+  $("#begin").addEventListener("click", done);
+  $("#skip").addEventListener("click", done);
+  const master = mountFigure("#intro-fig", { role: "sang", size: 200 });
+  if (master) setTimeout(() => master.pose(), 900); // a welcoming 亮相
   bootInk();
 }
 
@@ -160,6 +234,7 @@ function startStage(stageId) {
 }
 
 function renderRound(stage, run) {
+  clearFigures();
   const r = buildRound(stage.rounds[run.i]);
   app.innerHTML = `
     <main class="wrap play">
@@ -187,6 +262,7 @@ function renderRound(stage, run) {
     answered = true;
     const res = r.reveal(btn.dataset.v);
     if (res.ok) run.correct++;
+    recordAnswer(res.ok, roundChars(stage.rounds[run.i]));
     app.querySelectorAll(".opt").forEach((b) => {
       b.disabled = true;
       if (b.dataset.v === r.answer) b.classList.add("correct");
@@ -207,6 +283,7 @@ function renderRound(stage, run) {
 }
 
 function finishStage(stage, run) {
+  clearFigures();
   const ratio = run.correct / run.total;
   const stars = ratio === 1 ? 3 : ratio >= 0.7 ? 2 : ratio >= 0.5 ? 1 : 0;
   const cleared = stars >= 1;
@@ -226,6 +303,7 @@ function finishStage(stage, run) {
 
   app.innerHTML = `<main class="wrap result">
     <div class="card center">
+      ${cleared ? `<div class="result-figure" id="result-fig" aria-hidden="true"></div>` : ""}
       <p class="kicker">${esc(stage.title)} · 完成</p>
       <div class="bigstars ${stars ? "" : "none"}">${stars ? starStr(stars) : "未過關"}</div>
       <p>答對 ${run.correct} / ${run.total}</p>
@@ -236,6 +314,10 @@ function finishStage(stage, run) {
       </div>
     </div></main>`;
   if (unlockedMask) requestAnimationFrame(() => $(".mask-reward")?.classList.add("show"));
+  if (cleared) {
+    const star = mountFigure("#result-fig", { role: "daan", size: 150 });
+    if (star) { star.pose(); setTimeout(() => star.pose(), 700); }
+  }
   $("#tomap").addEventListener("click", renderMap);
   $("#retry")?.addEventListener("click", () => startStage(stage.id));
 }
@@ -255,4 +337,6 @@ async function bootInk() {
   try { const { startInkHero } = await import("./ink-hero.js"); startInkHero(c); } catch { /* ok */ }
 }
 
-renderMap();
+// boot: first-time visitors see the story; returning players land on the map.
+if (progress.seenIntro) renderMap();
+else renderIntro();

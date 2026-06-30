@@ -103,6 +103,8 @@ Color is **semantic**: 平 always jade, 仄 always vermilion — across game, to
 | Curriculum | `js/levels.js` | worlds → stages → engine-graded rounds |
 | Game state machine | `js/game.js` | screens, scoring, localStorage, stats |
 | Opera figures | `js/opera-figure.js` | animated interactive performers |
+| Pose scoring core | `js/pose-coach.js` | pure biomechanical 身段 rubric (unit-tested) |
+| Pose trainer (AI) | `js/pose-trainer.js` | webcam → MediaPipe Pose → live scoring |
 | 臉譜 masks | `js/masks.js` | SVG unlock rewards |
 | Ink atmosphere | `js/ink-hero.js` | contained 水墨 canvas |
 | Toolkit | `tools.html` + `js/app.js` | 4 power tools (練功房) |
@@ -111,7 +113,8 @@ Color is **semantic**: 平 always jade, 仄 always vermilion — across game, to
 
 ## 7. Roadmap toward a full Dunhuang-grade experience
 
-1. **Scrollytelling 序章** — replace the static intro with scroll-revealed chapters (story → why it matters → play), IntersectionObserver-driven.
+1. **身段訓練 (movement training, ✅ v1 shipped)** — on-device MediaPipe Pose scores 山膀/順風旗/亮相 by joint-angle rubric with 亮相 hold-detection. Next: 手眼身法步 expansion, AR 脸谱 face-mesh overlay (§2.2), and reference-silhouette ghosting.
+2. **Scrollytelling 序章** — replace the static intro with scroll-revealed chapters (story → why it matters → play), IntersectionObserver-driven.
 2. **依字行腔 audio** — sing-back guide track so the user *hears* their verse; reactive 文场/武场 stingers on 亮相.
 3. **Zoomable artifact mode** — a "walk into the 戏台" hero with explorable 行当 / 脸谱 lore (Dunhuang's zoomable-cave analogue).
 4. **Measured-outcomes study** — instrument a pre/post assessment (mirroring the *Sci Reports* VR-opera RCT) to produce citable learning evidence for the pitch.

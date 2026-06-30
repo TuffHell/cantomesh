@@ -19,6 +19,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }  /* author display rules must not override the hidden attribute */
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
@@ -337,6 +338,40 @@ body.game { background: var(--bg); }
 .result-figure .opera-figure { width: 148px; height: auto; filter: drop-shadow(0 12px 18px rgba(0,0,0,0.2)); }
 @media (min-width: 620px) { .g-hero-in { padding-right: 240px; } }
 @media (max-width: 619px) { .hero-figure { display: none; } }  /* mobile: keep nav clear; intro+win figures remain */
+
+/* 身段訓練 — map CTA */
+.train-cta { margin-top: 1rem; }
+.train-card { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; border-left: 3px solid var(--vermilion); }
+.train-card h3 { font-family: var(--kai); margin: 0 0 0.3rem; font-size: 1.15rem; }
+.train-card p { margin: 0; color: var(--ink); font-size: 0.92rem; max-width: 60ch; }
+.train-card b { color: var(--vermilion-deep); }
+.train-card button { margin-left: auto; white-space: nowrap; }
+
+/* 身段訓練 — trainer screen */
+.trainer { max-width: 980px; }
+.pose-tabs { display: flex; gap: 0.4rem; }
+.ptab { cursor: pointer; font-family: var(--kai); font-size: 1rem; border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 999px; padding: 0.35rem 0.95rem; }
+.ptab.active { color: #fff; background: linear-gradient(160deg, var(--vermilion), var(--vermilion-deep)); border-color: transparent; }
+.trainer-stage { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.4rem; align-items: start; }
+@media (max-width: 720px) { .trainer-stage { grid-template-columns: 1fr; } }
+.cam-wrap { position: relative; aspect-ratio: 4 / 3; background: #1c1814; border-radius: 12px; overflow: hidden; }
+#cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: block; }
+#skel { position: absolute; inset: 0; width: 100%; height: 100%; transform: scaleX(-1); pointer-events: none; }
+.cam-status { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 1.4rem; color: #f4efe6; background: rgba(28,24,20,0.72); font-size: 0.95rem; line-height: 1.7; }
+.peak-badge { position: absolute; top: 0.7rem; left: 0.7rem; background: var(--jade); color: #fff; font-family: var(--kai); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.9rem; box-shadow: 0 6px 14px -6px rgba(0,0,0,0.5); animation: rise 0.4s var(--ease) both; }
+.coach h2 { font-family: var(--kai); margin: 0 0 0.3rem; font-size: 1.6rem; letter-spacing: 0.06em; }
+.coach .cue { color: var(--muted); margin: 0 0 1rem; font-size: 0.95rem; line-height: 1.7; }
+.score-meter { position: relative; height: 16px; background: rgba(0,0,0,0.08); border-radius: 99px; overflow: hidden; }
+.score-meter #score-fill { display: block; height: 100%; width: 0%; background: var(--gold); border-radius: 99px; transition: width 0.12s linear, background 0.2s; }
+.score-meter #pass-mark { position: absolute; top: -3px; width: 2px; height: 22px; background: var(--vermilion); opacity: 0.6; }
+.score-line { display: flex; align-items: baseline; gap: 0.6rem; margin: 0.5rem 0 0.2rem; }
+#score-num { font-family: var(--kai); font-size: 2.6rem; color: var(--jade); line-height: 1; }
+#best-num { color: var(--muted); font-size: 0.85rem; }
+.coach-hint { font-size: 1.02rem; color: var(--ink); min-height: 1.6em; margin: 0.4rem 0; }
+.hold-row { display: flex; align-items: center; gap: 0.6rem; font-family: var(--kai); color: var(--muted); }
+.hold-track { flex: 1; height: 8px; background: rgba(0,0,0,0.08); border-radius: 99px; overflow: hidden; }
+#hold-fill { display: block; height: 100%; width: 0%; background: var(--vermilion); border-radius: 99px; transition: width 0.1s linear; }
+.privacy { font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
 
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 

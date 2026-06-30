@@ -3,6 +3,7 @@ import { pingZe, toneName, lookup, groupOf, verifyText, toneOf } from "./prosody
 import { WORLDS, STAGES, STAGE_IDS, MASKS } from "./levels.js";
 import { maskSVG } from "./masks.js";
 import { createOperaFigure } from "./opera-figure.js";
+import { openPoseTrainer } from "./pose-trainer.js";
 
 const SAVE_KEY = "cantomesh.quest.v1";
 const app = document.getElementById("app");
@@ -165,6 +166,15 @@ function renderMap() {
           <h3>使命 · 文化人人可及</h3>
           <p>粤劇乃聯合國非遺，卻日漸式微。本作以<b>零門檻、零硬件、全離線</b>之姿，讓大灣區青年與全球華人皆可親手習藝——傳承，人人可及。評分全由<b>透明的符號引擎</b>實時裁定。</p>
         </div>
+      </section>
+      <section class="train-cta">
+        <div class="impact-card train-card">
+          <div>
+            <h3>身段訓練 · 體感 AI</h3>
+            <p>開啟鏡頭，以姿態辨識（MediaPipe）<b>實時評分</b>你的山膀、順風旗與亮相——關節角度量化，逐關精進。影像僅在本機處理，不上傳。</p>
+          </div>
+          <button class="primary" id="open-trainer">開始體感訓練 →</button>
+        </div>
       </section>`;
 
   if (progress.masks.length) {
@@ -195,8 +205,14 @@ function renderMap() {
   app.querySelectorAll(".stage:not(.locked)").forEach((b) =>
     b.addEventListener("click", () => startStage(b.dataset.stage)));
   $("#replay-intro")?.addEventListener("click", (e) => { e.preventDefault(); renderIntro(); });
+  $("#open-trainer")?.addEventListener("click", startTrainer);
   mountFigure("#hero-fig", { role: "daan", size: 210 });
   bootInk();
+}
+
+function startTrainer() {
+  clearFigures();
+  openPoseTrainer(app, renderMap);
 }
 
 /* ---------------- narrative intro (story-first onboarding) ---------------- */

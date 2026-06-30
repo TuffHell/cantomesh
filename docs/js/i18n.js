@@ -1,0 +1,129 @@
+// Lightweight i18n so non-Chinese speakers can learn through the system.
+// t(key, vars) -> string, with {var} interpolation. Falls back zh -> key.
+// Opera terms (平/仄, 上句, 山膀…) are kept and *glossed* in English, not erased —
+// the point is to teach the heritage vocabulary, not hide it.
+
+const KEY = "cantomesh.lang";
+export const LANGS = { en: "English", zh: "繁體中文" };
+
+export function getLang() {
+  const l = localStorage.getItem(KEY);
+  return l && DICT[l] ? l : null;
+}
+export function setLang(l) { try { localStorage.setItem(KEY, l); } catch { /* ignore */ } }
+
+export function t(key, vars) {
+  const lang = getLang() || "zh";
+  let s = (DICT[lang] && DICT[lang][key]) ?? DICT.zh[key] ?? key;
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, v);
+  return s;
+}
+
+const DICT = {
+  zh: {
+    "lang.title": "選擇語言", "lang.sub": "本系統助你從零學習粵劇——無需任何中文基礎。",
+    "intro.kicker": "梨園闖關 · 序",
+    "intro.beat1": "百年粵韻，唱念做打，曾響徹珠江兩岸。",
+    "intro.beat2": "如今老倌漸老，戲臺漸冷——這一棒，誰來接？",
+    "intro.beat3": "今日由你執筆：闖關習藝，讓粵劇在你聲中重生。",
+    "intro.begin": "拜師學藝 →", "intro.skip": "略過",
+    "map.kicker": "粵劇 · 平仄闖關 · 寓教於戲", "map.title": "梨園闖關",
+    "map.lede": "闖關習平仄、辨九聲、對佳句——集星以解鎖<b>臉譜</b>，成梨園宗師。",
+    "map.replay": "序章 ↻", "map.tools": "練功房 · 工具 ↗", "map.masks": "面譜",
+    "stats.title": "學藝成效", "stats.learned": "已習字", "stats.acc": "答對率", "stats.total": "累計答題",
+    "mission.title": "使命 · 文化人人可及",
+    "mission.body": "粵劇乃聯合國非遺，卻日漸式微。本作以<b>零門檻、零硬件、全離線</b>之姿，讓全球任何人——不論是否懂中文——皆可親手習藝。傳承，人人可及。",
+    "train.title": "身段訓練 · 體感 AI",
+    "train.body": "開啟鏡頭，以姿態辨識（MediaPipe）<b>實時評分</b>你的山膀、順風旗與亮相——關節角度量化，逐關精進。影像僅在本機處理，不上傳。",
+    "train.btn": "開始體感訓練 →",
+    "ar.title": "AR 尋面 · 試臉譜",
+    "ar.body": "開啟鏡頭，以人臉辨識把粵劇<b>臉譜</b>實時罩於你臉上——左右轉頭，臉譜隨之而動。影像僅在本機處理。",
+    "ar.btn": "開啟 AR 臉譜 →",
+    "common.back": "← 返回", "common.quit": "← 退關",
+    "ch.tone.q": "「<b class=\"big\">{char}</b>」 是 <b>平聲</b> 還是 <b>仄聲</b>？",
+    "opt.ping": "平", "opt.ze": "仄",
+    "ch.rhyme.q": "補下句末字，使其 <b>平收</b> 且與「{rhyme}」<b>同韻</b>：",
+    "label.shang": "上句", "label.xia": "下句",
+    "ch.verify.q": "此聯是否 <b>合律</b>？",
+    "opt.valid": "合律", "opt.invalid": "失律",
+    "verdict.right": "✓ 答對", "verdict.wrong": "✗ 再思",
+    "btn.next": "下一題 →", "btn.finish": "完成本關",
+    "result.done": "完成", "result.correct": "答對 {c} / {t}",
+    "result.retry": "重練", "result.tomap": "回地圖", "result.fail": "未過關",
+    "reveal.ping": "{name}（第{t}聲）屬<b>平聲</b>——陰平、陽平聲長而穩。",
+    "reveal.ru": "{name}（入聲）收 -p/-t/-k，短促，<b>入聲皆仄</b>。",
+    "reveal.ze": "{name}（第{t}聲）屬<b>仄聲</b>——上、去、入聲皆仄。",
+    "reveal.rhyme.ok": "「{ch}」{jp} 為平聲，韻母「{g}」與「{rhyme}」相同，平收且押韻。",
+    "reveal.rhyme.prefix": "「{ch}」{jp}：", "reveal.rhyme.notlevel": "非平收（句末應為平）；", "reveal.rhyme.notrhyme": "韻母「{g}」與「{rhyme}」不同韻。",
+    "reveal.verify.ok": "句末平仄與押韻俱合：上句仄收，下句平收。",
+    "mask.unlocked": "🎭 解鎖臉譜", "masks.shelf": "已解鎖臉譜",
+    "pose.saanbong.name": "山膀", "pose.saanbong.cue": "雙臂環抱於身前，沉肩墜肘，掌心向外，掌與肩平。",
+    "pose.seonfung.name": "順風旗", "pose.seonfung.cue": "一臂高舉過頂，另一臂平展如旗，舒展挺拔。",
+    "pose.liongseong.name": "亮相", "pose.liongseong.cue": "一臂高指，一臂橫展，凝神定格——穩住一秒。",
+    "trainer.stand": "請站到鏡頭前，全身入鏡。", "trainer.framing": "請讓全身（含雙臂）清楚入鏡。",
+    "trainer.hold": "穩住！漂亮的身段。", "trainer.adjust": "調整姿勢，貼近示範。", "trainer.holding": "定格",
+    "trainer.best": "最佳 {n}", "trainer.pass": "✓ {name} 達標 {n}",
+    "cam.start": "啟動鏡頭中…", "cam.model": "載入體感模型中…（首次約數秒）",
+    "cam.denied": "無法啟用鏡頭（{err}）。<br>請允許相機權限，並用 HTTPS 開啟本頁。",
+    "cam.modelfail": "模型載入失敗（需連網下載一次）。<br>{msg}",
+    "privacy": "🔒 影像僅在本機即時處理，不會上傳。",
+    "ar.pickmask": "選一張臉譜：", "ar.detecting": "尋找人臉中…請正對鏡頭。",
+    "hint.bendElbow": "手肘彎成弧形，環抱於前。", "hint.handsShoulder": "雙掌抬至與肩同高。",
+    "hint.raiseAbove": "把手臂高舉過頭頂。", "hint.straightenRaised": "舉起的手臂再伸直。",
+    "hint.extendLevel": "另一臂平展，與肩同高。", "hint.pointHigh": "一手高指，舉過頭頂。",
+    "hint.straightenExtended": "橫展的手臂再伸直。",
+  },
+  en: {
+    "lang.title": "Choose your language", "lang.sub": "Learn Cantonese opera from zero — no Chinese needed.",
+    "intro.kicker": "Pear Garden Quest · Prologue",
+    "intro.beat1": "For a century, Cantonese opera rang out across the Pearl River.",
+    "intro.beat2": "Now the masters grow old and the stage grows cold — who carries it on?",
+    "intro.beat3": "Today the brush is yours: clear the levels, and let the art live again in your voice.",
+    "intro.begin": "Begin training →", "intro.skip": "Skip",
+    "map.kicker": "Cantonese Opera · Tone & Rhyme Quest", "map.title": "Pear Garden Quest",
+    "map.lede": "Learn 平仄 tones, the nine tones, and couplets — earn stars to unlock opera <b>masks</b> and become a master.",
+    "map.replay": "Prologue ↻", "map.tools": "Practice Room · Tools ↗", "map.masks": "Masks",
+    "stats.title": "Your Progress", "stats.learned": "chars learned", "stats.acc": "accuracy", "stats.total": "answered",
+    "mission.title": "Mission · Heritage for everyone",
+    "mission.body": "Cantonese opera is UNESCO heritage, yet fading. This works with <b>zero cost, zero hardware, fully offline</b> — so anyone in the world, Chinese-speaking or not, can learn it hands-on. Heritage, accessible to all.",
+    "train.title": "Movement Training · Motion AI",
+    "train.body": "Turn on your camera: on-device pose tracking (MediaPipe) <b>scores in real time</b> your 山膀 (frame), 順風旗 (flag) and 亮相 (freeze pose) by joint angles. Video is processed on-device only — never uploaded.",
+    "train.btn": "Start motion training →",
+    "ar.title": "AR Mask · Try on a 臉譜",
+    "ar.body": "Turn on your camera: face tracking overlays a Cantonese opera <b>mask (臉譜)</b> on your face in real time — turn your head and it follows. Processed on-device only.",
+    "ar.btn": "Open AR mask →",
+    "common.back": "← Back", "common.quit": "← Quit",
+    "ch.tone.q": "Is 「<b class=\"big\">{char}</b>」 a <b>level tone (平)</b> or an <b>oblique tone (仄)</b>?",
+    "opt.ping": "平 level", "opt.ze": "仄 oblique",
+    "ch.rhyme.q": "Pick the last word so line 2 ends <b>level (平)</b> and <b>rhymes</b> with 「{rhyme}」:",
+    "label.shang": "Line 1", "label.xia": "Line 2",
+    "ch.verify.q": "Is this couplet <b>metrically valid (合律)</b>?",
+    "opt.valid": "Valid", "opt.invalid": "Invalid",
+    "verdict.right": "✓ Correct", "verdict.wrong": "✗ Rethink",
+    "btn.next": "Next →", "btn.finish": "Finish stage",
+    "result.done": "Complete", "result.correct": "{c} / {t} correct",
+    "result.retry": "Retry", "result.tomap": "Map", "result.fail": "Not cleared",
+    "reveal.ping": "{name} (tone {t}) is a <b>level tone (平)</b> — long and steady.",
+    "reveal.ru": "{name} is an entering tone, ending -p/-t/-k: short and clipped — <b>always oblique (仄)</b>.",
+    "reveal.ze": "{name} (tone {t}) is an <b>oblique tone (仄)</b> — rising, departing and entering tones are all 仄.",
+    "reveal.rhyme.ok": "「{ch}」{jp} is level (平); its rime「{g}」matches「{rhyme}」— level-ending and rhyming.",
+    "reveal.rhyme.prefix": "「{ch}」{jp}: ", "reveal.rhyme.notlevel": "not a level ending (line must end 平); ", "reveal.rhyme.notrhyme": "rime「{g}」doesn't match「{rhyme}」.",
+    "reveal.verify.ok": "Tones and rhyme both hold: line 1 ends oblique, line 2 ends level.",
+    "mask.unlocked": "🎭 Mask unlocked", "masks.shelf": "Unlocked masks",
+    "pose.saanbong.name": "山膀 · Frame", "pose.saanbong.cue": "Both arms held in a rounded frame, shoulders down, palms out, hands at shoulder height.",
+    "pose.seonfung.name": "順風旗 · Flag", "pose.seonfung.cue": "One arm raised above the head, the other extended sideways like a flag.",
+    "pose.liongseong.name": "亮相 · Freeze", "pose.liongseong.cue": "One arm points high, one extends across — freeze and hold for one second.",
+    "trainer.stand": "Stand in front of the camera with your whole body in frame.", "trainer.framing": "Get your whole body (and both arms) clearly in frame.",
+    "trainer.hold": "Hold it — beautiful form!", "trainer.adjust": "Adjust your posture to match the model.", "trainer.holding": "Hold",
+    "trainer.best": "Best {n}", "trainer.pass": "✓ {name} passed {n}",
+    "cam.start": "Starting camera…", "cam.model": "Loading motion model… (a few seconds the first time)",
+    "cam.denied": "Camera unavailable ({err}).<br>Please allow camera permission and open this page over HTTPS.",
+    "cam.modelfail": "Model failed to load (needs a one-time download).<br>{msg}",
+    "privacy": "🔒 Video is processed on your device in real time — never uploaded.",
+    "ar.pickmask": "Pick a mask:", "ar.detecting": "Looking for a face… please face the camera.",
+    "hint.bendElbow": "Round your elbows into a frame in front of you.", "hint.handsShoulder": "Raise both hands to shoulder height.",
+    "hint.raiseAbove": "Raise that arm up above your head.", "hint.straightenRaised": "Straighten the raised arm.",
+    "hint.extendLevel": "Extend the other arm out, level with your shoulder.", "hint.pointHigh": "Point one hand high, above your head.",
+    "hint.straightenExtended": "Straighten the extended arm.",
+  },
+};

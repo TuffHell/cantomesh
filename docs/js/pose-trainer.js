@@ -3,6 +3,7 @@
 // per-joint coaching, and 亮相 hold-detection. All inference is on-device; the
 // video never leaves the browser.
 import { POSES, CONNECTIONS, scorePose, LM } from "./pose-coach.js";
+import { t } from "./i18n.js";
 
 const MP = "0.10.20";
 const MODEL =
@@ -21,7 +22,7 @@ export function openPoseTrainer(app, onExit) {
   app.innerHTML = `
     <main class="wrap trainer">
       <div class="play-top">
-        <button class="back" id="t-quit">← 返回</button>
+        <button class="back" id="t-quit">${t("common.back")}</button>
         <div class="pose-tabs" id="pose-tabs">
           ${POSES.map((p, i) => `<button class="ptab ${i === 0 ? "active" : ""}" data-i="${i}">${p.name}</button>`).join("")}
         </div>
@@ -30,7 +31,7 @@ export function openPoseTrainer(app, onExit) {
         <div class="cam-wrap">
           <video id="cam" playsinline muted></video>
           <canvas id="skel"></canvas>
-          <div class="cam-status" id="cam-status">啟動鏡頭中…</div>
+          <div class="cam-status" id="cam-status">${t("cam.start")}</div>
           <div class="peak-badge" id="peak-badge" hidden></div>
         </div>
         <div class="coach">
@@ -38,9 +39,9 @@ export function openPoseTrainer(app, onExit) {
           <p class="cue" id="pose-cue"></p>
           <div class="score-meter"><i id="score-fill"></i><span id="pass-mark" style="left:${PASS}%"></span></div>
           <div class="score-line"><span id="score-num">--</span><small id="best-num"></small></div>
-          <p class="coach-hint" id="coach-hint">請站到鏡頭前，全身入鏡。</p>
-          <div class="hold-row" id="hold-row" hidden><span>定格</span><span class="hold-track"><i id="hold-fill"></i></span></div>
-          <p class="privacy">🔒 影像僅在本機即時處理，不會上傳。</p>
+          <p class="coach-hint" id="coach-hint">${t("trainer.stand")}</p>
+          <div class="hold-row" id="hold-row" hidden><span>${t("trainer.holding")}</span><span class="hold-track"><i id="hold-fill"></i></span></div>
+          <p class="privacy">${t("privacy")}</p>
         </div>
       </div>
     </main>`;
@@ -62,10 +63,10 @@ export function openPoseTrainer(app, onExit) {
     poseIdx = i; holdStart = 0; peak = 0;
     app.querySelectorAll(".ptab").forEach((b, k) => b.classList.toggle("active", k === i));
     const p = POSES[i];
-    $("#pose-name").textContent = `${p.name}　${p.role}`;
-    $("#pose-cue").textContent = p.cue;
+    $("#pose-name").textContent = t(`pose.${p.id}.name`);
+    $("#pose-cue").textContent = t(`pose.${p.id}.cue`);
     $("#hold-row").hidden = !p.hold;
-    $("#best-num").textContent = best[p.id] ? `最佳 ${best[p.id]}` : "";
+    $("#best-num").textContent = best[p.id] ? t("trainer.best", { n: best[p.id] }) : "";
     $("#peak-badge").hidden = true;
   }
   app.querySelectorAll(".ptab").forEach((b) =>
@@ -91,7 +92,7 @@ export function openPoseTrainer(app, onExit) {
     $("#score-fill").style.width = `${score}%`;
     $("#score-fill").style.background = score >= PASS ? "var(--jade)" : "var(--gold)";
     $("#score-num").textContent = score;
-    $("#coach-hint").textContent = hint || (score >= PASS ? "穩住！漂亮的身段。" : "調整姿勢，貼近示範。");
+    $("#coach-hint").textContent = hint ? t(hint) : (score >= PASS ? t("trainer.hold") : t("trainer.adjust"));
     peak = Math.max(peak, score);
 
     // hold / completion logic
@@ -116,7 +117,7 @@ export function openPoseTrainer(app, onExit) {
     $("#best-num").textContent = `最佳 ${best[pose.id]}`;
     const badge = $("#peak-badge");
     badge.hidden = false;
-    badge.textContent = `✓ ${pose.name} 達標 ${peak}`;
+    badge.textContent = t("trainer.pass", { name: t(`pose.${pose.id}.name`), n: peak });
     holdStart = 0; peak = 0;
   }
 
@@ -133,7 +134,7 @@ export function openPoseTrainer(app, onExit) {
         drawSkeleton(lm);
         const r = scorePose(lm, pose);
         if (r.ok) onResult(r.score, r.worstHint, pose);
-        else { $("#coach-hint").textContent = "請讓全身（含雙臂）清楚入鏡。"; $("#score-num").textContent = "--"; $("#score-fill").style.width = "0%"; }
+        else { $("#coach-hint").textContent = t("trainer.framing"); $("#score-num").textContent = "--"; $("#score-fill").style.width = "0%"; }
       }
     }
     raf = requestAnimationFrame(loop);
@@ -146,11 +147,11 @@ export function openPoseTrainer(app, onExit) {
       video.srcObject = stream;
       await video.play();
     } catch (e) {
-      status.innerHTML = `無法啟用鏡頭（${e.name || "錯誤"}）。<br>請允許相機權限，並用 HTTPS 開啟本頁。`;
+      status.innerHTML = t("cam.denied", { err: e.name || "error" });
       return;
     }
     // 2) model (on-device, downloaded once)
-    status.textContent = "載入體感模型中…（首次約數秒）";
+    status.textContent = t("cam.model");
     try {
       const vision = await import(`https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP}`);
       const resolver = await vision.FilesetResolver.forVisionTasks(`https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP}/wasm`);
@@ -159,7 +160,7 @@ export function openPoseTrainer(app, onExit) {
         runningMode: "VIDEO", numPoses: 1,
       });
     } catch (e) {
-      status.innerHTML = `體感模型載入失敗（需連網下載一次）。<br>${e.message || ""}`;
+      status.innerHTML = t("cam.modelfail", { msg: e.message || "" });
       return;
     }
     status.hidden = true;

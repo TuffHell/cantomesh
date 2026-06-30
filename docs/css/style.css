@@ -346,6 +346,23 @@ body.game { background: var(--bg); }
 .train-card p { margin: 0; color: var(--ink); font-size: 0.92rem; max-width: 60ch; }
 .train-card b { color: var(--vermilion-deep); }
 .train-card button { margin-left: auto; white-space: nowrap; }
+.train-cta { display: grid; gap: 1rem; }
+.ar-card { border-left-color: var(--gold); }
+#lang-toggle { text-decoration: none; color: var(--vermilion); font-family: var(--mono); font-size: 0.9rem; }
+
+/* first-run language picker */
+.lang-pick { min-height: 86vh; display: grid; place-items: center; }
+.lang-card { text-align: center; max-width: 30rem; padding: 2rem 1.4rem; }
+.lang-card .seal.big { width: 5rem; height: 5rem; font-size: 1.05rem; margin: 0 auto 1.2rem; border-width: 3px; }
+.lang-card h1 { font-family: var(--kai); font-size: clamp(1.7rem, 1rem + 4vw, 2.7rem); letter-spacing: 0.08em; margin: 0 0 0.5rem; }
+.lang-sub { font-family: var(--kai); color: var(--ink); font-size: 1.1rem; margin: 0 0 0.3rem; }
+.lang-note { color: var(--muted); font-size: 0.92rem; margin: 0 0 1.6rem; }
+.lang-grid { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+.lang-btn { cursor: pointer; font-family: var(--kai); font-size: 1.15rem; padding: 0.7rem 1.9rem; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); transition: transform 0.14s var(--ease), border-color 0.14s, color 0.14s; }
+.lang-btn:hover { transform: translateY(-2px); border-color: var(--vermilion); color: var(--vermilion); }
+
+/* AR face-detection hint */
+.ar-hint { position: absolute; left: 50%; bottom: 1rem; transform: translateX(-50%); background: rgba(28,24,20,0.72); color: #f4efe6; padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.9rem; }
 
 /* 身段訓練 — trainer screen */
 .trainer { max-width: 980px; }

@@ -7,6 +7,8 @@
   --vermilion: #b23a2e;
   --vermilion-deep: #8f2c22;
   --gold: #a9802f;
+  --gold-bright: #c9a24a;
+  --lacquer: #6f1d15;
   --jade: #3a6a5a;
   --ping: #3a6a5a;
   --ze: #b23a2e;
@@ -24,7 +26,10 @@ html { scroll-behavior: smooth; }
 body {
   margin: 0;
   color: var(--ink);
-  background: var(--bg);
+  background-color: var(--bg);
+  /* faint 回纹 (concentric-square) diaper — traditional geometric texture */
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='66'%20height='66'%3E%3Cg%20fill='none'%20stroke='%23a9802f'%20stroke-opacity='0.07'%20stroke-width='1.4'%3E%3Crect%20x='9'%20y='9'%20width='48'%20height='48'/%3E%3Crect%20x='21'%20y='21'%20width='24'%20height='24'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 66px 66px;
   font-family: var(--serif);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -66,7 +71,10 @@ a { color: var(--vermilion); text-underline-offset: 3px; }
 
 /* ---------- Hero ---------- */
 .hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
-#ink { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+/* #ink = fixed full-page heritage backdrop on the tools page */
+#ink { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.9; }
+.hero-scene { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.footer-mtn { display: block; width: 100%; height: clamp(60px, 10vh, 110px); }
 .hero-inner {
   position: relative; z-index: 1;
   max-width: 1020px; margin: 0 auto;
@@ -215,8 +223,13 @@ body.game { background: var(--bg); }
 #app { min-height: 100vh; }
 
 /* hero band */
-.g-hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
-.g-hero #ink { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.g-hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); min-height: clamp(340px, 52vh, 520px); }
+/* gold rule + seal ornament under the hero */
+.g-hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; z-index: 3;
+  background: linear-gradient(90deg, transparent, var(--gold) 18%, var(--gold-bright) 50%, var(--gold) 82%, transparent);
+  opacity: 0.55;
+}
 .g-hero-in { position: relative; z-index: 1; max-width: 1020px; margin: 0 auto; padding: clamp(2rem, 6vh, 3.6rem) clamp(1rem, 3vw, 2rem) clamp(1.4rem, 3vh, 2rem); }
 .g-hero h1 { font-family: var(--kai); margin: 0.2rem 0; font-size: clamp(2.6rem, 1rem + 8vw, 5rem); letter-spacing: 0.18em; }
 .g-hero .lede { max-width: 48ch; margin: 0.4rem 0 0; color: var(--ink); font-size: clamp(1rem, 0.9rem + 0.5vw, 1.18rem); }
@@ -308,7 +321,6 @@ body.game { background: var(--bg); }
 
 /* narrative intro */
 .intro { position: relative; min-height: 82vh; display: grid; place-items: center; overflow: hidden; }
-.intro #ink { position: absolute; inset: 0; width: 100%; height: 100%; }
 .intro-in { position: relative; z-index: 1; max-width: 32ch; text-align: center; padding: 2rem 1rem; }
 .intro .kicker { font-family: var(--kai); color: var(--vermilion); letter-spacing: 0.3em; margin-bottom: 1rem; }
 .beat { font-family: var(--kai); font-size: clamp(1.3rem, 1rem + 2.4vw, 2.1rem); line-height: 1.9; margin: 0.6rem 0; opacity: 0; animation: rise 1.1s var(--ease) both; }
@@ -373,7 +385,7 @@ body.game { background: var(--bg); }
 @media (max-width: 720px) { .trainer-stage { grid-template-columns: 1fr; } }
 .cam-wrap { position: relative; aspect-ratio: 4 / 3; background: #1c1814; border-radius: 12px; overflow: hidden; }
 #cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: block; }
-#skel { position: absolute; inset: 0; width: 100%; height: 100%; transform: scaleX(-1); pointer-events: none; }
+#skel, #ar { position: absolute; inset: 0; width: 100%; height: 100%; transform: scaleX(-1); pointer-events: none; }
 .cam-status { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 1.4rem; color: #f4efe6; background: rgba(28,24,20,0.72); font-size: 0.95rem; line-height: 1.7; }
 .peak-badge { position: absolute; top: 0.7rem; left: 0.7rem; background: var(--jade); color: #fff; font-family: var(--kai); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.9rem; box-shadow: 0 6px 14px -6px rgba(0,0,0,0.5); animation: rise 0.4s var(--ease) both; }
 .coach h2 { font-family: var(--kai); margin: 0 0 0.3rem; font-size: 1.6rem; letter-spacing: 0.06em; }
@@ -391,6 +403,22 @@ body.game { background: var(--bg); }
 .privacy { font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
 
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Heritage framing details ---------- */
+.card, .impact-card, .stage, .train-card, .q-card, .lang-card, .trainer-stage {
+  box-shadow: var(--shadow), inset 0 0 0 1px rgba(169, 128, 47, 0.22);
+}
+/* gilt corner brackets on the feature cards */
+.impact-card { position: relative; }
+.impact-card::before, .impact-card::after {
+  content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none;
+  border: 2px solid var(--gold); opacity: 0.5;
+}
+.impact-card::before { top: 7px; left: 7px; border-right: 0; border-bottom: 0; }
+.impact-card::after { bottom: 7px; right: 7px; border-left: 0; border-top: 0; }
+.footer-mtn { margin-top: 2.4rem; margin-bottom: -0.4rem; }
+/* deepen the mission seal accent */
+.mission-card { border-left-color: var(--lacquer); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

@@ -2,7 +2,7 @@
 import {
   verifyText, annotate, findRhymes, checkTemplate, TEMPLATES,
 } from "./prosody.js";
-import { startInkHero } from "./ink-hero.js";
+import { heroScene } from "./ornaments.js";
 
 const $ = (s) => document.querySelector(s);
 const el = (tag, cls, html) => {
@@ -12,7 +12,9 @@ const el = (tag, cls, html) => {
   return n;
 };
 
-startInkHero($("#ink"));
+// Static heritage backdrop (replaces the old animated ink canvas).
+const bg = $("#ink");
+if (bg) bg.innerHTML = heroScene();
 
 /* ---------------- Tabs ---------------- */
 const tabs = document.querySelectorAll(".tab");

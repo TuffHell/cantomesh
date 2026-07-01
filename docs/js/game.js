@@ -6,6 +6,7 @@ import { createOperaFigure } from "./opera-figure.js";
 import { openPoseTrainer } from "./pose-trainer.js";
 import { openFaceAR } from "./face-ar.js";
 import { t, getLang, setLang, LANGS } from "./i18n.js";
+import { heroScene, mountainFooter } from "./ornaments.js";
 
 const SAVE_KEY = "cantomesh.quest.v1";
 const app = document.getElementById("app");
@@ -141,7 +142,7 @@ function renderMap() {
   clearFigures();
   const pct = Math.round((totalStars() / maxStars()) * 100);
   let html = `
-    <header class="g-hero"><canvas id="ink" aria-hidden="true"></canvas>
+    <header class="g-hero">${heroScene()}
       <div class="hero-figure" id="hero-fig" aria-hidden="true"></div>
       <div class="g-hero-in">
         <p class="kicker">${t("map.kicker")}</p>
@@ -205,7 +206,7 @@ function renderMap() {
     }
     html += `</div></section>`;
   }
-  html += `</main><footer class="wrap">粤脉·镜 CANTOMESH · <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">GitHub</a> · <a href="tools.html">工具台</a></footer>`;
+  html += `</main>${mountainFooter()}<footer class="wrap">粤脉·镜 CANTOMESH · <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">GitHub</a> · <a href="tools.html">${t("map.tools")}</a></footer>`;
   app.innerHTML = html;
 
   app.querySelectorAll(".stage:not(.locked)").forEach((b) =>
@@ -217,7 +218,6 @@ function renderMap() {
     e.preventDefault(); setLang(getLang() === "en" ? "zh" : "en"); renderMap();
   });
   mountFigure("#hero-fig", { role: "daan", size: 210 });
-  bootInk();
 }
 
 function startTrainer() {
@@ -254,7 +254,7 @@ const introBeats = () => [t("intro.beat1"), t("intro.beat2"), t("intro.beat3")];
 function renderIntro() {
   clearFigures();
   const beats = introBeats();
-  app.innerHTML = `<main class="wrap intro"><canvas id="ink" aria-hidden="true"></canvas>
+  app.innerHTML = `<main class="wrap intro">${heroScene()}
     <div class="intro-in">
       <div class="intro-figure" id="intro-fig" aria-hidden="true"></div>
       <p class="kicker">${t("intro.kicker")}</p>
@@ -269,7 +269,6 @@ function renderIntro() {
   $("#skip").addEventListener("click", done);
   const master = mountFigure("#intro-fig", { role: "sang", size: 200 });
   if (master) setTimeout(() => master.pose(), 900); // a welcoming 亮相
-  bootInk();
 }
 
 const TYPE_ICON = { tone: "聲", rhyme: "韻", verify: "律" };
@@ -375,13 +374,6 @@ function maskReward(id) {
     <div class="mask-art">${maskSVG(id, 130)}</div>
     <p class="mask-name">${m.name} · <span>${m.role}</span></p>
     <p class="mask-line">${m.line}</p></div>`;
-}
-
-/* ---------------- ink accent ---------------- */
-async function bootInk() {
-  const c = document.getElementById("ink");
-  if (!c) return;
-  try { const { startInkHero } = await import("./ink-hero.js"); startInkHero(c); } catch { /* ok */ }
 }
 
 // boot: pick a language first (so non-Chinese learners can start), then story → map.

@@ -21,7 +21,7 @@ export function openFaceAR(app, onExit) {
   function maskImage(id) {
     if (!imgCache[id]) {
       const img = new Image();
-      img.src = "data:image/svg+xml;utf8," + encodeURIComponent(maskSVG(id, 320));
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(maskSVG(id, 320));
       imgCache[id] = img;
     }
     return imgCache[id];

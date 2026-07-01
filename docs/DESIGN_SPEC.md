@@ -106,7 +106,8 @@ Color is **semantic**: 平 always jade, 仄 always vermilion — across game, to
 | Pose scoring core | `js/pose-coach.js` | pure biomechanical 身段 rubric (unit-tested) |
 | Pose trainer (AI) | `js/pose-trainer.js` | webcam → MediaPipe Pose → live scoring |
 | 臉譜 masks | `js/masks.js` | SVG unlock rewards |
-| Ink atmosphere | `js/ink-hero.js` | contained 水墨 canvas |
+| Heritage scene | `js/ornaments.js` | static 山水 hero scene + 祥云 + mountain footer |
+| AR face mask | `js/face-ar.js` | MediaPipe FaceLandmarker 臉譜 overlay |
 | Toolkit | `tools.html` + `js/app.js` | 4 power tools (練功房) |
 
 ---

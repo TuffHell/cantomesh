@@ -1,6 +1,6 @@
 // Tests for the personalized mask generator + open-data challenge generation.
 // Run: node scripts/verify_gen.mjs
-import { faceMetrics, metricsToParams, generateMask, randomParams } from "../docs/js/mask-gen.js";
+import { faceMetrics, metricsToParams, generateMask, randomParams, PRESETS } from "../docs/js/mask-gen.js";
 import { dataChallenges } from "../docs/js/open-data.js";
 import { lookup } from "../docs/js/prosody.js";
 import { readFileSync } from "fs";
@@ -39,6 +39,21 @@ const svg = generateMask(p1, 200);
 check("generateMask returns an <svg>", svg.startsWith("<svg") && svg.includes("</svg>"));
 check("generateMask uses the role's primary colour", svg.includes(p1.role.primary));
 check("randomParams yields a valid role", !!randomParams().role.id);
+
+// --- structural variety: face geometry drives the 谱式, not just colour ---
+check("params carry a 谱式 style", ["zheng", "sankuaiwa", "shizimen", "sui"].includes(p1.style));
+const styles = new Set();
+for (let a = 0.6; a <= 0.9; a += 0.05) styles.add(metricsToParams({ aspect: a, eyeSpacing: 0.32, noseRatio: 0.31, mouthRatio: 0.38 }).style);
+check("different face widths → multiple 谱式 structures", styles.size >= 2);
+check("wide vs narrow faces differ in structure OR colour", (() => {
+  const wp = metricsToParams(faceMetrics(face({ 234: [0.18, 0.5], 454: [0.82, 0.5] })));
+  const np = metricsToParams(faceMetrics(face({ 234: [0.38, 0.5], 454: [0.62, 0.5] })));
+  return wp.style !== np.style || wp.role.id !== np.role.id;
+})());
+
+// --- traditional presets ---
+check("has >= 6 traditional presets", PRESETS.length >= 6);
+check("every preset renders a mask", PRESETS.every((pr) => generateMask(pr.params, 60).includes("<svg") && pr.zh && pr.en));
 
 // --- open-data challenge generation (data → engine) ---
 const data = JSON.parse(readFileSync(new URL("../docs/data/hk-opera-open-data.json", import.meta.url)));

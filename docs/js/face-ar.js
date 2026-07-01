@@ -2,7 +2,7 @@
 // generates a UNIQUE opera 臉譜 from it, then tracks it onto your face. Every
 // face yields a different mask + 行當 reading. Video never leaves the device.
 import { t, getLang } from "./i18n.js";
-import { faceMetrics, metricsToParams, generateMask, randomParams } from "./mask-gen.js";
+import { faceMetrics, metricsToParams, generateMask, randomParams, PRESETS } from "./mask-gen.js";
 
 const MP = "0.10.20";
 const FACE_MODEL =
@@ -34,6 +34,8 @@ export function openFaceAR(app, onExit) {
             <button class="primary" id="gen-mask">${t("ar.generate")}</button>
             <button class="ghost" id="regen-mask" hidden>${t("ar.regen")}</button>
           </div>
+          <p class="preset-label">${t("ar.presets")}</p>
+          <div class="preset-row" id="preset-row"></div>
           <p class="privacy">${t("privacy")}</p>
         </div>
       </div>
@@ -51,19 +53,28 @@ export function openFaceAR(app, onExit) {
   }
   $("#ar-quit").addEventListener("click", () => { cleanup(); onExit(); });
 
-  function applyParams(p) {
+  function applyParams(p, name, trait) {
     params = p;
     maskImg = new Image();
     maskImg.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(generateMask(p, 300));
     $("#mask-preview").innerHTML = generateMask(p, 150);
-    $("#ar-arch").textContent = lang === "en" ? p.archetype.en : p.archetype.zh;
-    $("#ar-trait").textContent = lang === "en" ? p.archetype.trait_en : p.archetype.trait_zh;
+    $("#ar-arch").textContent = name || (lang === "en" ? p.archetype.en : p.archetype.zh);
+    $("#ar-trait").textContent = trait != null ? trait : (lang === "en" ? p.archetype.trait_en : p.archetype.trait_zh);
     $("#regen-mask").hidden = false;
   }
-  function genFromFace() { applyParams(metrics ? metricsToParams(metrics) : randomParams()); }
+  function genFromFace() { autoGen = true; applyParams(metrics ? metricsToParams(metrics) : randomParams()); }
 
   $("#gen-mask").addEventListener("click", genFromFace);
   $("#regen-mask").addEventListener("click", genFromFace);
+
+  // traditional preset gallery — pick a classic mask instead of generating one
+  $("#preset-row").innerHTML = PRESETS.map((pr) =>
+    `<button class="preset-thumb" data-id="${pr.id}" title="${lang === "en" ? pr.en : pr.zh}">${generateMask(pr.params, 52)}</button>`).join("");
+  app.querySelectorAll(".preset-thumb").forEach((b) => b.addEventListener("click", () => {
+    const pr = PRESETS.find((x) => x.id === b.dataset.id);
+    autoGen = true;
+    applyParams(pr.params, lang === "en" ? pr.en : pr.zh, "");
+  }));
 
   function drawMask(lm) {
     const w = canvas.width, h = canvas.height;

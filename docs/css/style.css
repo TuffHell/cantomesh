@@ -381,6 +381,11 @@ body.game { background: var(--bg); }
 /* generated personal 臉譜 preview */
 .mask-preview { display: flex; justify-content: center; margin: 0.4rem 0 0.6rem; min-height: 40px; }
 .mask-preview svg { width: 118px; height: auto; filter: drop-shadow(0 10px 16px rgba(0,0,0,0.22)); animation: rise 0.4s var(--ease) both; }
+.preset-label { color: var(--muted); font-size: 0.85rem; margin: 0.9rem 0 0.4rem; font-family: var(--kai); }
+.preset-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.preset-thumb { cursor: pointer; padding: 0.18rem; border: 1px solid var(--line); border-radius: 9px; background: #fffdf8; line-height: 0; transition: transform 0.14s var(--ease), border-color 0.14s; }
+.preset-thumb:hover { transform: translateY(-2px); border-color: var(--vermilion); }
+.preset-thumb svg { width: 40px; height: auto; display: block; }
 
 /* 身段訓練 — trainer screen */
 .trainer { max-width: 980px; }

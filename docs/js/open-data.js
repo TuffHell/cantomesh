@@ -1,12 +1,23 @@
-// 粵劇在港 — a government open-data panel: real Cantonese-opera venues + the HK
-// ICH inventory, sourced from data.gov.hk / LCSD. Bridges "learn it" → "see it
-// live", and puts the Open Data competition theme to work.
+// 粵劇在港 — government open data put to WORK, not just displayed:
+//   1) real LCSD Cantonese-opera venues + the HK ICH inventory (data.gov.hk);
+//   2) real 劇目 (repertoire) fed through the 平仄 engine to auto-generate live
+//      training challenges. The dataset becomes the AI's training corpus.
 import { t } from "./i18n.js";
+import { lookup } from "./prosody.js";
 
-// Rough Hong Kong bounding box for plotting venue coordinates.
 const HK = { minLat: 22.18, maxLat: 22.56, minLng: 113.83, maxLng: 114.42 };
 
-export async function openHeritage(app, onExit) {
+// Turn repertoire titles from the open dataset into engine-graded tone challenges.
+export function dataChallenges(data, n = 8) {
+  const chars = [...new Set((data.repertoire || []).join(""))].filter((c) => lookup(c));
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.slice(0, n).map((c) => ({ kind: "tone", char: c }));
+}
+
+export async function openHeritage(app, onExit, onPractice) {
   app.innerHTML = `<main class="wrap heritage">
     <div class="play-top">
       <button class="back" id="h-quit">${t("common.back")}</button>
@@ -18,14 +29,14 @@ export async function openHeritage(app, onExit) {
 
   try {
     const res = await fetch("data/hk-opera-open-data.json", { cache: "no-store" });
-    render(app.querySelector("#h-body"), await res.json());
+    render(app.querySelector("#h-body"), await res.json(), onPractice);
   } catch {
     app.querySelector("#h-body").textContent = t("od.fail");
   }
   return { destroy() {} };
 }
 
-function render(el, data) {
+function render(el, data, onPractice) {
   const px = (v) => ((v.lng - HK.minLng) / (HK.maxLng - HK.minLng)) * 100;
   const py = (v) => (1 - (v.lat - HK.minLat) / (HK.maxLat - HK.minLat)) * 66;
   const dots = data.venues.map((v) =>
@@ -38,6 +49,14 @@ function render(el, data) {
       <b>${data.ich.name} · ${data.ich.en}</b>
       <span>${data.ich.unesco}</span><span>${data.ich.hkList}</span>
     </div>
+    <div class="od-corpus">
+      <h4>${t("od.corpus")}</h4>
+      <div class="od-tags">${(data.repertoire || []).map((r) => `<span>${r}</span>`).join("")}</div>
+      <div class="controls">
+        <button class="primary" id="od-play">${t("od.practice")}</button>
+      </div>
+      <small class="hint">${t("od.practiceNote")}</small>
+    </div>
     <svg class="od-map" viewBox="0 0 100 66" preserveAspectRatio="xMidYMid meet" aria-label="venue map">${dots}</svg>
     <div class="od-venues">
       ${data.venues.map((v) => `<a class="od-venue" href="${v.url}" target="_blank" rel="noopener">
@@ -45,4 +64,8 @@ function render(el, data) {
     </div>
     <p class="od-attr">${t("od.source")}:
       <a href="${data.source.url}" target="_blank" rel="noopener">${data.source.name}</a> — ${data.source.note}</p>`;
+
+  if (onPractice) {
+    el.querySelector("#od-play").addEventListener("click", () => onPractice(dataChallenges(data)));
+  }
 }

@@ -378,6 +378,9 @@ body.game { background: var(--bg); }
 
 /* AR face-detection hint */
 .ar-hint { position: absolute; left: 50%; bottom: 1rem; transform: translateX(-50%); background: rgba(28,24,20,0.72); color: #f4efe6; padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.9rem; }
+/* generated personal 臉譜 preview */
+.mask-preview { display: flex; justify-content: center; margin: 0.4rem 0 0.6rem; min-height: 40px; }
+.mask-preview svg { width: 118px; height: auto; filter: drop-shadow(0 10px 16px rgba(0,0,0,0.22)); animation: rise 0.4s var(--ease) both; }
 
 /* 身段訓練 — trainer screen */
 .trainer { max-width: 980px; }
@@ -446,6 +449,11 @@ body.game { background: var(--bg); }
 .od-venue i { font-style: normal; color: var(--muted); font-size: 0.8rem; }
 .od-venue span { color: var(--gold); font-size: 0.78rem; margin-top: 0.2rem; }
 .od-attr { color: var(--muted); font-size: 0.8rem; margin-top: 1rem; line-height: 1.6; }
+.od-corpus { margin: 1rem 0; padding: 1rem 1.1rem; background: rgba(178, 58, 46, 0.05); border: 1px solid var(--line); border-radius: 12px; }
+.od-corpus h4 { font-family: var(--kai); margin: 0 0 0.6rem; font-size: 1.02rem; }
+.od-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
+.od-tags span { font-family: var(--kai); background: #fffdf8; border: 1px solid var(--line); border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.95rem; }
+.od-corpus .controls { margin: 0.3rem 0; }
 
 /* ---------- Heritage framing details ---------- */
 .card, .impact-card, .stage, .train-card, .q-card, .lang-card, .trainer-stage {

@@ -232,7 +232,7 @@ function startFaceAR() {
 
 function startHeritage() {
   clearFigures();
-  openHeritage(app, renderMap);
+  openHeritage(app, renderMap, (rounds) => playRounds(t("od.practiceTitle"), rounds));
 }
 
 // First-run language gate — bilingual on purpose, before a language is chosen.
@@ -278,10 +278,16 @@ function renderIntro() {
 
 const TYPE_ICON = { tone: "聲", rhyme: "韻", verify: "律" };
 
+function runStage(stage) {
+  renderRound(stage, { i: 0, correct: 0, total: stage.rounds.length });
+}
 function startStage(stageId) {
-  const stage = STAGES.find((s) => s.id === stageId);
-  const run = { i: 0, correct: 0, total: stage.rounds.length };
-  renderRound(stage, run);
+  runStage(STAGES.find((s) => s.id === stageId));
+}
+// Play a one-off stage built from open-data-generated rounds.
+function playRounds(title, rounds) {
+  clearFigures();
+  runStage({ id: "data", title, worldId: "__data__", rounds });
 }
 
 function renderRound(stage, run) {
@@ -346,7 +352,7 @@ function finishStage(stage, run) {
   // world completion → mask unlock
   let unlockedMask = null;
   const world = WORLDS.find((w) => w.id === stage.worldId);
-  if (cleared && world.stages.every((s) => progress.cleared[s.id]) && !progress.masks.includes(world.mask)) {
+  if (cleared && world && world.stages.every((s) => progress.cleared[s.id]) && !progress.masks.includes(world.mask)) {
     progress.masks.push(world.mask);
     unlockedMask = world.mask;
   }
@@ -370,7 +376,7 @@ function finishStage(stage, run) {
     if (star) { star.pose(); setTimeout(() => star.pose(), 700); }
   }
   $("#tomap").addEventListener("click", renderMap);
-  $("#retry")?.addEventListener("click", () => startStage(stage.id));
+  $("#retry")?.addEventListener("click", () => runStage(stage));
 }
 
 function maskReward(id) {

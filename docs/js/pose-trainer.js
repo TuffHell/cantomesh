@@ -14,9 +14,8 @@ const PASS = 78; // score needed to count as a clean attempt
 const loadBest = () => { try { return JSON.parse(localStorage.getItem(POSE_KEY)) || {}; } catch { return {}; } };
 const saveBest = (b) => { try { localStorage.setItem(POSE_KEY, JSON.stringify(b)); } catch { /* ignore */ } };
 
-// Reference silhouette ("ghost") to align to, drawn from the pose's ideal joints.
-function ghostSVG(pose) {
-  const g = pose.ghost;
+// Reference silhouette ("ghost") drawn from a set of arm joints {le,lw,re,rw}.
+function ghostSVG(g) {
   if (!g) return "";
   const N = [0.5, 0.15], LS = [0.40, 0.30], RS = [0.60, 0.30], MS = [0.5, 0.30], MH = [0.5, 0.58],
     LH = [0.45, 0.58], RH = [0.55, 0.58], LK = [0.45, 0.78], RK = [0.55, 0.78], LA = [0.46, 0.96], RA = [0.54, 0.96];
@@ -35,6 +34,8 @@ function ghostSVG(pose) {
 export function openPoseTrainer(app, onExit) {
   let landmarker = null, stream = null, raf = 0, running = true;
   let poseIdx = 0, holdStart = 0, peak = 0;
+  let routine = false, seqStep = 0, combo = 0, ghostAnim = 0;
+  const SEQ = [0, 1, 2]; // 山膀 → 順風旗 → 亮相
   const best = loadBest();
 
   app.innerHTML = `
@@ -43,6 +44,7 @@ export function openPoseTrainer(app, onExit) {
         <button class="back" id="t-quit">${t("common.back")}</button>
         <div class="pose-tabs" id="pose-tabs">
           ${POSES.map((p, i) => `<button class="ptab ${i === 0 ? "active" : ""}" data-i="${i}">${p.name}</button>`).join("")}
+          <button class="ptab" data-i="routine">${t("routine.tab")}</button>
         </div>
       </div>
       <div class="card trainer-stage">
@@ -78,20 +80,77 @@ export function openPoseTrainer(app, onExit) {
   function quit() { cleanup(); onExit(); }
   $("#t-quit").addEventListener("click", quit);
 
+  const setGhost = (g) => { $("#ghost").innerHTML = ghostSVG(g); };
+
   function selectPose(i) {
+    routine = false; cancelAnimationFrame(ghostAnim);
     poseIdx = i; holdStart = 0; peak = 0;
-    app.querySelectorAll(".ptab").forEach((b, k) => b.classList.toggle("active", k === i));
+    app.querySelectorAll(".ptab").forEach((b) => b.classList.toggle("active", b.dataset.i === String(i)));
     const p = POSES[i];
     $("#pose-name").textContent = t(`pose.${p.id}.name`);
     $("#pose-cue").textContent = t(`pose.${p.id}.cue`);
     $("#hold-row").hidden = !p.hold;
     $("#best-num").textContent = best[p.id] ? t("trainer.best", { n: best[p.id] }) : "";
     $("#peak-badge").hidden = true;
-    $("#ghost").innerHTML = ghostSVG(p);
+    setGhost(p.ghost);
     $("#ghost").classList.remove("matched");
   }
+
+  // ---- movement routine (a flowing sequence, not a frozen hold) ----
+  function selectRoutine() {
+    routine = true; seqStep = 0; combo = 0; holdStart = 0;
+    app.querySelectorAll(".ptab").forEach((b) => b.classList.toggle("active", b.dataset.i === "routine"));
+    $("#pose-name").textContent = t("routine.title");
+    $("#pose-cue").textContent = t("routine.cue");
+    $("#hold-row").hidden = false;
+    $("#best-num").textContent = "";
+    $("#peak-badge").hidden = true;
+    $("#score-num").textContent = "--";
+    setGhost(POSES[SEQ[0]].ghost);
+    updateRoutineHint();
+  }
+  function updateRoutineHint() {
+    const p = POSES[SEQ[seqStep]];
+    $("#coach-hint").textContent = t("routine.step", {
+      n: seqStep + 1, total: SEQ.length, pose: t(`pose.${p.id}.name`), combo,
+    });
+  }
+  function animateGhost(fromG, toG) {
+    cancelAnimationFrame(ghostAnim);
+    const t0 = performance.now(), dur = 650, keys = ["le", "lw", "re", "rw"];
+    const lerp = (a, b, u) => a + (b - a) * u;
+    const tick = () => {
+      const u = Math.min(1, (performance.now() - t0) / dur);
+      const e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+      const g = {};
+      for (const k of keys) g[k] = [lerp(fromG[k][0], toG[k][0], e), lerp(fromG[k][1], toG[k][1], e)];
+      setGhost(g);
+      if (u < 1) ghostAnim = requestAnimationFrame(tick);
+    };
+    ghostAnim = requestAnimationFrame(tick);
+  }
+  function routineTick(score) {
+    const cur = POSES[SEQ[seqStep]], need = 500;
+    if (score >= PASS) {
+      if (!holdStart) holdStart = performance.now();
+      const held = performance.now() - holdStart;
+      $("#hold-fill").style.width = `${Math.min(100, (held / need) * 100)}%`;
+      if (held >= need) {
+        combo++;
+        const next = POSES[SEQ[(seqStep + 1) % SEQ.length]];
+        animateGhost(cur.ghost, next.ghost);
+        seqStep = (seqStep + 1) % SEQ.length;
+        holdStart = 0; $("#hold-fill").style.width = "0%";
+        updateRoutineHint();
+        if (seqStep === 0) { const b = $("#peak-badge"); b.hidden = false; b.textContent = t("routine.done", { combo }); }
+      }
+    } else {
+      holdStart = 0; $("#hold-fill").style.width = "0%"; updateRoutineHint();
+    }
+  }
+
   app.querySelectorAll(".ptab").forEach((b) =>
-    b.addEventListener("click", () => selectPose(Number(b.dataset.i))));
+    b.addEventListener("click", () => (b.dataset.i === "routine" ? selectRoutine() : selectPose(Number(b.dataset.i)))));
   selectPose(0);
 
   function drawSkeleton(lm) {
@@ -114,6 +173,7 @@ export function openPoseTrainer(app, onExit) {
     $("#score-fill").style.width = `${score}%`;
     $("#score-fill").style.background = score >= PASS ? "var(--jade)" : "var(--gold)";
     $("#score-num").textContent = score;
+    if (routine) { routineTick(score); return; }
     $("#coach-hint").textContent = hint ? t(hint) : (score >= PASS ? t("trainer.hold") : t("trainer.adjust"));
     peak = Math.max(peak, score);
 
@@ -151,7 +211,7 @@ export function openPoseTrainer(app, onExit) {
       let res;
       try { res = landmarker.detectForVideo(video, performance.now()); } catch { /* skip frame */ }
       const lm = res?.landmarks?.[0];
-      const pose = POSES[poseIdx];
+      const pose = routine ? POSES[SEQ[seqStep]] : POSES[poseIdx];
       if (lm) {
         drawSkeleton(lm);
         const r = scorePose(lm, pose);

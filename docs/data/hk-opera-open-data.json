@@ -20,5 +20,9 @@
     { "name": "沙田大會堂", "en": "Sha Tin Town Hall", "district": "沙田 Sha Tin", "area": "新界東 New Territories East", "lat": 22.3820, "lng": 114.1895, "url": "https://www.lcsd.gov.hk/en/stth/" },
     { "name": "元朗劇院", "en": "Yuen Long Theatre", "district": "元朗 Yuen Long", "area": "新界西 New Territories West", "lat": 22.4445, "lng": 114.0305, "url": "https://www.lcsd.gov.hk/en/ylt/" },
     { "name": "西灣河文娛中心", "en": "Sai Wan Ho Civic Centre", "district": "東區 Eastern", "area": "港島東 Hong Kong East", "lat": 22.2820, "lng": 114.2220, "url": "https://www.lcsd.gov.hk/en/swhcc/" }
+  ],
+  "repertoire": [
+    "帝女花", "紫釵記", "再世紅梅記", "牡丹亭驚夢", "白蛇傳",
+    "六月雪", "鳳閣恩仇未了情", "胡不歸", "楊門女將", "雙仙拜月亭"
   ]
 }

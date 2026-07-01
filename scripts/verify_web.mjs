@@ -5,6 +5,7 @@ import {
 } from "../docs/js/prosody.js";
 import { BUNDLED } from "../docs/js/jyutping-data.js";
 import { STAGES } from "../docs/js/levels.js";
+import { readFileSync } from "fs";
 
 let failed = 0;
 const check = (name, cond) => {
@@ -74,5 +75,12 @@ check(`all tone rounds resolve (${toneOk})`, toneOk > 0 && levelBad === 0);
 check(`all rhyme rounds winnable (${rhymeOk})`, rhymeOk > 0);
 check(`all verify rounds deterministic (${verifyOk})`, verifyOk > 0);
 
+// --- government open-data (data.gov.hk / LCSD) dataset integrity ---
+const od = JSON.parse(readFileSync(new URL("../docs/data/hk-opera-open-data.json", import.meta.url)));
+check("open-data source is data.gov.hk", /data\.gov\.hk/.test(od.source.url));
+check("open-data has >= 6 venues", Array.isArray(od.venues) && od.venues.length >= 6);
+check("every venue has name/district/coords", od.venues.every((v) => v.name && v.district && typeof v.lat === "number" && typeof v.lng === "number"));
+check("ICH names Cantonese Opera + UNESCO", /Cantonese/.test(od.ich.en) && /UNESCO/.test(od.ich.unesco));
+
 if (failed) { console.error(`\n${failed} check(s) FAILED`); process.exit(1); }
-console.log("\nAll web engine + level checks passed.");
+console.log("\nAll web engine + level + open-data checks passed.");

@@ -27,9 +27,11 @@ body {
   margin: 0;
   color: var(--ink);
   background-color: var(--bg);
-  /* faint 回纹 (concentric-square) diaper — traditional geometric texture */
-  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='66'%20height='66'%3E%3Cg%20fill='none'%20stroke='%23a9802f'%20stroke-opacity='0.07'%20stroke-width='1.4'%3E%3Crect%20x='9'%20y='9'%20width='48'%20height='48'/%3E%3Crect%20x='21'%20y='21'%20width='24'%20height='24'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 66px 66px;
+  /* woven silk grain (fine crosshatch) over a faint 回纹 diaper */
+  background-image:
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='7'%20height='7'%3E%3Cpath%20d='M0%200L7%207M0%207L7%200'%20stroke='%23806018'%20stroke-opacity='0.05'%20stroke-width='0.6'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='66'%20height='66'%3E%3Cg%20fill='none'%20stroke='%23a9802f'%20stroke-opacity='0.05'%20stroke-width='1.4'%3E%3Crect%20x='9'%20y='9'%20width='48'%20height='48'/%3E%3Crect%20x='21'%20y='21'%20width='24'%20height='24'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 7px 7px, 66px 66px;
   font-family: var(--serif);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -38,6 +40,7 @@ body::before {
   content: "";
   position: fixed; inset: 0; z-index: -2; pointer-events: none;
   background:
+    linear-gradient(115deg, transparent 34%, rgba(255, 255, 255, 0.06) 50%, transparent 66%),
     radial-gradient(120% 80% at 50% -10%, rgba(255, 252, 245, 0.7), transparent 60%),
     radial-gradient(100% 100% at 100% 100%, rgba(169, 128, 47, 0.06), transparent 50%);
 }
@@ -385,7 +388,12 @@ body.game { background: var(--bg); }
 @media (max-width: 720px) { .trainer-stage { grid-template-columns: 1fr; } }
 .cam-wrap { position: relative; aspect-ratio: 4 / 3; background: #1c1814; border-radius: 12px; overflow: hidden; }
 #cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: block; }
-#skel, #ar { position: absolute; inset: 0; width: 100%; height: 100%; transform: scaleX(-1); pointer-events: none; }
+#skel, #ar { position: absolute; inset: 0; width: 100%; height: 100%; transform: scaleX(-1); pointer-events: none; z-index: 2; }
+/* silhouette ghost — the target pose to align to */
+.ghost { position: absolute; inset: 0; z-index: 1; pointer-events: none; color: var(--gold); opacity: 0.82; transition: color 0.25s var(--ease); }
+.ghost svg { width: 100%; height: 100%; filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4)); }
+.ghost.matched { color: var(--jade); opacity: 0.95; }
+.ghost.matched svg { filter: drop-shadow(0 0 7px rgba(58, 106, 90, 0.85)); }
 .cam-status { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 1.4rem; color: #f4efe6; background: rgba(28,24,20,0.72); font-size: 0.95rem; line-height: 1.7; }
 .peak-badge { position: absolute; top: 0.7rem; left: 0.7rem; background: var(--jade); color: #fff; font-family: var(--kai); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.9rem; box-shadow: 0 6px 14px -6px rgba(0,0,0,0.5); animation: rise 0.4s var(--ease) both; }
 .coach h2 { font-family: var(--kai); margin: 0 0 0.3rem; font-size: 1.6rem; letter-spacing: 0.06em; }
@@ -403,6 +411,41 @@ body.game { background: var(--bg); }
 .privacy { font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
 
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* refined AI Studio row */
+.studio { margin-top: 1.2rem; }
+.studio-h { font-family: var(--kai); font-size: 1.1rem; letter-spacing: 0.08em; margin: 0 0 0.7rem; color: var(--ink); }
+.studio-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
+@media (max-width: 640px) { .studio-row { grid-template-columns: 1fr; } }
+.studio-tile {
+  cursor: pointer; text-align: left; display: grid; grid-template-columns: auto 1fr;
+  gap: 0.05rem 0.8rem; align-items: center;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 1rem 1.1rem; box-shadow: var(--shadow); font-family: var(--serif);
+  transition: transform 0.16s var(--ease), border-color 0.16s;
+}
+.studio-tile:hover { transform: translateY(-3px); border-color: var(--vermilion); }
+.studio-tile .st-ic { grid-row: 1 / 3; display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 8px; background: linear-gradient(160deg, var(--vermilion), var(--vermilion-deep)); color: #fff; font-family: var(--kai); font-size: 1.3rem; }
+.studio-tile b { font-family: var(--kai); font-size: 1.14rem; }
+.studio-tile small { color: var(--muted); font-size: 0.82rem; }
+
+/* open-data heritage panel */
+.heritage { max-width: 900px; }
+.odsource { margin-left: auto; font-family: var(--mono); font-size: 0.78rem; color: var(--gold); }
+.od-head h2 { font-family: var(--kai); font-size: 1.6rem; margin: 0 0 0.2rem; }
+.od-ich { display: flex; flex-direction: column; gap: 0.1rem; border-left: 3px solid var(--gold); padding-left: 0.9rem; margin: 1rem 0; }
+.od-ich b { font-family: var(--kai); font-size: 1.15rem; }
+.od-ich span { color: var(--muted); font-size: 0.85rem; }
+.od-map { width: 100%; height: auto; background: rgba(58, 106, 90, 0.05); border: 1px solid var(--line); border-radius: 12px; margin: 0.6rem 0 1rem; }
+.od-map .od-dot circle { fill: var(--vermilion); }
+.od-map .od-dot text { fill: var(--ink); font-size: 2.4px; font-family: var(--serif); }
+.od-venues { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0.6rem; }
+.od-venue { display: flex; flex-direction: column; text-decoration: none; color: var(--ink); background: #fffdf8; border: 1px solid var(--line); border-radius: 10px; padding: 0.7rem 0.85rem; transition: border-color 0.15s, transform 0.15s var(--ease); }
+.od-venue:hover { border-color: var(--vermilion); transform: translateY(-2px); }
+.od-venue b { font-family: var(--kai); font-size: 1.05rem; }
+.od-venue i { font-style: normal; color: var(--muted); font-size: 0.8rem; }
+.od-venue span { color: var(--gold); font-size: 0.78rem; margin-top: 0.2rem; }
+.od-attr { color: var(--muted); font-size: 0.8rem; margin-top: 1rem; line-height: 1.6; }
 
 /* ---------- Heritage framing details ---------- */
 .card, .impact-card, .stage, .train-card, .q-card, .lang-card, .trainer-stage {

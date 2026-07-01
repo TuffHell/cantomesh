@@ -14,6 +14,24 @@ const PASS = 78; // score needed to count as a clean attempt
 const loadBest = () => { try { return JSON.parse(localStorage.getItem(POSE_KEY)) || {}; } catch { return {}; } };
 const saveBest = (b) => { try { localStorage.setItem(POSE_KEY, JSON.stringify(b)); } catch { /* ignore */ } };
 
+// Reference silhouette ("ghost") to align to, drawn from the pose's ideal joints.
+function ghostSVG(pose) {
+  const g = pose.ghost;
+  if (!g) return "";
+  const N = [0.5, 0.15], LS = [0.40, 0.30], RS = [0.60, 0.30], MS = [0.5, 0.30], MH = [0.5, 0.58],
+    LH = [0.45, 0.58], RH = [0.55, 0.58], LK = [0.45, 0.78], RK = [0.55, 0.78], LA = [0.46, 0.96], RA = [0.54, 0.96];
+  const c = (a) => `${(a[0] * 100).toFixed(1)},${(a[1] * 100).toFixed(1)}`;
+  const line = (a, b) => `<line x1="${a[0] * 100}" y1="${a[1] * 100}" x2="${b[0] * 100}" y2="${b[1] * 100}"/>`;
+  const poly = (...pts) => `<polyline points="${pts.map(c).join(" ")}"/>`;
+  return `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="${N[0] * 100}" cy="${N[1] * 100}" r="6"/>
+      ${line(MS, MH)}${line(LS, RS)}${line(LH, RH)}
+      ${poly(LS, g.le, g.lw)}${poly(RS, g.re, g.rw)}
+      ${poly(LH, LK, LA)}${poly(RH, RK, RA)}
+    </g></svg>`;
+}
+
 export function openPoseTrainer(app, onExit) {
   let landmarker = null, stream = null, raf = 0, running = true;
   let poseIdx = 0, holdStart = 0, peak = 0;
@@ -30,6 +48,7 @@ export function openPoseTrainer(app, onExit) {
       <div class="card trainer-stage">
         <div class="cam-wrap">
           <video id="cam" playsinline muted></video>
+          <div class="ghost" id="ghost" aria-hidden="true"></div>
           <canvas id="skel"></canvas>
           <div class="cam-status" id="cam-status">${t("cam.start")}</div>
           <div class="peak-badge" id="peak-badge" hidden></div>
@@ -68,6 +87,8 @@ export function openPoseTrainer(app, onExit) {
     $("#hold-row").hidden = !p.hold;
     $("#best-num").textContent = best[p.id] ? t("trainer.best", { n: best[p.id] }) : "";
     $("#peak-badge").hidden = true;
+    $("#ghost").innerHTML = ghostSVG(p);
+    $("#ghost").classList.remove("matched");
   }
   app.querySelectorAll(".ptab").forEach((b) =>
     b.addEventListener("click", () => selectPose(Number(b.dataset.i))));
@@ -89,6 +110,7 @@ export function openPoseTrainer(app, onExit) {
   }
 
   function onResult(score, hint, pose) {
+    $("#ghost")?.classList.toggle("matched", score >= PASS);
     $("#score-fill").style.width = `${score}%`;
     $("#score-fill").style.background = score >= PASS ? "var(--jade)" : "var(--gold)";
     $("#score-num").textContent = score;

@@ -104,7 +104,8 @@ Color is **semantic**: 平 always jade, 仄 always vermilion — across game, to
 | Game state machine | `js/game.js` | screens, scoring, localStorage, stats |
 | Opera figures | `js/opera-figure.js` | animated interactive performers |
 | Pose scoring core | `js/pose-coach.js` | pure biomechanical 身段 rubric (unit-tested) |
-| Pose trainer (AI) | `js/pose-trainer.js` | webcam → MediaPipe Pose → live scoring |
+| Pose trainer (AI) | `js/pose-trainer.js` | webcam → MediaPipe Pose → live scoring + silhouette ghost |
+| Open data (gov) | `js/open-data.js` + `data/hk-opera-open-data.json` | data.gov.hk / LCSD venues + HK ICH inventory |
 | 臉譜 masks | `js/masks.js` | SVG unlock rewards |
 | Heritage scene | `js/ornaments.js` | static 山水 hero scene + 祥云 + mountain footer |
 | AR face mask | `js/face-ar.js` | MediaPipe FaceLandmarker 臉譜 overlay |

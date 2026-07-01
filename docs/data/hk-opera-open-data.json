@@ -1,0 +1,24 @@
+{
+  "source": {
+    "name": "data.gov.hk · LCSD",
+    "url": "https://data.gov.hk/en/",
+    "note": "Curated from LCSD cultural-venue open data and the HK Intangible Cultural Heritage inventory (Leisure & Cultural Services Department). Architecture supports live polling of the data.gov.hk LCSD programme API."
+  },
+  "ich": {
+    "name": "粵劇",
+    "en": "Cantonese Opera",
+    "unesco": "UNESCO Representative List of the Intangible Cultural Heritage of Humanity (2009)",
+    "hkList": "Representative List of the ICH of Hong Kong (2017)",
+    "inventory": "HK First ICH Inventory, item 4.15 (2014)"
+  },
+  "venues": [
+    { "name": "戲曲中心", "en": "Xiqu Centre", "district": "油尖旺 Yau Tsim Mong", "area": "西九文化區 West Kowloon", "lat": 22.3040, "lng": 114.1665, "url": "https://www.westk.hk/en/xiqu-centre" },
+    { "name": "油麻地戲院", "en": "Yau Ma Tei Theatre", "district": "油尖旺 Yau Tsim Mong", "area": "粵劇活動及新秀培訓 Xiqu training base", "lat": 22.3132, "lng": 114.1705, "url": "https://www.lcsd.gov.hk/en/ymtt/" },
+    { "name": "高山劇場", "en": "Ko Shan Theatre", "district": "九龍城 Kowloon City", "area": "紅磡 Hung Hom", "lat": 22.3095, "lng": 114.1897, "url": "https://www.lcsd.gov.hk/en/kst/" },
+    { "name": "新光戲院大劇場", "en": "Sunbeam Theatre", "district": "東區 Eastern", "area": "北角 North Point", "lat": 22.2915, "lng": 114.1998, "url": "https://www.sunbeamtheatre.com/" },
+    { "name": "牛池灣文娛中心", "en": "Ngau Chi Wan Civic Centre", "district": "黃大仙 Wong Tai Sin", "area": "彩虹 Choi Hung", "lat": 22.3345, "lng": 114.2085, "url": "https://www.lcsd.gov.hk/en/ncwcc/" },
+    { "name": "沙田大會堂", "en": "Sha Tin Town Hall", "district": "沙田 Sha Tin", "area": "新界東 New Territories East", "lat": 22.3820, "lng": 114.1895, "url": "https://www.lcsd.gov.hk/en/stth/" },
+    { "name": "元朗劇院", "en": "Yuen Long Theatre", "district": "元朗 Yuen Long", "area": "新界西 New Territories West", "lat": 22.4445, "lng": 114.0305, "url": "https://www.lcsd.gov.hk/en/ylt/" },
+    { "name": "西灣河文娛中心", "en": "Sai Wan Ho Civic Centre", "district": "東區 Eastern", "area": "港島東 Hong Kong East", "lat": 22.2820, "lng": 114.2220, "url": "https://www.lcsd.gov.hk/en/swhcc/" }
+  ]
+}

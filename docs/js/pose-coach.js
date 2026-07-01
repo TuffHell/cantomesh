@@ -93,6 +93,7 @@ export const POSES = [
     id: "saanbong", name: "山膀", role: "基本功",
     cue: "雙臂環抱於身前，沉肩墜肘，掌心向外，掌與肩平。",
     hold: 0,
+    ghost: { le: [0.28, 0.35], lw: [0.43, 0.30], re: [0.72, 0.35], rw: [0.57, 0.30] },
     variants: [[
       { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 110, tol: 50, hint: "hint.bendElbow" },
       { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 110, tol: 50, hint: "hint.bendElbow" },
@@ -104,6 +105,7 @@ export const POSES = [
     id: "seonfung", name: "順風旗", role: "身段",
     cue: "一臂高舉過頂，另一臂平展如旗，舒展挺拔。",
     hold: 0,
+    ghost: { le: [0.28, 0.30], lw: [0.15, 0.30], re: [0.64, 0.16], rw: [0.69, 0.03] },
     variants: [
       [ // right arm up, left arm extended
         { kind: "raise", point: LM.R_WRI, ref: LM.NOSE, good: 0.06, hint: "hint.raiseAbove" },
@@ -121,6 +123,7 @@ export const POSES = [
     id: "liongseong", name: "亮相", role: "定格",
     cue: "一臂高指，一臂橫展，凝神定格——穩住一秒。",
     hold: 1200,
+    ghost: { le: [0.30, 0.31], lw: [0.13, 0.33], re: [0.62, 0.14], rw: [0.66, 0.02] },
     variants: [
       [
         { kind: "raise", point: LM.R_WRI, ref: LM.NOSE, good: 0.08, hint: "hint.pointHigh" },

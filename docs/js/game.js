@@ -5,6 +5,7 @@ import { maskSVG } from "./masks.js";
 import { createOperaFigure } from "./opera-figure.js";
 import { openPoseTrainer } from "./pose-trainer.js";
 import { openFaceAR } from "./face-ar.js";
+import { openHeritage } from "./open-data.js";
 import { t, getLang, setLang, LANGS } from "./i18n.js";
 import { heroScene, mountainFooter } from "./ornaments.js";
 
@@ -173,14 +174,12 @@ function renderMap() {
           <p>${t("mission.body")}</p>
         </div>
       </section>
-      <section class="train-cta">
-        <div class="impact-card train-card">
-          <div><h3>${t("train.title")}</h3><p>${t("train.body")}</p></div>
-          <button class="primary" id="open-trainer">${t("train.btn")}</button>
-        </div>
-        <div class="impact-card train-card ar-card">
-          <div><h3>${t("ar.title")}</h3><p>${t("ar.body")}</p></div>
-          <button class="primary" id="open-ar">${t("ar.btn")}</button>
+      <section class="studio">
+        <h3 class="studio-h">${t("studio.h")}</h3>
+        <div class="studio-row">
+          <button class="studio-tile" id="open-trainer"><span class="st-ic">身</span><b>${t("tile.train.t")}</b><small>${t("tile.train.s")}</small></button>
+          <button class="studio-tile" id="open-ar"><span class="st-ic">臉</span><b>${t("tile.ar.t")}</b><small>${t("tile.ar.s")}</small></button>
+          <button class="studio-tile" id="open-heritage"><span class="st-ic">港</span><b>${t("tile.heritage.t")}</b><small>${t("tile.heritage.s")}</small></button>
         </div>
       </section>`;
 
@@ -214,6 +213,7 @@ function renderMap() {
   $("#replay-intro")?.addEventListener("click", (e) => { e.preventDefault(); renderIntro(); });
   $("#open-trainer")?.addEventListener("click", startTrainer);
   $("#open-ar")?.addEventListener("click", startFaceAR);
+  $("#open-heritage")?.addEventListener("click", startHeritage);
   $("#lang-toggle")?.addEventListener("click", (e) => {
     e.preventDefault(); setLang(getLang() === "en" ? "zh" : "en"); renderMap();
   });
@@ -228,6 +228,11 @@ function startTrainer() {
 function startFaceAR() {
   clearFigures();
   openFaceAR(app, renderMap);
+}
+
+function startHeritage() {
+  clearFigures();
+  openHeritage(app, renderMap);
 }
 
 // First-run language gate — bilingual on purpose, before a language is chosen.

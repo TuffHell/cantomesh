@@ -60,5 +60,8 @@ check("山膀 wrists-at-shoulder > wrists-at-hip",
 // --- 亮相 requires a hold (rubric metadata) ---
 check("亮相 has hold time", pose("liongseong").hold >= 1000);
 
+// --- every pose has a ghost silhouette (for the alignment overlay) ---
+check("all poses have a ghost", POSES.every((p) => p.ghost && p.ghost.le && p.ghost.lw && p.ghost.re && p.ghost.rw));
+
 if (failed) { console.error(`\n${failed} pose check(s) FAILED`); process.exit(1); }
 console.log("\nAll pose-coach checks passed.");

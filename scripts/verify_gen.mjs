@@ -55,6 +55,26 @@ check("wide vs narrow faces differ in structure OR colour", (() => {
 check("has >= 6 traditional presets", PRESETS.length >= 6);
 check("every preset renders a mask", PRESETS.every((pr) => generateMask(pr.params, 60).includes("<svg") && pr.zh && pr.en));
 
+// --- salt freshness: same face, new salt → NEW mask; face still drives structure ---
+const s1 = metricsToParams(m, 1), s2 = metricsToParams(m, 2);
+check("same face + different salt → different seed", s1.seed !== s2.seed);
+check("salt preserves face-driven structure (谱式/eyes/brows/width)",
+  s1.style === s2.style && s1.eyeStyle === s2.eyeStyle && s1.brow === s2.brow && s1.faceW === s2.faceW);
+const salted = new Set();
+for (let k = 1; k <= 8; k++) { const sp = metricsToParams(m, k * 977); salted.add(`${sp.role.id}|${sp.motif}|${sp.cheek}|${sp.accent}`); }
+check(`8 salted generations → ${salted.size} distinct looks (>=4)`, salted.size >= 4);
+
+// --- picture glossary + matching game ---
+const { TERMS, buildMatchRound } = await import("../docs/js/glossary.js");
+check("glossary has >= 8 illustrated terms", TERMS.length >= 8);
+check("every term has zh/jp/en/explanations/svg", TERMS.every((x) => x.zh && x.jp && x.en && x.ex_zh && x.ex_en && x.svg.length > 20));
+const round = buildMatchRound(TERMS, 4, () => 0.42);
+check("match round has 4 pics + 4 labels", round.pics.length === 4 && round.labels.length === 4);
+check("match round pics/labels are the same ids", (() => {
+  const a = round.pics.map((x) => x.id).sort().join(), b = round.labels.map((x) => x.id).sort().join();
+  return a === b;
+})());
+
 // --- open-data challenge generation (data → engine) ---
 const data = JSON.parse(readFileSync(new URL("../docs/data/hk-opera-open-data.json", import.meta.url)));
 const ch = dataChallenges(data, 8);

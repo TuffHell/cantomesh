@@ -57,6 +57,26 @@ export function heroScene() {
     <!-- near range + pines -->
     <path d="M0 470 C170 436 320 470 470 448 C650 424 770 470 950 452 C1060 442 1150 462 1200 458 L1200 520 L0 520 Z" fill="url(#mtnNear)"/>
     ${pine(210, 452, 1.1)}${pine(250, 460, 0.8)}${pine(1010, 456, 0.95)}
+
+    <!-- a lone crane gliding across the valley -->
+    <g class="crane-fly">${crane(0, 0, 2.6)}</g>
+
+    <!-- drifting petals -->
+    <g class="petal p1"><path d="M0 0 q4 -6 8 0 q-4 8 -8 0 Z" fill="${SEAL}" opacity="0.5"/></g>
+    <g class="petal p2"><path d="M0 0 q4 -6 8 0 q-4 8 -8 0 Z" fill="${SEAL}" opacity="0.42"/></g>
+    <g class="petal p3"><path d="M0 0 q3 -5 6 0 q-3 6 -6 0 Z" fill="${GOLD}" opacity="0.45"/></g>
+
+    <!-- flowing water foreground -->
+    <linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="rgba(58,106,90,0.14)"/><stop offset="1" stop-color="rgba(58,106,90,0.02)"/>
+    </linearGradient>
+    <rect x="0" y="490" width="1200" height="30" fill="url(#waterG)"/>
+    <g class="water">
+      <path class="wave-a" fill="none" stroke="rgba(${INK},0.20)" stroke-width="2"
+        d="M-120 498 q30 -8 60 0 ${"t60 0 ".repeat(24)}"/>
+      <path class="wave-b" fill="none" stroke="rgba(${INK},0.12)" stroke-width="2"
+        d="M-180 508 q30 -6 60 0 ${"t60 0 ".repeat(24)}"/>
+    </g>
   </svg>`;
 }
 

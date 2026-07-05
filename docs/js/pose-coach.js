@@ -65,7 +65,7 @@ function visibleEnough(pose, lm) {
   });
   for (const i of idxs) {
     const v = lm[i]?.visibility;
-    if (v != null && v < 0.4) return false;
+    if (v != null && v < 0.35) return false;
   }
   return true;
 }
@@ -95,10 +95,10 @@ export const POSES = [
     hold: 0,
     ghost: { le: [0.28, 0.35], lw: [0.43, 0.30], re: [0.72, 0.35], rw: [0.57, 0.30] },
     variants: [[
-      { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 110, tol: 50, hint: "hint.bendElbow" },
-      { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 110, tol: 50, hint: "hint.bendElbow" },
-      { kind: "level", a: LM.L_WRI, b: LM.L_SHO, tol: 0.14, hint: "hint.handsShoulder" },
-      { kind: "level", a: LM.R_WRI, b: LM.R_SHO, tol: 0.14, hint: "hint.handsShoulder" },
+      { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 110, tol: 60, hint: "hint.bendElbow" },
+      { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 110, tol: 60, hint: "hint.bendElbow" },
+      { kind: "level", a: LM.L_WRI, b: LM.L_SHO, tol: 0.17, hint: "hint.handsShoulder" },
+      { kind: "level", a: LM.R_WRI, b: LM.R_SHO, tol: 0.17, hint: "hint.handsShoulder" },
     ]],
   },
   {
@@ -108,14 +108,14 @@ export const POSES = [
     ghost: { le: [0.28, 0.30], lw: [0.15, 0.30], re: [0.64, 0.16], rw: [0.69, 0.03] },
     variants: [
       [ // right arm up, left arm extended
-        { kind: "raise", point: LM.R_WRI, ref: LM.NOSE, good: 0.06, hint: "hint.raiseAbove" },
-        { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 165, tol: 45, hint: "hint.straightenRaised" },
-        { kind: "level", a: LM.L_WRI, b: LM.L_SHO, tol: 0.16, hint: "hint.extendLevel" },
+        { kind: "raise", point: LM.R_WRI, ref: LM.NOSE, good: 0.05, hint: "hint.raiseAbove" },
+        { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 165, tol: 55, hint: "hint.straightenRaised" },
+        { kind: "level", a: LM.L_WRI, b: LM.L_SHO, tol: 0.20, hint: "hint.extendLevel" },
       ],
       [ // left arm up, right arm extended
-        { kind: "raise", point: LM.L_WRI, ref: LM.NOSE, good: 0.06, hint: "hint.raiseAbove" },
-        { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 165, tol: 45, hint: "hint.straightenRaised" },
-        { kind: "level", a: LM.R_WRI, b: LM.R_SHO, tol: 0.16, hint: "hint.extendLevel" },
+        { kind: "raise", point: LM.L_WRI, ref: LM.NOSE, good: 0.05, hint: "hint.raiseAbove" },
+        { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 165, tol: 55, hint: "hint.straightenRaised" },
+        { kind: "level", a: LM.R_WRI, b: LM.R_SHO, tol: 0.20, hint: "hint.extendLevel" },
       ],
     ],
   },
@@ -126,16 +126,16 @@ export const POSES = [
     ghost: { le: [0.30, 0.31], lw: [0.13, 0.33], re: [0.62, 0.14], rw: [0.66, 0.02] },
     variants: [
       [
-        { kind: "raise", point: LM.R_WRI, ref: LM.NOSE, good: 0.08, hint: "hint.pointHigh" },
-        { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 170, tol: 35, hint: "hint.straightenRaised" },
-        { kind: "level", a: LM.L_WRI, b: LM.L_SHO, tol: 0.16, hint: "hint.extendLevel" },
-        { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 165, tol: 45, hint: "hint.straightenExtended" },
+        { kind: "raise", point: LM.R_WRI, ref: LM.NOSE, good: 0.06, hint: "hint.pointHigh" },
+        { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 170, tol: 45, hint: "hint.straightenRaised" },
+        { kind: "level", a: LM.L_WRI, b: LM.L_SHO, tol: 0.20, hint: "hint.extendLevel" },
+        { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 165, tol: 55, hint: "hint.straightenExtended" },
       ],
       [
-        { kind: "raise", point: LM.L_WRI, ref: LM.NOSE, good: 0.08, hint: "hint.pointHigh" },
-        { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 170, tol: 35, hint: "hint.straightenRaised" },
-        { kind: "level", a: LM.R_WRI, b: LM.R_SHO, tol: 0.16, hint: "hint.extendLevel" },
-        { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 165, tol: 45, hint: "hint.straightenExtended" },
+        { kind: "raise", point: LM.L_WRI, ref: LM.NOSE, good: 0.06, hint: "hint.pointHigh" },
+        { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 170, tol: 45, hint: "hint.straightenRaised" },
+        { kind: "level", a: LM.R_WRI, b: LM.R_SHO, tol: 0.20, hint: "hint.extendLevel" },
+        { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 165, tol: 55, hint: "hint.straightenExtended" },
       ],
     ],
   },

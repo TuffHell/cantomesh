@@ -6,6 +6,8 @@ import { createOperaFigure } from "./opera-figure.js";
 import { openPoseTrainer } from "./pose-trainer.js";
 import { openFaceAR } from "./face-ar.js";
 import { openHeritage } from "./open-data.js";
+import { openGlossary } from "./glossary.js";
+import { openVoice } from "./voice.js";
 import { t, getLang, setLang, LANGS } from "./i18n.js";
 import { heroScene, mountainFooter } from "./ornaments.js";
 
@@ -179,6 +181,8 @@ function renderMap() {
         <div class="studio-row">
           <button class="studio-tile" id="open-trainer"><span class="st-ic">身</span><b>${t("tile.train.t")}</b><small>${t("tile.train.s")}</small></button>
           <button class="studio-tile" id="open-ar"><span class="st-ic">臉</span><b>${t("tile.ar.t")}</b><small>${t("tile.ar.s")}</small></button>
+          <button class="studio-tile" id="open-gloss"><span class="st-ic">圖</span><b>${t("tile.gloss.t")}</b><small>${t("tile.gloss.s")}</small></button>
+          <button class="studio-tile" id="open-voice"><span class="st-ic">聲</span><b>${t("tile.voice.t")}</b><small>${t("tile.voice.s")}</small></button>
           <button class="studio-tile" id="open-heritage"><span class="st-ic">港</span><b>${t("tile.heritage.t")}</b><small>${t("tile.heritage.s")}</small></button>
         </div>
       </section>`;
@@ -214,6 +218,8 @@ function renderMap() {
   $("#open-trainer")?.addEventListener("click", startTrainer);
   $("#open-ar")?.addEventListener("click", startFaceAR);
   $("#open-heritage")?.addEventListener("click", startHeritage);
+  $("#open-gloss")?.addEventListener("click", () => { clearFigures(); openGlossary(app, renderMap); });
+  $("#open-voice")?.addEventListener("click", () => { clearFigures(); openVoice(app, renderMap); });
   $("#lang-toggle")?.addEventListener("click", (e) => {
     e.preventDefault(); setLang(getLang() === "en" ? "zh" : "en"); renderMap();
   });

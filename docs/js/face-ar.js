@@ -11,7 +11,7 @@ const F = { L_EYE: 33, R_EYE: 263, L_EDGE: 234, R_EDGE: 454, TOP: 10, CHIN: 152 
 
 export function openFaceAR(app, onExit) {
   let landmarker = null, stream = null, raf = 0, running = true;
-  let metrics = null, params = null, maskImg = null, frames = 0, autoGen = false;
+  let metrics = null, params = null, maskImg = null, frames = 0, autoGen = false, lostFrames = 0;
 
   app.innerHTML = `
     <main class="wrap trainer">
@@ -62,7 +62,13 @@ export function openFaceAR(app, onExit) {
     $("#ar-trait").textContent = trait != null ? trait : (lang === "en" ? p.archetype.trait_en : p.archetype.trait_zh);
     $("#regen-mask").hidden = false;
   }
-  function genFromFace() { autoGen = true; applyParams(metrics ? metricsToParams(metrics) : randomParams()); }
+  // A fresh salt each call → every generation is a NEW mask, still shaped by
+  // the live facial metrics (structure/eyes/brows follow the actual face).
+  function genFromFace() {
+    autoGen = true;
+    const salt = 1 + Math.floor(Math.random() * 1e6);
+    applyParams(metrics ? metricsToParams(metrics, salt) : randomParams());
+  }
 
   $("#gen-mask").addEventListener("click", genFromFace);
   $("#regen-mask").addEventListener("click", genFromFace);
@@ -102,9 +108,13 @@ export function openFaceAR(app, onExit) {
       if (lm) {
         hint.hidden = true;
         metrics = faceMetrics(lm);
-        if (!autoGen && ++frames > 20) { autoGen = true; genFromFace(); } // auto-generate once stable
+        // auto-generate once stable, and RE-generate when a new face appears
+        // (lost for >1s then found again → likely a different person).
+        if ((!autoGen && ++frames > 20) || lostFrames > 30) genFromFace();
+        lostFrames = 0;
         drawMask(lm);
       } else {
+        lostFrames++;
         hint.hidden = false;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }

@@ -9,7 +9,7 @@ const MP = "0.10.20";
 const MODEL =
   "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
 const POSE_KEY = "cantomesh.pose.v1";
-const PASS = 78; // score needed to count as a clean attempt
+const PASS = 74; // score needed to count as a clean attempt
 
 const loadBest = () => { try { return JSON.parse(localStorage.getItem(POSE_KEY)) || {}; } catch { return {}; } };
 const saveBest = (b) => { try { localStorage.setItem(POSE_KEY, JSON.stringify(b)); } catch { /* ignore */ } };
@@ -34,9 +34,12 @@ function ghostSVG(g) {
 export function openPoseTrainer(app, onExit) {
   let landmarker = null, stream = null, raf = 0, running = true;
   let poseIdx = 0, holdStart = 0, peak = 0;
-  let routine = false, seqStep = 0, combo = 0, ghostAnim = 0;
-  const SEQ = [0, 1, 2]; // 山膀 → 順風旗 → 亮相
+  // Curriculum: learn each move (single) → link two moves (link) → full flow.
+  let mode = "single", seq = [0, 1, 2], seqStep = 0, combo = 0, ghostAnim = 0, linkStage = 0;
+  const LINK_PAIRS = [[0, 1], [1, 2]]; // 山膀→順風旗, then 順風旗→亮相
   const best = loadBest();
+  const singlesPassed = () => POSES.every((p) => (best[p.id] || 0) >= PASS);
+  const linkDone = () => !!best.__link;
 
   app.innerHTML = `
     <main class="wrap trainer">
@@ -44,9 +47,11 @@ export function openPoseTrainer(app, onExit) {
         <button class="back" id="t-quit">${t("common.back")}</button>
         <div class="pose-tabs" id="pose-tabs">
           ${POSES.map((p, i) => `<button class="ptab ${i === 0 ? "active" : ""}" data-i="${i}">${p.name}</button>`).join("")}
+          <button class="ptab" data-i="link">${t("link.tab")}</button>
           <button class="ptab" data-i="routine">${t("routine.tab")}</button>
         </div>
       </div>
+      <div class="lesson-path" id="lesson-path"></div>
       <div class="card trainer-stage">
         <div class="cam-wrap">
           <video id="cam" playsinline muted></video>
@@ -82,8 +87,28 @@ export function openPoseTrainer(app, onExit) {
 
   const setGhost = (g) => { $("#ghost").innerHTML = ghostSVG(g); };
 
+  // Lesson-path banner: ① learn singles ② link pairs ③ full flow.
+  function renderLessonPath() {
+    const s1 = singlesPassed(), s2 = linkDone();
+    const step = (n, label, done, active) =>
+      `<span class="lp-step ${done ? "done" : ""} ${active ? "now" : ""}"><i>${done ? "✓" : n}</i>${label}</span>`;
+    $("#lesson-path").innerHTML =
+      step(1, t("lesson.single"), s1, !s1) + `<b>→</b>` +
+      step(2, t("lesson.link"), s2, s1 && !s2) + `<b>→</b>` +
+      step(3, t("lesson.flow"), !!best.__flow, s2);
+  }
+  function refreshLocks() {
+    const linkBtn = app.querySelector('.ptab[data-i="link"]');
+    const flowBtn = app.querySelector('.ptab[data-i="routine"]');
+    linkBtn.disabled = !singlesPassed();
+    flowBtn.disabled = !linkDone();
+    linkBtn.classList.toggle("locked", linkBtn.disabled);
+    flowBtn.classList.toggle("locked", flowBtn.disabled);
+    renderLessonPath();
+  }
+
   function selectPose(i) {
-    routine = false; cancelAnimationFrame(ghostAnim);
+    mode = "single"; cancelAnimationFrame(ghostAnim);
     poseIdx = i; holdStart = 0; peak = 0;
     app.querySelectorAll(".ptab").forEach((b) => b.classList.toggle("active", b.dataset.i === String(i)));
     const p = POSES[i];
@@ -94,25 +119,37 @@ export function openPoseTrainer(app, onExit) {
     $("#peak-badge").hidden = true;
     setGhost(p.ghost);
     $("#ghost").classList.remove("matched");
+    refreshLocks();
   }
 
-  // ---- movement routine (a flowing sequence, not a frozen hold) ----
-  function selectRoutine() {
-    routine = true; seqStep = 0; combo = 0; holdStart = 0;
-    app.querySelectorAll(".ptab").forEach((b) => b.classList.toggle("active", b.dataset.i === "routine"));
-    $("#pose-name").textContent = t("routine.title");
-    $("#pose-cue").textContent = t("routine.cue");
+  // ---- linked / flowing sequences (movement, not frozen holds) ----
+  function startSequence(newMode, newSeq, title, cue) {
+    mode = newMode; seq = newSeq; seqStep = 0; combo = 0; holdStart = 0;
+    app.querySelectorAll(".ptab").forEach((b) =>
+      b.classList.toggle("active", b.dataset.i === (newMode === "link" ? "link" : "routine")));
+    $("#pose-name").textContent = title;
+    $("#pose-cue").textContent = cue;
     $("#hold-row").hidden = false;
     $("#best-num").textContent = "";
     $("#peak-badge").hidden = true;
     $("#score-num").textContent = "--";
-    setGhost(POSES[SEQ[0]].ghost);
+    setGhost(POSES[seq[0]].ghost);
     updateRoutineHint();
+    refreshLocks();
+  }
+  function selectLink() {
+    linkStage = 0;
+    const [a, b] = LINK_PAIRS[0];
+    startSequence("link", LINK_PAIRS[0], t("link.title"),
+      t("link.cue", { a: POSES[a].name, b: POSES[b].name }));
+  }
+  function selectRoutine() {
+    startSequence("flow", [0, 1, 2], t("routine.title"), t("routine.cue"));
   }
   function updateRoutineHint() {
-    const p = POSES[SEQ[seqStep]];
+    const p = POSES[seq[seqStep]];
     $("#coach-hint").textContent = t("routine.step", {
-      n: seqStep + 1, total: SEQ.length, pose: t(`pose.${p.id}.name`), combo,
+      n: seqStep + 1, total: seq.length, pose: t(`pose.${p.id}.name`), combo,
     });
   }
   function animateGhost(fromG, toG) {
@@ -129,20 +166,42 @@ export function openPoseTrainer(app, onExit) {
     };
     ghostAnim = requestAnimationFrame(tick);
   }
+  function sequenceComplete() {
+    const badge = $("#peak-badge");
+    if (mode === "link") {
+      if (linkStage < LINK_PAIRS.length - 1) {
+        linkStage++;
+        seq = LINK_PAIRS[linkStage]; seqStep = 0;
+        const [a, b] = seq;
+        $("#pose-cue").textContent = t("link.cue", { a: POSES[a].name, b: POSES[b].name });
+        setGhost(POSES[seq[0]].ghost);
+        badge.hidden = false; badge.textContent = t("link.next");
+      } else {
+        best.__link = true; saveBest(best);
+        badge.hidden = false; badge.textContent = t("link.done");
+        refreshLocks();
+      }
+    } else {
+      best.__flow = (best.__flow || 0) + 1; saveBest(best);
+      badge.hidden = false; badge.textContent = t("routine.done", { combo });
+      renderLessonPath();
+    }
+  }
   function routineTick(score) {
-    const cur = POSES[SEQ[seqStep]], need = 500;
+    const cur = POSES[seq[seqStep]], need = 500;
     if (score >= PASS) {
       if (!holdStart) holdStart = performance.now();
       const held = performance.now() - holdStart;
       $("#hold-fill").style.width = `${Math.min(100, (held / need) * 100)}%`;
       if (held >= need) {
         combo++;
-        const next = POSES[SEQ[(seqStep + 1) % SEQ.length]];
+        const wrapped = seqStep === seq.length - 1;
+        const next = POSES[seq[(seqStep + 1) % seq.length]];
         animateGhost(cur.ghost, next.ghost);
-        seqStep = (seqStep + 1) % SEQ.length;
+        seqStep = (seqStep + 1) % seq.length;
         holdStart = 0; $("#hold-fill").style.width = "0%";
         updateRoutineHint();
-        if (seqStep === 0) { const b = $("#peak-badge"); b.hidden = false; b.textContent = t("routine.done", { combo }); }
+        if (wrapped) sequenceComplete();
       }
     } else {
       holdStart = 0; $("#hold-fill").style.width = "0%"; updateRoutineHint();
@@ -150,7 +209,12 @@ export function openPoseTrainer(app, onExit) {
   }
 
   app.querySelectorAll(".ptab").forEach((b) =>
-    b.addEventListener("click", () => (b.dataset.i === "routine" ? selectRoutine() : selectPose(Number(b.dataset.i)))));
+    b.addEventListener("click", () => {
+      if (b.disabled) return;
+      if (b.dataset.i === "link") selectLink();
+      else if (b.dataset.i === "routine") selectRoutine();
+      else selectPose(Number(b.dataset.i));
+    }));
   selectPose(0);
 
   function drawSkeleton(lm) {
@@ -173,7 +237,7 @@ export function openPoseTrainer(app, onExit) {
     $("#score-fill").style.width = `${score}%`;
     $("#score-fill").style.background = score >= PASS ? "var(--jade)" : "var(--gold)";
     $("#score-num").textContent = score;
-    if (routine) { routineTick(score); return; }
+    if (mode !== "single") { routineTick(score); return; }
     $("#coach-hint").textContent = hint ? t(hint) : (score >= PASS ? t("trainer.hold") : t("trainer.adjust"));
     peak = Math.max(peak, score);
 
@@ -196,11 +260,12 @@ export function openPoseTrainer(app, onExit) {
     }
     best[pose.id] = Math.max(best[pose.id] || 0, peak);
     saveBest(best);
-    $("#best-num").textContent = `最佳 ${best[pose.id]}`;
+    $("#best-num").textContent = t("trainer.best", { n: best[pose.id] });
     const badge = $("#peak-badge");
     badge.hidden = false;
     badge.textContent = t("trainer.pass", { name: t(`pose.${pose.id}.name`), n: peak });
     holdStart = 0; peak = 0;
+    refreshLocks(); // passing a single move may unlock 連式
   }
 
   function loop() {
@@ -211,7 +276,7 @@ export function openPoseTrainer(app, onExit) {
       let res;
       try { res = landmarker.detectForVideo(video, performance.now()); } catch { /* skip frame */ }
       const lm = res?.landmarks?.[0];
-      const pose = routine ? POSES[SEQ[seqStep]] : POSES[poseIdx];
+      const pose = mode !== "single" ? POSES[seq[seqStep]] : POSES[poseIdx];
       if (lm) {
         drawSkeleton(lm);
         const r = scorePose(lm, pose);

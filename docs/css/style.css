@@ -420,6 +420,27 @@ body.game { background: var(--bg); }
 
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
+/* ---------- ambient traditional animations (smooth, long-period) ---------- */
+.hero-scene .wave-a { animation: waveDrift 18s linear infinite; }
+.hero-scene .wave-b { animation: waveDrift 30s linear infinite reverse; }
+@keyframes waveDrift { to { transform: translateX(120px); } }
+.hero-scene .crane-fly { animation: craneGlide 58s ease-in-out infinite; }
+@keyframes craneGlide {
+  0% { transform: translate(-140px, 190px); }
+  50% { transform: translate(620px, 120px); }
+  100% { transform: translate(1360px, 170px); }
+}
+.hero-scene .petal { animation: petalFall 30s linear infinite; }
+.hero-scene .p1 { animation-duration: 26s; transform: translate(180px, -20px); }
+.hero-scene .p2 { animation-duration: 36s; animation-delay: -14s; transform: translate(520px, -20px); }
+.hero-scene .p3 { animation-duration: 44s; animation-delay: -26s; transform: translate(860px, -20px); }
+@keyframes petalFall {
+  0% { transform: translate(var(--px, 180px), -30px) rotate(0deg); opacity: 0; }
+  8% { opacity: 1; }
+  100% { transform: translate(calc(var(--px, 180px) + 90px), 540px) rotate(300deg); opacity: 0.2; }
+}
+.hero-scene .p1 { --px: 180px; } .hero-scene .p2 { --px: 520px; } .hero-scene .p3 { --px: 860px; }
+
 /* refined AI Studio row */
 .studio { margin-top: 1.2rem; }
 .studio-h { font-family: var(--kai); font-size: 1.1rem; letter-spacing: 0.08em; margin: 0 0 0.7rem; color: var(--ink); }
@@ -459,6 +480,43 @@ body.game { background: var(--bg); }
 .od-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
 .od-tags span { font-family: var(--kai); background: #fffdf8; border: 1px solid var(--line); border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.95rem; }
 .od-corpus .controls { margin: 0.3rem 0; }
+
+/* lesson path (trainer curriculum) */
+.lesson-path { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; font-family: var(--kai); font-size: 0.95rem; color: var(--muted); margin: 0.2rem 0 0.8rem; }
+.lesson-path b { color: var(--line); font-weight: 400; }
+.lp-step { display: inline-flex; align-items: center; gap: 0.4rem; }
+.lp-step i { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 99px; border: 1px solid var(--line); font-style: normal; font-size: 0.8rem; background: var(--card); }
+.lp-step.done { color: var(--jade); } .lp-step.done i { background: rgba(58,106,90,0.14); border-color: var(--jade); color: var(--jade); }
+.lp-step.now { color: var(--vermilion); } .lp-step.now i { border-color: var(--vermilion); color: var(--vermilion); }
+.ptab.locked { opacity: 0.45; cursor: not-allowed; }
+.ptab.locked::after { content: " 🔒"; font-size: 0.75em; }
+
+/* picture glossary + matching game */
+.g-title { font-family: var(--kai); font-size: 1.5rem; margin: 0 0 0.2rem; letter-spacing: 0.06em; }
+.g-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 0.6rem; margin: 0.8rem 0; }
+.g-card { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.1rem; background: #fffdf8; border: 1px solid var(--line); border-radius: 12px; padding: 0.6rem 0.4rem 0.5rem; font-family: var(--serif); transition: transform 0.15s var(--ease), border-color 0.15s; }
+.g-card:hover { transform: translateY(-3px); border-color: var(--vermilion); }
+.g-card svg { width: 64px; height: 64px; }
+.g-card b { font-family: var(--kai); font-size: 1.05rem; color: var(--ink); }
+.g-card i { font-style: normal; font-family: var(--mono); font-size: 0.6rem; color: var(--muted); }
+.g-card span { font-size: 0.7rem; color: var(--muted); }
+.g-card.sel { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(169,128,47,0.3); }
+.g-card.done { border-color: var(--jade); background: rgba(58,106,90,0.08); pointer-events: none; }
+.g-explain { min-height: 3.2em; border-left: 3px solid var(--gold); padding: 0.4rem 0.9rem; color: var(--ink); font-size: 0.95rem; }
+.g-explain code { font-family: var(--mono); font-size: 0.8em; color: var(--muted); }
+.m-labels { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem; }
+.m-label { cursor: pointer; font-family: var(--kai); font-size: 1.2rem; padding: 0.45rem 1rem; border-radius: 10px; border: 1px solid var(--line); background: var(--card); transition: border-color 0.15s; }
+.m-label.sel { border-color: var(--vermilion); color: var(--vermilion); }
+.m-label.done { border-color: var(--jade); color: var(--jade); background: rgba(58,106,90,0.1); pointer-events: none; }
+.g-card.shake { animation: shakeX 0.35s; }
+@keyframes shakeX { 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+
+/* voice changer */
+.voice .center { text-align: center; }
+#v-meter { display: block; margin: 0.8rem auto; background: rgba(0,0,0,0.07); border-radius: 99px; }
+.v-slider { display: flex; align-items: center; gap: 0.7rem; justify-content: center; margin-top: 1rem; font-family: var(--kai); color: var(--ink); }
+.v-slider input { width: 180px; accent-color: var(--vermilion); }
+.v-slider b { color: var(--vermilion); min-width: 2.2em; }
 
 /* ---------- Heritage framing details ---------- */
 .card, .impact-card, .stage, .train-card, .q-card, .lang-card, .trainer-stage {

@@ -32,15 +32,20 @@ export function faceMetrics(lm) {
   };
 }
 
-export function metricsToParams(m) {
-  const seed = Math.abs(
+// salt=0 → fully deterministic from the face. A non-zero salt keeps the
+// face-DRIVEN parts (谱式 structure, eye shape, brow, face width — your actual
+// features) but reshuffles the expressive parts (role colour, motif, cheek,
+// accent), so every generation is a NEW mask still built on your face.
+export function metricsToParams(m, salt = 0) {
+  const faceSeed = Math.abs(
     Math.round(m.aspect * 137) * 7 + Math.round(m.eyeSpacing * 211) * 13 +
     Math.round(m.noseRatio * 173) * 5 + Math.round(m.mouthRatio * 197) * 3);
+  const seed = faceSeed + Math.abs(Math.round(salt)) * 101;
   return {
     seed,
     role: ROLES[seed % ROLES.length],
     // face shape drives the structural 谱式 (wide → bolder patterns)
-    style: STYLES[(m.aspect > 0.78 ? 1 : m.aspect < 0.66 ? 2 : (seed >> 1) % 4) % 4],
+    style: STYLES[(m.aspect > 0.78 ? 1 : m.aspect < 0.66 ? 2 : (faceSeed >> 1) % 4) % 4],
     motif: (seed >> 2) % 8,
     eyeStyle: m.eyeSpacing > 0.36 ? 0 : m.eyeSpacing < 0.30 ? 2 : 1,
     brow: m.noseRatio > 0.34 ? 0 : m.noseRatio < 0.28 ? 2 : 1,

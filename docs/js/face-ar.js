@@ -2,7 +2,7 @@
 // generates a UNIQUE opera 臉譜 from it, then tracks it onto your face. Every
 // face yields a different mask + 行當 reading. Video never leaves the device.
 import { t, getLang } from "./i18n.js";
-import { faceMetrics, metricsToParams, generateMask, randomParams, PRESETS } from "./mask-gen.js";
+import { faceMetrics, generateMask, randomParams, PRESETS, maskFromLandmarks } from "./mask-gen.js";
 
 const MP = "0.10.20";
 const FACE_MODEL =
@@ -11,7 +11,7 @@ const F = { L_EYE: 33, R_EYE: 263, L_EDGE: 234, R_EDGE: 454, TOP: 10, CHIN: 152 
 
 export function openFaceAR(app, onExit) {
   let landmarker = null, stream = null, raf = 0, running = true;
-  let metrics = null, params = null, maskImg = null, frames = 0, autoGen = false, lostFrames = 0;
+  let metrics = null, lastLm = null, params = null, maskImg = null, frames = 0, autoGen = false, lostFrames = 0;
 
   app.innerHTML = `
     <main class="wrap trainer">
@@ -29,6 +29,7 @@ export function openFaceAR(app, onExit) {
         <div class="coach">
           <h2 id="ar-arch">${t("ar.yourmask")}</h2>
           <div class="mask-preview" id="mask-preview"></div>
+          <p class="hint" id="ar-from"></p>
           <p class="cue" id="ar-trait"></p>
           <div class="controls">
             <button class="primary" id="gen-mask">${t("ar.generate")}</button>
@@ -53,21 +54,31 @@ export function openFaceAR(app, onExit) {
   }
   $("#ar-quit").addEventListener("click", () => { cleanup(); onExit(); });
 
-  function applyParams(p, name, trait) {
+  let fit = 1.7; // overlay width ÷ face width (portrait masks hug the real face)
+  function applySvg(svg, p, name, trait, fromFace) {
     params = p;
+    fit = fromFace ? 1.22 : 1.7;
     maskImg = new Image();
-    maskImg.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(generateMask(p, 300));
-    $("#mask-preview").innerHTML = generateMask(p, 150);
+    maskImg.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    $("#mask-preview").innerHTML = svg;
     $("#ar-arch").textContent = name || (lang === "en" ? p.archetype.en : p.archetype.zh);
     $("#ar-trait").textContent = trait != null ? trait : (lang === "en" ? p.archetype.trait_en : p.archetype.trait_zh);
+    $("#ar-from").textContent = fromFace ? t("ar.fromface") : "";
     $("#regen-mask").hidden = false;
   }
-  // A fresh salt each call → every generation is a NEW mask, still shaped by
-  // the live facial metrics (structure/eyes/brows follow the actual face).
+  // Portrait generation: the mask is painted FROM the live landmarks — the
+  // silhouette is their jaw, sockets sit on their eyes, brows follow their
+  // arch. A fresh salt each call varies the paint, never the identity.
   function genFromFace() {
     autoGen = true;
     const salt = 1 + Math.floor(Math.random() * 1e6);
-    applyParams(metrics ? metricsToParams(metrics, salt) : randomParams());
+    if (lastLm) {
+      const { svg, params: p } = maskFromLandmarks(lastLm, salt, 300);
+      applySvg(svg, p, null, null, true);
+    } else {
+      const p = randomParams();
+      applySvg(generateMask(p, 300), p, null, null, false);
+    }
   }
 
   $("#gen-mask").addEventListener("click", genFromFace);
@@ -79,7 +90,7 @@ export function openFaceAR(app, onExit) {
   app.querySelectorAll(".preset-thumb").forEach((b) => b.addEventListener("click", () => {
     const pr = PRESETS.find((x) => x.id === b.dataset.id);
     autoGen = true;
-    applyParams(pr.params, lang === "en" ? pr.en : pr.zh, "");
+    applySvg(generateMask(pr.params, 300), pr.params, lang === "en" ? pr.en : pr.zh, "", false);
   }));
 
   function drawMask(lm) {
@@ -90,7 +101,7 @@ export function openFaceAR(app, onExit) {
     const cy = ((lm[F.TOP].y + lm[F.CHIN].y) / 2) * h;
     const faceW = Math.hypot((lm[F.R_EDGE].x - lm[F.L_EDGE].x) * w, (lm[F.R_EDGE].y - lm[F.L_EDGE].y) * h);
     const roll = Math.atan2(lm[F.R_EYE].y - lm[F.L_EYE].y, lm[F.R_EYE].x - lm[F.L_EYE].x);
-    const mw = faceW * 1.7, mh = mw * 1.22;
+    const mw = faceW * fit, mh = mw * 1.22;
     ctx.save();
     ctx.translate(cx, cy - mh * 0.06); ctx.rotate(roll); ctx.globalAlpha = 0.92;
     ctx.drawImage(maskImg, -mw / 2, -mh / 2, mw, mh);
@@ -107,6 +118,7 @@ export function openFaceAR(app, onExit) {
       const lm = res?.faceLandmarks?.[0];
       if (lm) {
         hint.hidden = true;
+        lastLm = lm;
         metrics = faceMetrics(lm);
         // auto-generate once stable, and RE-generate when a new face appears
         // (lost for >1s then found again → likely a different person).

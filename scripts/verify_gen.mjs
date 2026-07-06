@@ -1,6 +1,6 @@
 // Tests for the personalized mask generator + open-data challenge generation.
 // Run: node scripts/verify_gen.mjs
-import { faceMetrics, metricsToParams, generateMask, randomParams, PRESETS } from "../docs/js/mask-gen.js";
+import { faceMetrics, metricsToParams, generateMask, randomParams, PRESETS, maskFromLandmarks } from "../docs/js/mask-gen.js";
 import { dataChallenges } from "../docs/js/open-data.js";
 import { lookup } from "../docs/js/prosody.js";
 import { readFileSync } from "fs";
@@ -63,6 +63,53 @@ check("salt preserves face-driven structure (谱式/eyes/brows/width)",
 const salted = new Set();
 for (let k = 1; k <= 8; k++) { const sp = metricsToParams(m, k * 977); salted.add(`${sp.role.id}|${sp.motif}|${sp.cheek}|${sp.accent}`); }
 check(`8 salted generations → ${salted.size} distinct looks (>=4)`, salted.size >= 4);
+
+// --- PORTRAIT mask: painted from the actual landmarks (identifiability) ---
+const OVAL_IDX = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365,
+  379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127,
+  162, 21, 54, 103, 67, 109];
+// A plausible synthetic face: oval ring + real feature points, all controllable.
+function synthFace({ rx = 0.24, ry = 0.32, eyeY = 0.44, eyeDX = 0.09 } = {}) {
+  const lm = Array.from({ length: 478 }, () => ({ x: 0.5, y: 0.5 }));
+  OVAL_IDX.forEach((idx, i) => {
+    const th = (i / OVAL_IDX.length) * 2 * Math.PI;
+    lm[idx] = { x: 0.5 + rx * Math.sin(th), y: 0.5 - ry * Math.cos(th) };
+  });
+  const set = (i, x, y) => { lm[i] = { x, y }; };
+  // eyes
+  set(33, 0.5 - eyeDX - 0.045, eyeY); set(133, 0.5 - eyeDX + 0.045, eyeY);
+  set(159, 0.5 - eyeDX, eyeY - 0.012); set(145, 0.5 - eyeDX, eyeY + 0.012);
+  set(263, 0.5 + eyeDX + 0.045, eyeY); set(362, 0.5 + eyeDX - 0.045, eyeY);
+  set(386, 0.5 + eyeDX, eyeY - 0.012); set(374, 0.5 + eyeDX, eyeY + 0.012);
+  // brows
+  [[70, -0.14], [63, -0.11], [105, -0.08], [66, -0.05], [107, -0.03]].forEach(([i, dx]) => set(i, 0.5 + dx, eyeY - 0.05));
+  [[336, 0.03], [296, 0.05], [334, 0.08], [293, 0.11], [300, 0.14]].forEach(([i, dx]) => set(i, 0.5 + dx, eyeY - 0.05));
+  // nose + mouth
+  set(168, 0.5, eyeY); set(1, 0.5, 0.56); set(98, 0.47, 0.565); set(327, 0.53, 0.565);
+  set(61, 0.45, 0.66); set(291, 0.55, 0.66); set(0, 0.5, 0.645); set(17, 0.5, 0.675);
+  set(234, 0.5 - rx, 0.5); set(454, 0.5 + rx, 0.5); set(10, 0.5, 0.5 - ry); set(152, 0.5, 0.5 + ry);
+  return lm;
+}
+const outlineOf = (svg) => svg.match(/d="([^"]+)" fill="[^"]*" stroke="[^"]*" stroke-width="1.8" data-part="outline"/)?.[1];
+
+const port = maskFromLandmarks(synthFace(), 1);
+check("portrait mask returns svg + params", port.svg.startsWith("<svg") && !!port.params.role);
+check("portrait has transparent eye holes (evenodd)", port.svg.includes("evenodd"));
+check("portrait paints regions clipped to the REAL face outline", port.svg.includes("clip-path"));
+
+const wideP = maskFromLandmarks(synthFace({ rx: 0.30 }), 1);
+const narrowP = maskFromLandmarks(synthFace({ rx: 0.17 }), 1);
+check("wide vs narrow jaw → different silhouettes", outlineOf(wideP.svg) !== outlineOf(narrowP.svg));
+
+const eyesHigh = maskFromLandmarks(synthFace({ eyeY: 0.40 }), 1);
+const eyesLow = maskFromLandmarks(synthFace({ eyeY: 0.47 }), 1);
+const socketY = (svg) => svg.match(/data-part="socket"/g) && svg.split('data-part="socket"')[0].length;
+check("eye position moves the sockets (identifiable)",
+  eyesHigh.svg.split('data-part="socket"')[0] !== eyesLow.svg.split('data-part="socket"')[0]
+  && socketY(eyesHigh.svg) > 0);
+
+const saltA = maskFromLandmarks(synthFace(), 11), saltB = maskFromLandmarks(synthFace(), 22);
+check("salt changes the paint but keeps THEIR silhouette", outlineOf(saltA.svg) === outlineOf(saltB.svg) && saltA.svg !== saltB.svg);
 
 // --- picture glossary + matching game ---
 const { TERMS, buildMatchRound } = await import("../docs/js/glossary.js");

@@ -163,3 +163,136 @@ export function randomParams() {
     mouthRatio: 0.30 + Math.random() * 0.16,
   });
 }
+
+// ===========================================================================
+// PORTRAIT MASK — painted directly from the person's 468 FaceMesh landmarks.
+// The silhouette IS their jaw/forehead; sockets sit on their real eyes (with
+// transparent holes so their own eyes look through); brows follow their arch;
+// the 谱式 pattern is clipped to their true face shape. Identifiable, not a
+// recoloured template.
+// ===========================================================================
+
+// FaceMesh landmark chains/points.
+const OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365,
+  379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127,
+  162, 21, 54, 103, 67, 109];
+const LBROW = [70, 63, 105, 66, 107], RBROW = [336, 296, 334, 293, 300];
+const LEYE = { out: 33, inn: 133, top: 159, bot: 145 };
+const REYE = { out: 263, inn: 362, top: 386, bot: 374 };
+const NOSE = { bridge: 168, tip: 1, wl: 98, wr: 327 };
+const MOUTH = { l: 61, r: 291, top: 0, bot: 17 };
+
+// Quadratic midpoint smoothing → organic closed/open paths from landmark chains.
+const smoothClosed = (pts) => {
+  let d = `M ${(pts[0].x + pts.at(-1).x) / 2} ${(pts[0].y + pts.at(-1).y) / 2}`;
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i], n = pts[(i + 1) % pts.length];
+    d += ` Q ${p.x} ${p.y} ${(p.x + n.x) / 2} ${(p.y + n.y) / 2}`;
+  }
+  return d + " Z";
+};
+const smoothOpen = (pts) => {
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const p = pts[i], n = pts[i + 1];
+    d += ` Q ${p.x} ${p.y} ${(p.x + n.x) / 2} ${(p.y + n.y) / 2}`;
+  }
+  return d + ` L ${pts.at(-1).x} ${pts.at(-1).y}`;
+};
+const r1 = (v) => Math.round(v * 10) / 10;
+
+// One exaggerated 净-style eye socket over the REAL eye, with a transparent
+// hole (fill-rule evenodd) so the wearer's own eye shows through the mask.
+function socket(eye, M) {
+  const out = M(eye.out), inn = M(eye.inn), top = M(eye.top), bot = M(eye.bot);
+  const w = Math.hypot(out.x - inn.x, out.y - inn.y);
+  const h = Math.max(2.2, Math.abs(bot.y - top.y)) * 1.15;
+  const cx = (out.x + inn.x) / 2, cy = (top.y + bot.y) / 2;
+  const ex = { x: out.x + (out.x - inn.x) * 0.30, y: out.y - h * 0.9 }; // flicked outer tip
+  const leaf = `M ${r1(inn.x)} ${r1(cy)} Q ${r1(cx)} ${r1(cy - h * 2.1)} ${r1(ex.x)} ${r1(ex.y)}` +
+    ` Q ${r1(cx + w * 0.15)} ${r1(cy + h * 1.5)} ${r1(inn.x)} ${r1(cy)} Z`;
+  const hole = ` M ${r1(cx + w * 0.42)} ${r1(cy)} A ${r1(w * 0.42)} ${r1(h * 0.8)} 0 1 0 ${r1(cx - w * 0.42)} ${r1(cy)}` +
+    ` A ${r1(w * 0.42)} ${r1(h * 0.8)} 0 1 0 ${r1(cx + w * 0.42)} ${r1(cy)} Z`;
+  return `<path d="${leaf}${hole}" fill="${INK}" fill-rule="evenodd" data-part="socket"/>`;
+}
+
+// 谱式 regions painted RELATIVE to the real features, clipped to the real face.
+function portraitRegions(p, a) {
+  const k = p.role.primary, s = p.role.secondary, ac = p.accent;
+  const browY = a.browY, eyeBotY = a.eyeBotY, topY = a.topY, chinY = a.chinY;
+  const noseX = a.nose.x, cheekL = a.cheekL, cheekR = a.cheekR;
+  switch (p.style) {
+    case "zheng":
+      return `<rect x="0" y="${topY - 6}" width="100" height="${chinY - topY + 12}" fill="${k}"/>
+        <rect x="0" y="${browY + 1}" width="100" height="${eyeBotY - browY + 3}" fill="${BASE}" opacity="0.92"/>`;
+    case "sankuaiwa":
+      return `<rect x="0" y="${topY - 6}" width="100" height="${browY - topY + 4}" fill="${k}"/>
+        <ellipse cx="${cheekL.x}" cy="${cheekL.y}" rx="${a.cheekR2}" ry="${a.cheekR2 * 1.25}" fill="${k}"/>
+        <ellipse cx="${cheekR.x}" cy="${cheekR.y}" rx="${a.cheekR2}" ry="${a.cheekR2 * 1.25}" fill="${k}"/>
+        <rect x="${noseX - 4}" y="${eyeBotY}" width="8" height="${chinY - eyeBotY - 8}" fill="${s}" opacity="0.5"/>`;
+    case "shizimen":
+      return `<rect x="${noseX - 7}" y="${topY - 4}" width="14" height="${chinY - topY + 2}" rx="5" fill="${k}"/>
+        <rect x="0" y="${browY + 2}" width="100" height="${eyeBotY - browY + 2}" fill="${k}"/>
+        <rect x="${noseX - 3.5}" y="${topY}" width="7" height="${chinY - topY - 4}" fill="${s}" opacity="0.45"/>`;
+    default: // sui — fragmented patches on the real cheeks/chin
+      return `<rect x="0" y="${topY - 6}" width="100" height="${(browY - topY) * 0.7 + 4}" fill="${k}"/>
+        <ellipse cx="${cheekL.x}" cy="${cheekL.y}" rx="${a.cheekR2 * 0.8}" ry="${a.cheekR2}" fill="${ac}" opacity="0.85"/>
+        <ellipse cx="${cheekR.x}" cy="${cheekR.y}" rx="${a.cheekR2 * 0.8}" ry="${a.cheekR2}" fill="${ac}" opacity="0.85"/>
+        <rect x="${noseX - 5}" y="${a.mouthY + 4}" width="10" height="${chinY - a.mouthY - 6}" rx="3" fill="${s}" opacity="0.6"/>
+        <circle cx="${cheekL.x}" cy="${chinY - 10}" r="3.4" fill="${k}"/><circle cx="${cheekR.x}" cy="${chinY - 10}" r="3.4" fill="${k}"/>`;
+  }
+}
+
+export function maskFromLandmarks(lm, salt = 0, size = 300) {
+  const p = metricsToParams(faceMetrics(lm), salt);
+
+  // Map the real face bbox into the 100×122 canvas, PRESERVING their aspect.
+  const oval = OVAL.map((i) => lm[i]);
+  const xs = oval.map((q) => q.x), ys = oval.map((q) => q.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  const sc = Math.min(88 / (maxX - minX || 1e-6), 106 / (maxY - minY || 1e-6));
+  const M = (q) => ({ x: r1(50 + (q.x - cx) * sc), y: r1(62 + (q.y - cy) * sc) });
+
+  const O = oval.map(M);
+  const outline = smoothClosed(O);
+  const lb = LBROW.map((i) => M(lm[i])), rb = RBROW.map((i) => M(lm[i]));
+  const anchors = {
+    topY: Math.min(...O.map((q) => q.y)),
+    chinY: Math.max(...O.map((q) => q.y)),
+    browY: Math.min(...[...lb, ...rb].map((q) => q.y)),
+    eyeBotY: Math.max(M(lm[LEYE.bot]).y, M(lm[REYE.bot]).y),
+    nose: M(lm[NOSE.tip]),
+    mouthY: M(lm[MOUTH.bot]).y,
+    cheekL: { x: (M(lm[LEYE.out]).x + M(lm[NOSE.wl]).x) / 2 - 4, y: M(lm[NOSE.tip]).y },
+    cheekR: { x: (M(lm[REYE.out]).x + M(lm[NOSE.wr]).x) / 2 + 4, y: M(lm[NOSE.tip]).y },
+    cheekR2: 11,
+  };
+
+  // brows: their real arch, thickened and flicked up at the outer end
+  const browPath = (pts, dir) => {
+    const ext = { x: pts[0].x + dir * 4, y: pts[0].y - 3.5 };
+    return smoothOpen([ext, ...pts]);
+  };
+  // nose + mouth from their true feature points
+  const nb = M(lm[NOSE.bridge]), nt = anchors.nose, nwl = M(lm[NOSE.wl]), nwr = M(lm[NOSE.wr]);
+  const ml = M(lm[MOUTH.l]), mr = M(lm[MOUTH.r]), mt = M(lm[MOUTH.top]), mb = M(lm[MOUTH.bot]);
+  const fx = nb.x, fy = (anchors.topY + anchors.browY) / 2; // forehead motif anchor
+
+  const svg = `<svg viewBox="0 0 100 122" width="${size}" height="${size * 1.22}" xmlns="http://www.w3.org/2000/svg" role="img">
+    <defs><clipPath id="pf-${p.seed}"><path d="${outline}"/></clipPath></defs>
+    <path d="${outline}" fill="${BASE}" stroke="${INK}" stroke-width="1.8" data-part="outline"/>
+    <g clip-path="url(#pf-${p.seed})">${portraitRegions(p, anchors)}</g>
+    <g transform="translate(${r1(fx - 50)},${r1(fy - 20)})">${motifShape(p.motif, p)}</g>
+    ${socket(LEYE, M)}${socket(REYE, M)}
+    <path d="${browPath(lb, -1)}" stroke="${INK}" stroke-width="3.2" fill="none" stroke-linecap="round" data-part="brow"/>
+    <path d="${browPath([...rb].reverse(), 1)}" stroke="${INK}" stroke-width="3.2" fill="none" stroke-linecap="round" data-part="brow"/>
+    <path d="M ${nb.x} ${nb.y} L ${nwl.x} ${nt.y - 1} Q ${nt.x} ${nt.y + 3} ${nwr.x} ${nt.y - 1} Z"
+      fill="none" stroke="${INK}" stroke-width="1.5" data-part="nose"/>
+    <path d="M ${ml.x} ${ml.y} Q ${mt.x} ${mt.y - 1.5} ${mr.x} ${mr.y} Q ${mb.x} ${mb.y + 2} ${ml.x} ${ml.y} Z"
+      fill="${p.role.secondary}" stroke="${INK}" stroke-width="1.3" data-part="mouth"/>
+    <path d="${outline}" fill="none" stroke="${p.accent}" stroke-width="0.8" opacity="0.5"/>
+  </svg>`;
+  return { svg, params: p };
+}

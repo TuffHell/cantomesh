@@ -94,8 +94,19 @@ const outlineOf = (svg) => svg.match(/d="([^"]+)" fill="[^"]*" stroke="[^"]*" st
 
 const port = maskFromLandmarks(synthFace(), 1);
 check("portrait mask returns svg + params", port.svg.startsWith("<svg") && !!port.params.role);
+check("portrait svg has NO NaN coordinates (the invisible-socket bug)", !port.svg.includes("NaN"));
+check("portrait renders exactly 2 eye sockets", (port.svg.match(/data-part="socket"/g) || []).length === 2);
+check("portrait renders 2 brows + nose + mouth",
+  (port.svg.match(/data-part="brow"/g) || []).length === 2 &&
+  port.svg.includes('data-part="nose"') && port.svg.includes('data-part="mouth"'));
+check("sockets sit near the synthetic eyes (finite, plausible coords)", (() => {
+  const d = port.svg.split('data-part="socket"')[0].split("<path").at(-1);
+  const nums = (d.match(/-?\d+(\.\d+)?/g) || []).map(Number);
+  return nums.length > 6 && nums.every(Number.isFinite);
+})());
 check("portrait has transparent eye holes (evenodd)", port.svg.includes("evenodd"));
 check("portrait paints regions clipped to the REAL face outline", port.svg.includes("clip-path"));
+check("template masks also NaN-free", !generateMask(metricsToParams(m, 5), 100).includes("NaN"));
 
 const wideP = maskFromLandmarks(synthFace({ rx: 0.30 }), 1);
 const narrowP = maskFromLandmarks(synthFace({ rx: 0.17 }), 1);

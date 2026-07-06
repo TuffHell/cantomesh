@@ -203,17 +203,37 @@ const r1 = (v) => Math.round(v * 10) / 10;
 
 // One exaggerated 净-style eye socket over the REAL eye, with a transparent
 // hole (fill-rule evenodd) so the wearer's own eye shows through the mask.
-function socket(eye, M) {
-  const out = M(eye.out), inn = M(eye.inn), top = M(eye.top), bot = M(eye.bot);
-  const w = Math.hypot(out.x - inn.x, out.y - inn.y);
-  const h = Math.max(2.2, Math.abs(bot.y - top.y)) * 1.15;
+// NOTE: takes landmark INDICES + the lm array — mapping indices directly was
+// the NaN bug that made sockets vanish.
+function socket(eyeIdx, lm, M, rim) {
+  const out = M(lm[eyeIdx.out]), inn = M(lm[eyeIdx.inn]);
+  const top = M(lm[eyeIdx.top]), bot = M(lm[eyeIdx.bot]);
   const cx = (out.x + inn.x) / 2, cy = (top.y + bot.y) / 2;
-  const ex = { x: out.x + (out.x - inn.x) * 0.30, y: out.y - h * 0.9 }; // flicked outer tip
-  const leaf = `M ${r1(inn.x)} ${r1(cy)} Q ${r1(cx)} ${r1(cy - h * 2.1)} ${r1(ex.x)} ${r1(ex.y)}` +
-    ` Q ${r1(cx + w * 0.15)} ${r1(cy + h * 1.5)} ${r1(inn.x)} ${r1(cy)} Z`;
-  const hole = ` M ${r1(cx + w * 0.42)} ${r1(cy)} A ${r1(w * 0.42)} ${r1(h * 0.8)} 0 1 0 ${r1(cx - w * 0.42)} ${r1(cy)}` +
-    ` A ${r1(w * 0.42)} ${r1(h * 0.8)} 0 1 0 ${r1(cx + w * 0.42)} ${r1(cy)} Z`;
-  return `<path d="${leaf}${hole}" fill="${INK}" fill-rule="evenodd" data-part="socket"/>`;
+  const w = Math.max(7, Math.abs(out.x - inn.x));
+  const h = Math.max(3, Math.abs(bot.y - top.y)) * 1.2;
+  const dir = out.x > inn.x ? 1 : -1; // flick toward the temple
+  const tip = { x: out.x + dir * w * 0.42, y: cy - h * 2.0 };
+  const base = { x: inn.x - dir * w * 0.10, y: cy + h * 0.25 };
+  const leaf = `M ${r1(base.x)} ${r1(base.y)} Q ${r1(cx)} ${r1(cy - h * 2.6)} ${r1(tip.x)} ${r1(tip.y)}` +
+    ` Q ${r1(out.x + dir * w * 0.18)} ${r1(cy + h * 1.7)} ${r1(base.x)} ${r1(base.y)} Z`;
+  const rx = r1(w * 0.38), ry = r1(Math.max(2.4, h * 0.95));
+  const hole = ` M ${r1(cx + w * 0.38)} ${r1(cy)} A ${rx} ${ry} 0 1 0 ${r1(cx - w * 0.38)} ${r1(cy)}` +
+    ` A ${rx} ${ry} 0 1 0 ${r1(cx + w * 0.38)} ${r1(cy)} Z`;
+  return `<path d="${leaf}${hole}" fill="${INK}" fill-rule="evenodd" data-part="socket"/>` +
+    `<ellipse cx="${r1(cx)}" cy="${r1(cy)}" rx="${rx}" ry="${ry}" fill="none" stroke="${rim}" stroke-width="1" opacity="0.85" data-part="rim"/>`;
+}
+
+// A single clean tapered brow following the real arch (sorted by x, one curve —
+// no zigzag), flicked up at the temple end.
+function browStroke(idxs, lm, M, lateralDir) {
+  const pts = idxs.map((i) => M(lm[i])).sort((a, b) => a.x - b.x);
+  const a = pts[0], b = pts.at(-1);
+  const mid = { x: (a.x + b.x) / 2, y: Math.min(...pts.map((q) => q.y)) - 1.5 };
+  const tail = lateralDir > 0 ? b : a;
+  const flick = { x: tail.x + lateralDir * 3.5, y: tail.y - 3 };
+  return `<path d="M ${r1(lateralDir > 0 ? a.x : b.x)} ${r1(lateralDir > 0 ? a.y : b.y)}` +
+    ` Q ${r1(mid.x)} ${r1(mid.y)} ${r1(tail.x)} ${r1(tail.y)} L ${r1(flick.x)} ${r1(flick.y)}"` +
+    ` stroke="${INK}" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round" data-part="brow"/>`;
 }
 
 // 谱式 regions painted RELATIVE to the real features, clipped to the real face.
@@ -270,14 +290,22 @@ export function maskFromLandmarks(lm, salt = 0, size = 300) {
     cheekR2: 11,
   };
 
-  // brows: their real arch, thickened and flicked up at the outer end
-  const browPath = (pts, dir) => {
-    const ext = { x: pts[0].x + dir * 4, y: pts[0].y - 3.5 };
-    return smoothOpen([ext, ...pts]);
-  };
-  // nose + mouth from their true feature points
+  // nose: a modest bridge-to-wings accent (not a giant triangle) — starts at
+  // mid-bridge and hugs their real nostril width.
   const nb = M(lm[NOSE.bridge]), nt = anchors.nose, nwl = M(lm[NOSE.wl]), nwr = M(lm[NOSE.wr]);
+  const nStartY = nb.y + (nt.y - nb.y) * 0.5;
+  const nose = `<path d="M ${r1(nb.x - 1.4)} ${r1(nStartY)} L ${r1(nwl.x)} ${r1(nt.y - 1)}` +
+    ` Q ${r1(nt.x)} ${r1(nt.y + 2.4)} ${r1(nwr.x)} ${r1(nt.y - 1)} L ${r1(nb.x + 1.4)} ${r1(nStartY)}"` +
+    ` fill="none" stroke="${INK}" stroke-width="1.5" stroke-linecap="round" data-part="nose"/>` +
+    `<path d="M ${r1(nwl.x)} ${r1(nt.y + 0.5)} q 1.6 1.6 3.2 0 M ${r1(nwr.x - 3.2)} ${r1(nt.y + 0.5)} q 1.6 1.6 3.2 0"` +
+    ` fill="none" stroke="${INK}" stroke-width="1.1" data-part="nose"/>`;
+  // mouth: real lips with a centre seam, not a lens
   const ml = M(lm[MOUTH.l]), mr = M(lm[MOUTH.r]), mt = M(lm[MOUTH.top]), mb = M(lm[MOUTH.bot]);
+  const mcx = (ml.x + mr.x) / 2, mcy = (ml.y + mr.y) / 2;
+  const mouth = `<path d="M ${r1(ml.x)} ${r1(ml.y)} Q ${r1(mt.x)} ${r1(mt.y - 0.8)} ${r1(mr.x)} ${r1(mr.y)}` +
+    ` Q ${r1(mb.x)} ${r1(mb.y + 1.2)} ${r1(ml.x)} ${r1(ml.y)} Z" fill="${p.role.secondary}" stroke="${INK}" stroke-width="1.2" data-part="mouth"/>` +
+    `<path d="M ${r1(ml.x)} ${r1(ml.y)} Q ${r1(mcx)} ${r1(mcy + 0.8)} ${r1(mr.x)} ${r1(mr.y)}"` +
+    ` fill="none" stroke="${INK}" stroke-width="1.1" data-part="mouth"/>`;
   const fx = nb.x, fy = (anchors.topY + anchors.browY) / 2; // forehead motif anchor
 
   const svg = `<svg viewBox="0 0 100 122" width="${size}" height="${size * 1.22}" xmlns="http://www.w3.org/2000/svg" role="img">
@@ -285,13 +313,10 @@ export function maskFromLandmarks(lm, salt = 0, size = 300) {
     <path d="${outline}" fill="${BASE}" stroke="${INK}" stroke-width="1.8" data-part="outline"/>
     <g clip-path="url(#pf-${p.seed})">${portraitRegions(p, anchors)}</g>
     <g transform="translate(${r1(fx - 50)},${r1(fy - 20)})">${motifShape(p.motif, p)}</g>
-    ${socket(LEYE, M)}${socket(REYE, M)}
-    <path d="${browPath(lb, -1)}" stroke="${INK}" stroke-width="3.2" fill="none" stroke-linecap="round" data-part="brow"/>
-    <path d="${browPath([...rb].reverse(), 1)}" stroke="${INK}" stroke-width="3.2" fill="none" stroke-linecap="round" data-part="brow"/>
-    <path d="M ${nb.x} ${nb.y} L ${nwl.x} ${nt.y - 1} Q ${nt.x} ${nt.y + 3} ${nwr.x} ${nt.y - 1} Z"
-      fill="none" stroke="${INK}" stroke-width="1.5" data-part="nose"/>
-    <path d="M ${ml.x} ${ml.y} Q ${mt.x} ${mt.y - 1.5} ${mr.x} ${mr.y} Q ${mb.x} ${mb.y + 2} ${ml.x} ${ml.y} Z"
-      fill="${p.role.secondary}" stroke="${INK}" stroke-width="1.3" data-part="mouth"/>
+    ${socket(LEYE, lm, M, p.role.secondary)}${socket(REYE, lm, M, p.role.secondary)}
+    ${browStroke(LBROW, lm, M, -1)}${browStroke(RBROW, lm, M, 1)}
+    ${nose}
+    ${mouth}
     <path d="${outline}" fill="none" stroke="${p.accent}" stroke-width="0.8" opacity="0.5"/>
   </svg>`;
   return { svg, params: p };

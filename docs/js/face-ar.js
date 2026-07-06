@@ -57,7 +57,7 @@ export function openFaceAR(app, onExit) {
   let fit = 1.7; // overlay width ÷ face width (portrait masks hug the real face)
   function applySvg(svg, p, name, trait, fromFace) {
     params = p;
-    fit = fromFace ? 1.22 : 1.7;
+    fit = fromFace ? 1.12 : 1.7;
     maskImg = new Image();
     maskImg.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
     $("#mask-preview").innerHTML = svg;
@@ -103,7 +103,7 @@ export function openFaceAR(app, onExit) {
     const roll = Math.atan2(lm[F.R_EYE].y - lm[F.L_EYE].y, lm[F.R_EYE].x - lm[F.L_EYE].x);
     const mw = faceW * fit, mh = mw * 1.22;
     ctx.save();
-    ctx.translate(cx, cy - mh * 0.06); ctx.rotate(roll); ctx.globalAlpha = 0.92;
+    ctx.translate(cx, cy - mh * 0.02); ctx.rotate(roll); ctx.globalAlpha = 0.92;
     ctx.drawImage(maskImg, -mw / 2, -mh / 2, mw, mh);
     ctx.restore();
   }

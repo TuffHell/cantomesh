@@ -212,15 +212,17 @@ function socket(eyeIdx, lm, M, rim) {
   const w = Math.max(7, Math.abs(out.x - inn.x));
   const h = Math.max(3, Math.abs(bot.y - top.y)) * 1.2;
   const dir = out.x > inn.x ? 1 : -1; // flick toward the temple
-  const tip = { x: out.x + dir * w * 0.42, y: cy - h * 2.0 };
+  // lower + wider than before: must NOT reach the brows, and the hole is large
+  // so the real eyes read naturally (no googly rim ring).
+  const tip = { x: out.x + dir * w * 0.30, y: cy - h * 1.45 };
   const base = { x: inn.x - dir * w * 0.10, y: cy + h * 0.25 };
-  const leaf = `M ${r1(base.x)} ${r1(base.y)} Q ${r1(cx)} ${r1(cy - h * 2.6)} ${r1(tip.x)} ${r1(tip.y)}` +
-    ` Q ${r1(out.x + dir * w * 0.18)} ${r1(cy + h * 1.7)} ${r1(base.x)} ${r1(base.y)} Z`;
-  const rx = r1(w * 0.38), ry = r1(Math.max(2.4, h * 0.95));
-  const hole = ` M ${r1(cx + w * 0.38)} ${r1(cy)} A ${rx} ${ry} 0 1 0 ${r1(cx - w * 0.38)} ${r1(cy)}` +
-    ` A ${rx} ${ry} 0 1 0 ${r1(cx + w * 0.38)} ${r1(cy)} Z`;
-  return `<path d="${leaf}${hole}" fill="${INK}" fill-rule="evenodd" data-part="socket"/>` +
-    `<ellipse cx="${r1(cx)}" cy="${r1(cy)}" rx="${rx}" ry="${ry}" fill="none" stroke="${rim}" stroke-width="1" opacity="0.85" data-part="rim"/>`;
+  const leaf = `M ${r1(base.x)} ${r1(base.y)} Q ${r1(cx)} ${r1(cy - h * 1.9)} ${r1(tip.x)} ${r1(tip.y)}` +
+    ` Q ${r1(out.x + dir * w * 0.16)} ${r1(cy + h * 1.6)} ${r1(base.x)} ${r1(base.y)} Z`;
+  const rx = r1(w * 0.44), ry = r1(Math.max(3.0, h * 1.2));
+  const hole = ` M ${r1(cx + w * 0.44)} ${r1(cy)} A ${rx} ${ry} 0 1 0 ${r1(cx - w * 0.44)} ${r1(cy)}` +
+    ` A ${rx} ${ry} 0 1 0 ${r1(cx + w * 0.44)} ${r1(cy)} Z`;
+  // paper-colour outer stroke so the socket separates from dark paint grounds
+  return `<path d="${leaf}${hole}" fill="${INK}" fill-rule="evenodd" stroke="${rim}" stroke-width="1.1" data-part="socket"/>`;
 }
 
 // A single clean tapered brow following the real arch (sorted by x, one curve —
@@ -231,9 +233,11 @@ function browStroke(idxs, lm, M, lateralDir) {
   const mid = { x: (a.x + b.x) / 2, y: Math.min(...pts.map((q) => q.y)) - 1.5 };
   const tail = lateralDir > 0 ? b : a;
   const flick = { x: tail.x + lateralDir * 3.5, y: tail.y - 3 };
-  return `<path d="M ${r1(lateralDir > 0 ? a.x : b.x)} ${r1(lateralDir > 0 ? a.y : b.y)}` +
-    ` Q ${r1(mid.x)} ${r1(mid.y)} ${r1(tail.x)} ${r1(tail.y)} L ${r1(flick.x)} ${r1(flick.y)}"` +
-    ` stroke="${INK}" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round" data-part="brow"/>`;
+  const d = `M ${r1(lateralDir > 0 ? a.x : b.x)} ${r1(lateralDir > 0 ? a.y : b.y)}` +
+    ` Q ${r1(mid.x)} ${r1(mid.y)} ${r1(tail.x)} ${r1(tail.y)} L ${r1(flick.x)} ${r1(flick.y)}`;
+  // paper under-stroke first, ink on top → brows separate from dark paint
+  return `<path d="${d}" stroke="${BASE}" stroke-width="5.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `<path d="${d}" stroke="${INK}" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round" data-part="brow"/>`;
 }
 
 // 谱式 regions painted RELATIVE to the real features, clipped to the real face.
@@ -250,17 +254,24 @@ function portraitRegions(p, a) {
         <ellipse cx="${cheekL.x}" cy="${cheekL.y}" rx="${a.cheekR2}" ry="${a.cheekR2 * 1.25}" fill="${k}"/>
         <ellipse cx="${cheekR.x}" cy="${cheekR.y}" rx="${a.cheekR2}" ry="${a.cheekR2 * 1.25}" fill="${k}"/>
         <rect x="${noseX - 4}" y="${eyeBotY}" width="8" height="${chinY - eyeBotY - 8}" fill="${s}" opacity="0.5"/>`;
-    case "shizimen":
-      return `<rect x="${noseX - 7}" y="${topY - 4}" width="14" height="${chinY - topY + 2}" rx="5" fill="${k}"/>
+    case "shizimen": // 通天柱 stops at the nose bridge — never through mouth/chin
+      return `<rect x="${noseX - 7}" y="${topY - 4}" width="14" height="${a.noseTopY - topY + 4}" rx="5" fill="${k}"/>
         <rect x="0" y="${browY + 2}" width="100" height="${eyeBotY - browY + 2}" fill="${k}"/>
-        <rect x="${noseX - 3.5}" y="${topY}" width="7" height="${chinY - topY - 4}" fill="${s}" opacity="0.45"/>`;
-    default: // sui — fragmented patches on the real cheeks/chin
+        <rect x="${noseX - 3.5}" y="${topY}" width="7" height="${a.noseTopY - topY - 2}" fill="${s}" opacity="0.45"/>`;
+    default: // sui — fragmented patches on the real cheeks, chin kept light
       return `<rect x="0" y="${topY - 6}" width="100" height="${(browY - topY) * 0.7 + 4}" fill="${k}"/>
         <ellipse cx="${cheekL.x}" cy="${cheekL.y}" rx="${a.cheekR2 * 0.8}" ry="${a.cheekR2}" fill="${ac}" opacity="0.85"/>
         <ellipse cx="${cheekR.x}" cy="${cheekR.y}" rx="${a.cheekR2 * 0.8}" ry="${a.cheekR2}" fill="${ac}" opacity="0.85"/>
-        <rect x="${noseX - 5}" y="${a.mouthY + 4}" width="10" height="${chinY - a.mouthY - 6}" rx="3" fill="${s}" opacity="0.6"/>
         <circle cx="${cheekL.x}" cy="${chinY - 10}" r="3.4" fill="${k}"/><circle cx="${cheekR.x}" cy="${chinY - 10}" r="3.4" fill="${k}"/>`;
   }
+}
+
+// Light "muzzle" panel — 脸谱 keep the nose/mouth zone on pale ground so the
+// features stay legible; patterns radiate AROUND them, not over them.
+function muzzlePanel(a, mouthHalfW) {
+  const cx = a.nose.x, top = a.noseTopY, bot = a.mouthY + 5;
+  const rx = Math.max(10, mouthHalfW * 1.6);
+  return `<ellipse cx="${r1(cx)}" cy="${r1((top + bot) / 2)}" rx="${r1(rx)}" ry="${r1((bot - top) / 2 + 3)}" fill="${BASE}" opacity="0.82" data-part="muzzle"/>`;
 }
 
 export function maskFromLandmarks(lm, salt = 0, size = 300) {
@@ -293,7 +304,8 @@ export function maskFromLandmarks(lm, salt = 0, size = 300) {
   // nose: a modest bridge-to-wings accent (not a giant triangle) — starts at
   // mid-bridge and hugs their real nostril width.
   const nb = M(lm[NOSE.bridge]), nt = anchors.nose, nwl = M(lm[NOSE.wl]), nwr = M(lm[NOSE.wr]);
-  const nStartY = nb.y + (nt.y - nb.y) * 0.5;
+  const nStartY = nb.y + (nt.y - nb.y) * 0.62; // shorter: start well below the eye line
+  anchors.noseTopY = nStartY;
   const nose = `<path d="M ${r1(nb.x - 1.4)} ${r1(nStartY)} L ${r1(nwl.x)} ${r1(nt.y - 1)}` +
     ` Q ${r1(nt.x)} ${r1(nt.y + 2.4)} ${r1(nwr.x)} ${r1(nt.y - 1)} L ${r1(nb.x + 1.4)} ${r1(nStartY)}"` +
     ` fill="none" stroke="${INK}" stroke-width="1.5" stroke-linecap="round" data-part="nose"/>` +
@@ -311,7 +323,7 @@ export function maskFromLandmarks(lm, salt = 0, size = 300) {
   const svg = `<svg viewBox="0 0 100 122" width="${size}" height="${size * 1.22}" xmlns="http://www.w3.org/2000/svg" role="img">
     <defs><clipPath id="pf-${p.seed}"><path d="${outline}"/></clipPath></defs>
     <path d="${outline}" fill="${BASE}" stroke="${INK}" stroke-width="1.8" data-part="outline"/>
-    <g clip-path="url(#pf-${p.seed})">${portraitRegions(p, anchors)}</g>
+    <g clip-path="url(#pf-${p.seed})">${portraitRegions(p, anchors)}${muzzlePanel(anchors, (mr.x - ml.x) / 2)}</g>
     <g transform="translate(${r1(fx - 50)},${r1(fy - 20)})">${motifShape(p.motif, p)}</g>
     ${socket(LEYE, lm, M, p.role.secondary)}${socket(REYE, lm, M, p.role.secondary)}
     ${browStroke(LBROW, lm, M, -1)}${browStroke(RBROW, lm, M, 1)}

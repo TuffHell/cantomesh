@@ -13,8 +13,11 @@
   --ping: #3a6a5a;
   --ze: #b23a2e;
   --radius: 14px;
-  --serif: "Songti SC", "STSong", "Noto Serif SC", "SimSun", serif;
-  --kai: "Kaiti SC", "STKaiti", "KaiTi", var(--serif);
+  --serif: "Noto Serif TC", "Songti SC", "STSong", "Noto Serif SC", "SimSun", serif;
+  --kai: "Kaiti SC", "STKaiti", "KaiTi", "Noto Serif TC", serif;
+  --shadow-lift: 0 1px 2px rgba(34, 29, 24, 0.06), 0 10px 22px -10px rgba(34, 29, 24, 0.22),
+    0 28px 56px -28px rgba(34, 29, 24, 0.30), inset 0 0 0 1px rgba(169, 128, 47, 0.22),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.85);
   --mono: ui-monospace, "SF Mono", Menlo, monospace;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --shadow: 0 18px 40px -28px rgba(34, 29, 24, 0.6);
@@ -144,8 +147,19 @@ button.primary, button.ghost {
   font-size: 1rem; letter-spacing: 0.1em; border-radius: 999px; padding: 0.55rem 1.4rem;
   transition: transform 0.14s var(--ease), filter 0.14s var(--ease);
 }
-button.primary { color: #fff; border: none; background: linear-gradient(160deg, var(--vermilion), var(--vermilion-deep)); box-shadow: 0 10px 22px -14px var(--vermilion-deep); }
-button.ghost { color: var(--ink); background: transparent; border: 1px solid var(--line); }
+button.primary {
+  position: relative; overflow: hidden; color: #fff; border: none;
+  background: linear-gradient(160deg, #c64c39, var(--vermilion) 40%, var(--vermilion-deep));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 0 0 1px rgba(143, 44, 34, 0.6),
+    0 12px 26px -12px var(--vermilion-deep);
+}
+button.primary::after {
+  content: ""; position: absolute; top: 0; left: -70%; width: 45%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg); transition: left 0.55s var(--ease); pointer-events: none;
+}
+button.primary:hover::after { left: 130%; }
+button.ghost { color: var(--ink); background: rgba(255, 253, 248, 0.6); border: 1px solid var(--line); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7); }
 button.primary:hover, button.ghost:hover { transform: translateY(-2px); filter: brightness(1.05); }
 button.ghost:hover { border-color: var(--vermilion); color: var(--vermilion); }
 .kbd { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
@@ -226,7 +240,22 @@ body.game { background: var(--bg); }
 #app { min-height: 100vh; }
 
 /* hero band */
-.g-hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); min-height: clamp(340px, 52vh, 520px); }
+.g-hero {
+  position: relative; overflow: hidden; border-bottom: 1px solid var(--line);
+  min-height: clamp(360px, 56vh, 560px);
+  background: linear-gradient(180deg, #f7ecd8 0%, #f0e3cc 42%, var(--bg) 100%);
+}
+.g-hero h1 {
+  font-weight: 900;
+  background: linear-gradient(168deg, #33291e 25%, #7a5f33 52%, #241d15 78%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 2px 0 rgba(255, 255, 255, 0.45)) drop-shadow(0 10px 18px rgba(34, 29, 24, 0.18));
+}
+.hero-cta { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.3rem; }
+button.big { font-size: 1.12rem; padding: 0.78rem 1.9rem; letter-spacing: 0.14em; }
+.hero-badges { display: flex; gap: clamp(1rem, 3vw, 2.2rem); margin-top: 1.5rem; flex-wrap: wrap; }
+.hero-badges span { display: flex; flex-direction: column; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.08em; }
+.hero-badges b { font-family: var(--kai); font-weight: 900; font-size: 1.4rem; color: var(--vermilion-deep); line-height: 1.2; font-variant-numeric: tabular-nums; }
 /* gold rule + seal ornament under the hero */
 .g-hero::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; z-index: 3;
@@ -397,11 +426,12 @@ body.game { background: var(--bg); }
 .cam-wrap { position: relative; aspect-ratio: 4 / 3; background: #1c1814; border-radius: 12px; overflow: hidden; }
 #cam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: block; }
 #skel, #ar { position: absolute; inset: 0; width: 100%; height: 100%; transform: scaleX(-1); pointer-events: none; z-index: 2; }
-/* silhouette ghost — the target pose to align to */
-.ghost { position: absolute; inset: 0; z-index: 1; pointer-events: none; color: var(--gold); opacity: 0.82; transition: color 0.25s var(--ease); }
-.ghost svg { width: 100%; height: 100%; filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4)); }
-.ghost.matched { color: var(--jade); opacity: 0.95; }
-.ghost.matched svg { filter: drop-shadow(0 0 7px rgba(58, 106, 90, 0.85)); }
+/* silhouette ghost — the target pose to align to (scoped: .ghost alone would
+   collide with button.ghost and stretch buttons over the page) */
+.cam-wrap .ghost { position: absolute; inset: 0; z-index: 1; pointer-events: none; color: var(--gold); opacity: 0.82; transition: color 0.25s var(--ease); }
+.cam-wrap .ghost svg { width: 100%; height: 100%; filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.4)); }
+.cam-wrap .ghost.matched { color: var(--jade); opacity: 0.95; }
+.cam-wrap .ghost.matched svg { filter: drop-shadow(0 0 7px rgba(58, 106, 90, 0.85)); }
 .cam-status { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 1.4rem; color: #f4efe6; background: rgba(28,24,20,0.72); font-size: 0.95rem; line-height: 1.7; }
 .peak-badge { position: absolute; top: 0.7rem; left: 0.7rem; background: var(--jade); color: #fff; font-family: var(--kai); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.9rem; box-shadow: 0 6px 14px -6px rgba(0,0,0,0.5); animation: rise 0.4s var(--ease) both; }
 .coach h2 { font-family: var(--kai); margin: 0 0 0.3rem; font-size: 1.6rem; letter-spacing: 0.06em; }
@@ -519,9 +549,56 @@ body.game { background: var(--bg); }
 .v-slider b { color: var(--vermilion); min-width: 2.2em; }
 
 /* ---------- Heritage framing details ---------- */
-.card, .impact-card, .stage, .train-card, .q-card, .lang-card, .trainer-stage {
-  box-shadow: var(--shadow), inset 0 0 0 1px rgba(169, 128, 47, 0.22);
+.card, .impact-card, .stage, .train-card, .q-card, .lang-card, .trainer-stage, .studio-tile {
+  box-shadow: var(--shadow-lift);
 }
+.stage:hover:not(.locked), .studio-tile:hover, .g-card:hover {
+  box-shadow: 0 2px 4px rgba(34, 29, 24, 0.08), 0 18px 34px -12px rgba(34, 29, 24, 0.3),
+    0 40px 70px -30px rgba(34, 29, 24, 0.35), inset 0 0 0 1px rgba(178, 58, 46, 0.35),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.85);
+}
+/* gold hairline crowning the studio tiles */
+.studio-tile { position: relative; }
+.studio-tile::before {
+  content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 2.5px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+  opacity: 0.65;
+}
+.studio-tile .st-ic { box-shadow: 0 6px 14px -6px var(--vermilion-deep), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+/* section headings get a gold flare rule */
+.studio-h, .world-head h2 { display: flex; align-items: center; gap: 0.9rem; }
+.studio-h::after, .world-head h2::after {
+  content: ""; flex: 1; height: 1px; min-width: 2rem;
+  background: linear-gradient(90deg, rgba(169, 128, 47, 0.55), transparent);
+}
+/* progress bar shimmer */
+.pbar { position: relative; }
+.pbar i { position: relative; overflow: hidden; }
+.pbar i::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  animation: shimmer 2.8s var(--ease) infinite;
+}
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+/* soft page vignette */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(130% 110% at 50% 40%, transparent 62%, rgba(34, 29, 24, 0.07));
+}
+
+/* ---------- commercial product footer ---------- */
+.site-footer { border-top: 1px solid var(--line); margin-top: 0.5rem; background: linear-gradient(180deg, transparent, rgba(169, 128, 47, 0.07)); padding: 2.6rem 0 2.2rem; }
+.f-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 2rem; align-items: start; }
+@media (max-width: 680px) { .f-grid { grid-template-columns: 1fr; } }
+.f-brand { display: flex; flex-direction: column; gap: 0.5rem; }
+.f-brand .brandline { display: flex; align-items: center; gap: 0.7rem; }
+.f-brand b { font-family: var(--kai); font-weight: 900; font-size: 1.2rem; letter-spacing: 0.08em; }
+.f-brand p { margin: 0; color: var(--muted); font-size: 0.88rem; max-width: 34ch; }
+.f-col h4 { font-family: var(--kai); font-size: 0.95rem; letter-spacing: 0.14em; margin: 0 0 0.6rem; color: var(--gold); }
+.f-col a, .f-col button { display: block; background: none; border: none; padding: 0.22rem 0; cursor: pointer; text-align: left; font-family: var(--serif); font-size: 0.92rem; color: var(--ink); text-decoration: none; }
+.f-col a:hover, .f-col button:hover { color: var(--vermilion); }
+.f-legal { text-align: center; color: var(--muted); font-size: 0.76rem; letter-spacing: 0.1em; margin: 2rem 0 0; }
 /* gilt corner brackets on the feature cards */
 .impact-card { position: relative; }
 .impact-card::before, .impact-card::after {

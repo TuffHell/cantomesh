@@ -151,6 +151,16 @@ function renderMap() {
         <p class="kicker">${t("map.kicker")}</p>
         <h1>${t("map.title")}</h1>
         <p class="lede">${t("map.lede")}</p>
+        <div class="hero-cta">
+          <button class="primary big" id="cta-play">${t("hero.play")}</button>
+          <button class="ghost big" id="cta-train">${t("hero.train")}</button>
+        </div>
+        <div class="hero-badges">
+          <span><b>20,865</b>${t("badge.dict")}</span>
+          <span><b>5</b>${t("badge.studios")}</span>
+          <span><b>100%</b>${t("badge.offline")}</span>
+          <span><b>中/EN</b>${t("badge.lang")}</span>
+        </div>
         <div class="statline">
           <span>★ ${totalStars()} / ${maxStars()}</span>
           <span>${t("map.masks")} ${progress.masks.length} / 4</span>
@@ -209,7 +219,25 @@ function renderMap() {
     }
     html += `</div></section>`;
   }
-  html += `</main>${mountainFooter()}<footer class="wrap">粤脉·镜 CANTOMESH · <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">GitHub</a> · <a href="tools.html">${t("map.tools")}</a></footer>`;
+  html += `</main>${mountainFooter()}
+    <footer class="site-footer"><div class="wrap f-grid">
+      <div class="f-brand">
+        <div class="brandline"><span class="seal" aria-hidden="true">粤脉<br/>之鏡</span><b>粤脉 · 鏡 CANTOMESH</b></div>
+        <p>${t("footer.tag")}</p>
+      </div>
+      <nav class="f-col"><h4>${t("footer.explore")}</h4>
+        <button id="f-trainer">${t("tile.train.t")}</button>
+        <button id="f-ar">${t("tile.ar.t")}</button>
+        <button id="f-gloss">${t("tile.gloss.t")}</button>
+        <a href="tools.html">${t("map.tools")}</a>
+      </nav>
+      <nav class="f-col"><h4>${t("footer.tech")}</h4>
+        <button id="f-heritage">${t("tile.heritage.t")}</button>
+        <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">${t("footer.source")}</a>
+        <a href="https://github.com/TuffHell/cantomesh/blob/main/docs/DESIGN_SPEC.md" target="_blank" rel="noopener">${t("footer.engine")}</a>
+      </nav>
+    </div>
+    <p class="f-legal">© 2026 CANTOMESH · 唱念做打 · ${t("footer.rights")}</p></footer>`;
   app.innerHTML = html;
 
   app.querySelectorAll(".stage:not(.locked)").forEach((b) =>
@@ -220,6 +248,16 @@ function renderMap() {
   $("#open-heritage")?.addEventListener("click", startHeritage);
   $("#open-gloss")?.addEventListener("click", () => { clearFigures(); openGlossary(app, renderMap); });
   $("#open-voice")?.addEventListener("click", () => { clearFigures(); openVoice(app, renderMap); });
+  // hero CTAs + footer quick-links
+  $("#cta-play")?.addEventListener("click", () => {
+    const next = STAGES.find((s, i) => isUnlocked(i) && !progress.cleared[s.id]) || STAGES[0];
+    startStage(next.id);
+  });
+  $("#cta-train")?.addEventListener("click", startTrainer);
+  $("#f-trainer")?.addEventListener("click", startTrainer);
+  $("#f-ar")?.addEventListener("click", startFaceAR);
+  $("#f-gloss")?.addEventListener("click", () => { clearFigures(); openGlossary(app, renderMap); });
+  $("#f-heritage")?.addEventListener("click", startHeritage);
   $("#lang-toggle")?.addEventListener("click", (e) => {
     e.preventDefault(); setLang(getLang() === "en" ? "zh" : "en"); renderMap();
   });

@@ -130,6 +130,24 @@ export function predictChar(net, ch, meta) {
   };
 }
 
+// One co-learning quiz round: n held-out characters, each with 4 options
+// (the true rhyme family + 3 distractors). Human and AI answer the same round.
+export function quizRound(valSamples, nGroups = N_GROUPS, n = 5, rand = Math.random) {
+  const pool = [...valSamples];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, n).map((s) => {
+    const opts = new Set([s.y]);
+    while (opts.size < 4) opts.add(Math.floor(rand() * nGroups));
+    const options = [...opts];
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1)); [options[i], options[j]] = [options[j], options[i]];
+    }
+    return { ch: s.ch, x: s.x, answer: s.y, options };
+  });
+}
+
 export function saveModel(net, meta) {
   try { localStorage.setItem(MODEL_KEY, JSON.stringify({ meta, net: net.toJSON() })); } catch { /* quota */ }
 }

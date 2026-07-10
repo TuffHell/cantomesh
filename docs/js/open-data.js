@@ -36,12 +36,28 @@ export async function openHeritage(app, onExit, onPractice) {
   return { destroy() {} };
 }
 
+// Stylized Hong Kong coastline (ink-map style) drawn in the same lat/lng frame
+// as the venue dots, so the geography reads instantly: NT/Kowloon landmass,
+// Victoria Harbour, HK Island, Lantau.
+const HK_LAND = `
+  <rect x="0" y="0" width="100" height="66" class="od-sea"/>
+  <path class="od-land" d="M0 0 H100 V33 L92 35 L88 40 L93 43 L82 46 L70 44 L63 45.5 L58 47 L54 45
+    L48 42.5 L40 44 L32 42 L24 41 L18 36 L8 34 L0 36 Z"/>
+  <path class="od-land" d="M52 49.5 Q56 47.6 62 48.2 Q70 48.2 72.5 50 Q71 54 64 55.5 Q56 56 52 53 Z"/>
+  <path class="od-land" d="M13 50 Q20 46 30 48 Q34.5 50 32 54 Q24 58.5 16 56.5 Q11.5 53.5 13 50 Z"/>
+  <path class="od-wave" d="M44 47.6 q2 -1 4 0 M60 46.8 q2 -1 4 0 M38 52 q2 -1 4 0"/>`;
+
 function render(el, data, onPractice) {
   const px = (v) => ((v.lng - HK.minLng) / (HK.maxLng - HK.minLng)) * 100;
   const py = (v) => (1 - (v.lat - HK.minLat) / (HK.maxLat - HK.minLat)) * 66;
-  const dots = data.venues.map((v) =>
-    `<g class="od-dot"><circle cx="${px(v).toFixed(1)}" cy="${py(v).toFixed(1)}" r="1.7"/>` +
-    `<text x="${(px(v) + 2.4).toFixed(1)}" y="${(py(v) + 1).toFixed(1)}">${v.en}</text></g>`).join("");
+  const dots = data.venues.map((v) => {
+    const x = px(v), y = py(v);
+    const anchor = v.anchor || "start";
+    const tx = anchor === "end" ? x - 2.6 : x + 2.6;
+    return `<g class="od-dot" data-id="${v.id}" role="button" tabindex="0">
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.9"/>
+      <text x="${tx.toFixed(1)}" y="${(y + 1 + (v.dy || 0)).toFixed(1)}" text-anchor="${anchor}">${v.en}</text></g>`;
+  }).join("");
 
   el.innerHTML = `
     <div class="od-head"><h2>${t("od.title")}</h2><p class="hint">${t("od.sub")}</p></div>
@@ -57,13 +73,31 @@ function render(el, data, onPractice) {
       </div>
       <small class="hint">${t("od.practiceNote")}</small>
     </div>
-    <svg class="od-map" viewBox="0 0 100 66" preserveAspectRatio="xMidYMid meet" aria-label="venue map">${dots}</svg>
+    <svg class="od-map" viewBox="0 0 100 66" preserveAspectRatio="xMidYMid meet" aria-label="venue map">${HK_LAND}${dots}</svg>
+    <p class="od-mapnote">${t("od.mapTip")}</p>
     <div class="od-venues">
-      ${data.venues.map((v) => `<a class="od-venue" href="${v.url}" target="_blank" rel="noopener">
-        <b>${v.name}</b><i>${v.en}</i><span>${v.district} · ${v.area}</span></a>`).join("")}
+      ${data.venues.map((v) => `<div class="od-venue" id="venue-${v.id}">
+        <a href="${v.url}" target="_blank" rel="noopener"><b>${v.name}</b><i>${v.en}</i></a>
+        <span>${v.district} · ${v.area}</span>
+        <a class="od-loc" href="https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}" target="_blank" rel="noopener">📍 ${t("od.route")}</a>
+      </div>`).join("")}
     </div>
     <p class="od-attr">${t("od.source")}:
       <a href="${data.source.url}" target="_blank" rel="noopener">${data.source.name}</a> — ${data.source.note}</p>`;
+
+  // map dot ↔ venue card linking: tap a dot, its card lights up and scrolls into view
+  el.querySelectorAll(".od-dot").forEach((g) => {
+    const activate = () => {
+      el.querySelectorAll(".od-venue").forEach((c) => c.classList.remove("sel"));
+      el.querySelectorAll(".od-dot").forEach((d) => d.classList.remove("sel"));
+      g.classList.add("sel");
+      const card = el.querySelector(`#venue-${g.dataset.id}`);
+      card?.classList.add("sel");
+      card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    };
+    g.addEventListener("click", activate);
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") activate(); });
+  });
 
   if (onPractice) {
     el.querySelector("#od-play").addEventListener("click", () => onPractice(dataChallenges(data)));

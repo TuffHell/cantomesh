@@ -3,8 +3,12 @@
 import { t } from "./i18n.js";
 import {
   buildDataset, baseline, trainLive, newNet, predictChar,
-  saveModel, loadModel, glyphTensor, GLYPH, N_GROUPS, PARAM_COUNT, rimeGroups,
+  saveModel, loadModel, glyphTensor, GLYPH, N_GROUPS, PARAM_COUNT, rimeGroups, quizRound,
 } from "./tone-ai.js";
+
+const LOOP_KEY = "cantomesh.colearn.v1";
+const loadLoop = () => { try { return JSON.parse(localStorage.getItem(LOOP_KEY)) || { rounds: [] }; } catch { return { rounds: [] }; } };
+const saveLoop = (h) => { try { localStorage.setItem(LOOP_KEY, JSON.stringify(h)); } catch { /* ignore */ } };
 
 export function openAiLab(app, onExit) {
   let net = null, ds = null, base = null, meta = rimeGroups(), training = false, destroyed = false;
@@ -37,11 +41,149 @@ export function openAiLab(app, onExit) {
       </div>
       <div class="lab-pred" id="l-pred"></div>
     </div>
+    <div class="card" id="l-loop" ${net ? "" : "hidden"}>
+      <h2 class="g-title">${t("loop.title")}</h2>
+      <p class="hint">${t("loop.sub")}</p>
+      <div class="loop-score" id="loop-score"></div>
+      <canvas id="loop-chart" width="720" height="150" hidden></canvas>
+      <div id="loop-area">
+        <div class="controls"><button class="primary" id="loop-start">${t("loop.start")}</button></div>
+      </div>
+    </div>
     <div class="card note-card"><p class="note">${t("lab.why")}</p></div>
   </main>`;
 
   const $ = (s) => app.querySelector(s);
   $("#l-quit").addEventListener("click", () => { destroyed = true; onExit(); });
+
+  // ================= 共學循環 · the educational loop =================
+  // predict → check → correct → repeat. The human learns from revealed
+  // answers; the AI learns from an extra training epoch. Both curves race.
+  const loop = loadLoop();
+  let round = null, qi = 0, userHits = 0, aiHits = 0;
+
+  function loopStats() {
+    const r = loop.rounds;
+    if (!r.length) { $("#loop-score").innerHTML = ""; $("#loop-chart").hidden = true; return; }
+    const last = r.at(-1);
+    $("#loop-score").innerHTML =
+      `<div><b class="you">${(last.user * 100).toFixed(0)}%</b><span>${t("loop.you")}</span></div>` +
+      `<div><b class="ai">${(last.ai * 100).toFixed(0)}%</b><span>${t("loop.ai")}</span></div>` +
+      `<div><b>${r.length}</b><span>${t("loop.rounds")}</span></div>`;
+    const cv = $("#loop-chart"); cv.hidden = false;
+    const c = cv.getContext("2d"), w = cv.width, h = cv.height, pad = 24;
+    c.clearRect(0, 0, w, h);
+    c.strokeStyle = "rgba(34,29,24,0.15)"; c.strokeRect(pad, 6, w - pad - 6, h - pad - 10);
+    const X = (i) => pad + (r.length === 1 ? 0.5 : i / (r.length - 1)) * (w - pad - 10);
+    const Y = (a) => 6 + (1 - a) * (h - pad - 14);
+    const line = (key, color) => {
+      c.strokeStyle = color; c.lineWidth = 2.2; c.beginPath();
+      r.forEach((p, i) => (i ? c.lineTo(X(i), Y(p[key])) : c.moveTo(X(i), Y(p[key]))));
+      c.stroke();
+      c.fillStyle = color;
+      r.forEach((p, i) => { c.beginPath(); c.arc(X(i), Y(p[key]), 2.6, 0, Math.PI * 2); c.fill(); });
+    };
+    line("user", "#3a6a5a"); line("ai", "#b23a2e");
+    c.font = "11px sans-serif";
+    c.fillStyle = "#3a6a5a"; c.fillText(t("loop.you"), pad + 4, 16);
+    c.fillStyle = "#b23a2e"; c.fillText(t("loop.ai"), pad + 44, 16);
+  }
+
+  function ensureDs() {
+    if (!ds) {
+      ds = buildDataset({ scan: 12000 });
+      meta = { groups: ds.groups, index: ds.index, exemplars: ds.exemplars };
+      base = baseline(ds.val);
+      renderStats();
+    }
+    return ds;
+  }
+
+  function startRound() {
+    ensureDs();
+    round = quizRound(ds.val, N_GROUPS, 5);
+    qi = 0; userHits = 0; aiHits = 0;
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = round[qi];
+    const opts = q.options.map((gi) => {
+      const ex = (meta.exemplars[meta.groups[gi]] || []).slice(0, 2).join("·");
+      return `<button class="m-label loop-opt" data-g="${gi}">-${meta.groups[gi]}<small> ${ex}</small></button>`;
+    }).join("");
+    $("#loop-area").innerHTML = `
+      <div class="loop-q">
+        <span class="loop-prog">${qi + 1} / ${round.length}</span>
+        <b class="loop-ch">${q.ch}</b>
+        <p class="hint">${t("loop.ask")}</p>
+        <div class="m-labels">${opts}</div>
+        <div class="loop-reveal" id="loop-reveal" hidden></div>
+      </div>`;
+    app.querySelectorAll(".loop-opt").forEach((b) => b.addEventListener("click", () => answer(Number(b.dataset.g), b)));
+  }
+
+  function answer(gi, btn) {
+    if ($("#loop-reveal").hidden === false) return;
+    const q = round[qi];
+    const aiPick = net.predict(q.x).argmax;
+    const userRight = gi === q.answer, aiRight = aiPick === q.answer;
+    if (userRight) userHits++;
+    if (aiRight) aiHits++;
+    app.querySelectorAll(".loop-opt").forEach((b) => {
+      const g = Number(b.dataset.g);
+      b.disabled = true;
+      if (g === q.answer) b.classList.add("done");
+      else if (b === btn) b.classList.add("wrongpick");
+      if (g === aiPick) b.insertAdjacentHTML("beforeend", `<em class="ai-tag">AI</em>`);
+    });
+    const rv = $("#loop-reveal");
+    rv.hidden = false;
+    rv.innerHTML = `<p>${userRight ? `<span class="good">✓ ${t("loop.uRight")}</span>` : `<span class="bad">✗ ${t("loop.uWrong")}</span>`}
+      · AI ${aiRight ? `<span class="good">✓</span>` : `<span class="bad">✗</span>`}
+      · ${t("lab.truth")} <b>-${meta.groups[q.answer]}</b>（${(meta.exemplars[meta.groups[q.answer]] || []).join("·")}）</p>
+      <button class="primary" id="loop-next">${qi === round.length - 1 ? t("loop.finish") : t("btn.next")}</button>`;
+    $("#loop-next").addEventListener("click", () => {
+      qi++;
+      if (qi < round.length) renderQuestion(); else finishRound();
+    });
+  }
+
+  async function finishRound() {
+    loop.rounds.push({ user: userHits / round.length, ai: aiHits / round.length, when: Date.now() });
+    saveLoop(loop);
+    loopStats();
+    $("#loop-area").innerHTML = `
+      <div class="loop-q center">
+        <p class="loop-sum">${t("loop.sum", { u: userHits, a: aiHits, n: round.length })}</p>
+        <p class="hint">${t("loop.lesson")}</p>
+        <div class="controls" style="justify-content:center">
+          <button class="ghost" id="loop-teach" ${training ? "disabled" : ""}>${t("loop.teach")}</button>
+          <button class="primary" id="loop-again">${t("loop.again")}</button>
+        </div>
+        <p class="hint" id="loop-status"></p>
+      </div>`;
+    $("#loop-again").addEventListener("click", startRound);
+    $("#loop-teach").addEventListener("click", async (e) => {
+      if (training) return;
+      training = true; e.target.disabled = true;
+      $("#loop-status").textContent = t("loop.teaching");
+      await trainLive(net, ensureDs(), {
+        epochs: 1,
+        onProgress: ({ step, totalSteps }) => {
+          if (!destroyed) $("#loop-status").textContent = t("loop.teaching") + ` ${Math.round((step / totalSteps) * 100)}%`;
+        },
+      });
+      if (destroyed) return;
+      saveModel(net, { acc: null, when: Date.now() });
+      $("#loop-status").textContent = t("loop.taught");
+      e.target.disabled = false;
+      training = false;
+    });
+  }
+
+  $("#loop-start").addEventListener("click", startRound);
+  loopStats();
 
   function renderStats() {
     const n = ds ? ds.train.length + ds.val.length : 0;
@@ -122,6 +264,7 @@ export function openAiLab(app, onExit) {
         <span>${t("lab.lift")}</span><small>${t("lab.unseenNote")}</small></div>
       <div><b>${secs}s</b><span>${t("lab.time")}</span><small>${ds.train.length.toLocaleString()} ${t("lab.samples")}</small></div>`;
     $("#l-playground").hidden = false;
+    $("#l-loop").hidden = false;
     $("#l-train").disabled = false;
     $("#l-train").textContent = t("lab.retrain");
     training = false;

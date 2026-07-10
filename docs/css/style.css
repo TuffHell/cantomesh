@@ -495,9 +495,18 @@ button.big { font-size: 1.12rem; padding: 0.78rem 1.9rem; letter-spacing: 0.14em
 .od-ich { display: flex; flex-direction: column; gap: 0.1rem; border-left: 3px solid var(--gold); padding-left: 0.9rem; margin: 1rem 0; }
 .od-ich b { font-family: var(--kai); font-size: 1.15rem; }
 .od-ich span { color: var(--muted); font-size: 0.85rem; }
-.od-map { width: 100%; height: auto; background: rgba(58, 106, 90, 0.05); border: 1px solid var(--line); border-radius: 12px; margin: 0.6rem 0 1rem; }
-.od-map .od-dot circle { fill: var(--vermilion); }
-.od-map .od-dot text { fill: var(--ink); font-size: 2.4px; font-family: var(--serif); }
+.od-map { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; margin: 0.6rem 0 0.3rem; overflow: hidden; }
+.od-sea { fill: rgba(58, 106, 90, 0.13); }
+.od-land { fill: #efe7d5; stroke: rgba(169, 128, 47, 0.55); stroke-width: 0.5; }
+.od-wave { fill: none; stroke: rgba(58, 106, 90, 0.5); stroke-width: 0.4; stroke-linecap: round; }
+.od-map .od-dot { cursor: pointer; }
+.od-map .od-dot circle { fill: var(--vermilion); stroke: #fffdf8; stroke-width: 0.55; transition: r 0.15s var(--ease); }
+.od-map .od-dot:hover circle, .od-map .od-dot.sel circle { r: 2.7; fill: var(--vermilion-deep); }
+.od-map .od-dot text { fill: var(--ink); font-size: 2.6px; font-family: var(--serif); paint-order: stroke; stroke: #f4efe6; stroke-width: 0.7; }
+.od-mapnote { color: var(--muted); font-size: 0.78rem; margin: 0 0 0.9rem; }
+.od-venue.sel { border-color: var(--vermilion); box-shadow: 0 0 0 2px rgba(178, 58, 46, 0.25); }
+.od-venue a { text-decoration: none; color: var(--ink); display: flex; flex-direction: column; }
+.od-loc { margin-top: 0.3rem; font-size: 0.78rem !important; color: var(--jade) !important; }
 .od-venues { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0.6rem; }
 .od-venue { display: flex; flex-direction: column; text-decoration: none; color: var(--ink); background: #fffdf8; border: 1px solid var(--line); border-radius: 10px; padding: 0.7rem 0.85rem; transition: border-color 0.15s, transform 0.15s var(--ease); }
 .od-venue:hover { border-color: var(--vermilion); transform: translateY(-2px); }
@@ -573,6 +582,22 @@ button.big { font-size: 1.12rem; padding: 0.78rem 1.9rem; letter-spacing: 0.14em
 .tbar i { display: block; height: 10px; border-radius: 99px; background: rgba(169, 128, 47, 0.45); transition: width 0.3s var(--ease); }
 .tbar i.win { background: var(--jade); }
 .tbar small { color: var(--muted); font-variant-numeric: tabular-nums; }
+/* co-learning loop */
+.loop-score { display: flex; gap: clamp(1.2rem, 4vw, 2.6rem); margin: 0.4rem 0 0.6rem; }
+.loop-score div { display: flex; flex-direction: column; }
+.loop-score b { font-family: var(--kai); font-weight: 900; font-size: 1.7rem; }
+.loop-score b.you { color: var(--jade); } .loop-score b.ai { color: var(--vermilion); }
+.loop-score span { font-size: 0.74rem; color: var(--muted); }
+#loop-chart { width: 100%; height: auto; background: #fffdf8; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 0.8rem; }
+.loop-q { margin-top: 0.6rem; }
+.loop-q.center { text-align: center; }
+.loop-prog { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.loop-ch { display: block; font-family: var(--kai); font-weight: 900; font-size: 4rem; line-height: 1.15; margin: 0.2rem 0; }
+.loop-opt small { font-size: 0.7em; color: var(--muted); }
+.loop-opt.wrongpick { border-color: var(--vermilion); color: var(--vermilion); background: rgba(178, 58, 46, 0.08); }
+.loop-opt .ai-tag { font-style: normal; font-family: var(--mono); font-size: 0.6em; background: var(--vermilion); color: #fff; border-radius: 6px; padding: 0.1em 0.4em; margin-left: 0.4em; vertical-align: middle; }
+.loop-reveal { margin-top: 0.9rem; border-left: 3px solid var(--gold); padding: 0.4rem 0.9rem; }
+.loop-sum { font-family: var(--kai); font-size: 1.3rem; margin: 0.4rem 0; }
 
 /* ---------- Heritage framing details ---------- */
 .card, .impact-card, .stage, .train-card, .q-card, .lang-card, .trainer-stage, .studio-tile {

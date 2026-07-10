@@ -138,6 +138,15 @@ const openFace = synthFace(); openFace[13] = { x: 0.5, y: 0.63 }; openFace[14] =
 check("mouthOpenRatio: open mouth > closed mouth and crosses 0.09 trigger",
   mouthOpenRatio(openFace) > 0.09 && mouthOpenRatio(closedFace) < 0.09);
 
+// --- co-learning quiz round (pure; fake held-out samples) ---
+const { quizRound } = await import("../docs/js/tone-ai.js");
+const fakeVal = Array.from({ length: 40 }, (_, i) => ({ ch: String.fromCharCode(0x4e00 + i), x: new Float32Array(4), y: i % 16 }));
+const qr = quizRound(fakeVal, 16, 5, (() => { let s = 42; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; })());
+check("quizRound returns 5 questions", qr.length === 5);
+check("every question has 4 unique options incl. the answer",
+  qr.every((q) => q.options.length === 4 && new Set(q.options).size === 4 && q.options.includes(q.answer)));
+check("quiz answers are within group range", qr.every((q) => q.answer >= 0 && q.answer < 16));
+
 // --- picture glossary + matching game ---
 const { TERMS, buildMatchRound } = await import("../docs/js/glossary.js");
 check("glossary has >= 8 illustrated terms", TERMS.length >= 8);

@@ -12,14 +12,14 @@
     "inventory": "HK First ICH Inventory, item 4.15 (2014)"
   },
   "venues": [
-    { "name": "戲曲中心", "en": "Xiqu Centre", "district": "油尖旺 Yau Tsim Mong", "area": "西九文化區 West Kowloon", "lat": 22.3040, "lng": 114.1665, "url": "https://www.westk.hk/en/xiqu-centre" },
-    { "name": "油麻地戲院", "en": "Yau Ma Tei Theatre", "district": "油尖旺 Yau Tsim Mong", "area": "粵劇活動及新秀培訓 Xiqu training base", "lat": 22.3132, "lng": 114.1705, "url": "https://www.lcsd.gov.hk/en/ymtt/" },
-    { "name": "高山劇場", "en": "Ko Shan Theatre", "district": "九龍城 Kowloon City", "area": "紅磡 Hung Hom", "lat": 22.3095, "lng": 114.1897, "url": "https://www.lcsd.gov.hk/en/kst/" },
-    { "name": "新光戲院大劇場", "en": "Sunbeam Theatre", "district": "東區 Eastern", "area": "北角 North Point", "lat": 22.2915, "lng": 114.1998, "url": "https://www.sunbeamtheatre.com/" },
-    { "name": "牛池灣文娛中心", "en": "Ngau Chi Wan Civic Centre", "district": "黃大仙 Wong Tai Sin", "area": "彩虹 Choi Hung", "lat": 22.3345, "lng": 114.2085, "url": "https://www.lcsd.gov.hk/en/ncwcc/" },
-    { "name": "沙田大會堂", "en": "Sha Tin Town Hall", "district": "沙田 Sha Tin", "area": "新界東 New Territories East", "lat": 22.3820, "lng": 114.1895, "url": "https://www.lcsd.gov.hk/en/stth/" },
-    { "name": "元朗劇院", "en": "Yuen Long Theatre", "district": "元朗 Yuen Long", "area": "新界西 New Territories West", "lat": 22.4445, "lng": 114.0305, "url": "https://www.lcsd.gov.hk/en/ylt/" },
-    { "name": "西灣河文娛中心", "en": "Sai Wan Ho Civic Centre", "district": "東區 Eastern", "area": "港島東 Hong Kong East", "lat": 22.2820, "lng": 114.2220, "url": "https://www.lcsd.gov.hk/en/swhcc/" }
+    { "id": "xiqu", "name": "戲曲中心", "en": "Xiqu Centre", "district": "油尖旺 Yau Tsim Mong", "area": "西九文化區 West Kowloon", "lat": 22.3040, "lng": 114.1665, "url": "https://www.westk.hk/en/xiqu-centre", "anchor": "end", "dy": 1 },
+    { "id": "ymt", "name": "油麻地戲院", "en": "Yau Ma Tei Theatre", "district": "油尖旺 Yau Tsim Mong", "area": "粵劇活動及新秀培訓 Xiqu training base", "lat": 22.3132, "lng": 114.1705, "url": "https://www.lcsd.gov.hk/en/ymtt/", "anchor": "end", "dy": -2.2 },
+    { "id": "koshan", "name": "高山劇場", "en": "Ko Shan Theatre", "district": "九龍城 Kowloon City", "area": "紅磡 Hung Hom", "lat": 22.3095, "lng": 114.1897, "url": "https://www.lcsd.gov.hk/en/kst/", "anchor": "start", "dy": -1.6 },
+    { "id": "sunbeam", "name": "新光戲院大劇場", "en": "Sunbeam Theatre", "district": "東區 Eastern", "area": "北角 North Point", "lat": 22.2915, "lng": 114.1998, "url": "https://www.sunbeamtheatre.com/", "anchor": "start", "dy": 3.2 },
+    { "id": "ncw", "name": "牛池灣文娛中心", "en": "Ngau Chi Wan Civic Centre", "district": "黃大仙 Wong Tai Sin", "area": "彩虹 Choi Hung", "lat": 22.3345, "lng": 114.2085, "url": "https://www.lcsd.gov.hk/en/ncwcc/", "anchor": "start", "dy": -1.2 },
+    { "id": "shatin", "name": "沙田大會堂", "en": "Sha Tin Town Hall", "district": "沙田 Sha Tin", "area": "新界東 New Territories East", "lat": 22.3820, "lng": 114.1895, "url": "https://www.lcsd.gov.hk/en/stth/", "anchor": "start", "dy": 0 },
+    { "id": "yuenlong", "name": "元朗劇院", "en": "Yuen Long Theatre", "district": "元朗 Yuen Long", "area": "新界西 New Territories West", "lat": 22.4445, "lng": 114.0305, "url": "https://www.lcsd.gov.hk/en/ylt/", "anchor": "start", "dy": 0 },
+    { "id": "swh", "name": "西灣河文娛中心", "en": "Sai Wan Ho Civic Centre", "district": "東區 Eastern", "area": "港島東 Hong Kong East", "lat": 22.2820, "lng": 114.2220, "url": "https://www.lcsd.gov.hk/en/swhcc/", "anchor": "start", "dy": 1.4 }
   ],
   "repertoire": [
     "帝女花", "紫釵記", "再世紅梅記", "牡丹亭驚夢", "白蛇傳",

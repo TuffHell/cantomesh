@@ -548,6 +548,32 @@ button.big { font-size: 1.12rem; padding: 0.78rem 1.9rem; letter-spacing: 0.14em
 .v-slider input { width: 180px; accent-color: var(--vermilion); }
 .v-slider b { color: var(--vermilion); min-width: 2.2em; }
 
+/* AI Lab */
+.lab-stats { display: flex; gap: clamp(1rem, 3vw, 2.2rem); flex-wrap: wrap; margin: 0.4rem 0 1rem; }
+.lab-stats div { display: flex; flex-direction: column; }
+.lab-stats b { font-family: var(--kai); font-weight: 900; font-size: 1.5rem; color: var(--jade); font-variant-numeric: tabular-nums; }
+.lab-stats span { font-size: 0.74rem; color: var(--muted); letter-spacing: 0.06em; }
+.lab-size { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--muted); }
+#l-chart { width: 100%; height: auto; background: #fffdf8; border: 1px solid var(--line); border-radius: 12px; margin-top: 1rem; }
+.lab-results { display: flex; gap: clamp(1.2rem, 4vw, 3rem); flex-wrap: wrap; margin-top: 1rem; padding: 1rem 1.2rem; background: rgba(58, 106, 90, 0.06); border: 1px solid var(--line); border-radius: 12px; }
+.lab-results div { display: flex; flex-direction: column; }
+.lab-results b { font-family: var(--kai); font-weight: 900; font-size: 1.9rem; }
+.lab-results b.good { color: var(--jade); }
+.lab-results span { font-size: 0.8rem; color: var(--ink); }
+.lab-results small { font-size: 0.72rem; color: var(--muted); }
+.pred-row { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+.glyph-pv { image-rendering: pixelated; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.pred-main b { font-family: var(--kai); font-size: 1.7rem; }
+.pred-main b.pz { color: var(--vermilion); }
+.pred-main p { margin: 0.2rem 0 0; font-size: 0.9rem; color: var(--muted); }
+.pred-main .good { color: var(--jade); } .pred-main .bad { color: var(--vermilion); }
+.tbars { margin-top: 0.9rem; display: grid; gap: 0.35rem; max-width: 30rem; }
+.tbar { display: grid; grid-template-columns: 4.6rem 1fr 2.6rem; align-items: center; gap: 0.6rem; font-size: 0.82rem; }
+.tbar span { color: var(--muted); font-family: var(--mono); }
+.tbar i { display: block; height: 10px; border-radius: 99px; background: rgba(169, 128, 47, 0.45); transition: width 0.3s var(--ease); }
+.tbar i.win { background: var(--jade); }
+.tbar small { color: var(--muted); font-variant-numeric: tabular-nums; }
+
 /* ---------- Heritage framing details ---------- */
 .card, .impact-card, .stage, .train-card, .q-card, .lang-card, .trainer-stage, .studio-tile {
   box-shadow: var(--shadow-lift);

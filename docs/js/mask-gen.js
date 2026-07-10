@@ -274,6 +274,35 @@ function muzzlePanel(a, mouthHalfW) {
   return `<ellipse cx="${r1(cx)}" cy="${r1((top + bot) / 2)}" rx="${r1(rx)}" ry="${r1((bot - top) / 2 + 3)}" fill="${BASE}" opacity="0.82" data-part="muzzle"/>`;
 }
 
+// Mouth openness (inner lips 13/14 over face height) — drives the AR petal burst.
+export function mouthOpenRatio(lm) {
+  const h = dist(lm[10], lm[152]) || 1e-6;
+  return dist(lm[13], lm[14]) / h;
+}
+
+// Procedural 鳳冠-style crown matched to the mask's role colours.
+export function crownSVG(p, size = 300) {
+  const k = p.role.primary, s = p.role.secondary, a = p.accent;
+  const pearls = Array.from({ length: 7 }, (_, i) => {
+    const x = 34 + i * 22, y = 86 - Math.sin((i / 6) * Math.PI) * 10;
+    return `<circle cx="${x}" cy="${y}" r="4.2" fill="#f4ead8" stroke="${GOLDC}" stroke-width="1.2"/>`;
+  }).join("");
+  const curls = [-1, 1].map((d) =>
+    `<path d="M100 40 q ${d * 26} -4 ${d * 40} 14 q ${d * 8} 12 ${d * 24} 12" fill="none" stroke="${GOLDC}" stroke-width="3" stroke-linecap="round"/>`).join("");
+  return `<svg viewBox="0 0 200 110" width="${size}" height="${size * 0.55}" xmlns="http://www.w3.org/2000/svg" role="img">
+    <path d="M18 96 Q100 44 182 96 L182 104 Q100 74 18 104 Z" fill="${k}" stroke="${GOLDC}" stroke-width="2.4" data-part="band"/>
+    <path d="M24 94 Q100 52 176 94" fill="none" stroke="${s}" stroke-width="3" opacity="0.8"/>
+    ${curls}
+    <path d="M100 14 q-12 14 0 30 q12 -16 0 -30 Z" fill="${GOLDC}" stroke="${k}" stroke-width="1.6" data-part="jewel"/>
+    <circle cx="100" cy="34" r="5" fill="${s}"/>
+    <circle cx="52" cy="58" r="9" fill="${a}" stroke="${GOLDC}" stroke-width="1.6"/>
+    <circle cx="148" cy="58" r="9" fill="${a}" stroke="${GOLDC}" stroke-width="1.6"/>
+    <circle cx="30" cy="78" r="7.5" fill="${VERC}" data-part="pom"/><circle cx="170" cy="78" r="7.5" fill="${VERC}" data-part="pom"/>
+    ${pearls}
+  </svg>`;
+}
+const GOLDC = "#d8b25a", VERC = "#b23a2e";
+
 export function maskFromLandmarks(lm, salt = 0, size = 300) {
   const p = metricsToParams(faceMetrics(lm), salt);
 

@@ -1,6 +1,9 @@
 // Tests for the personalized mask generator + open-data challenge generation.
 // Run: node scripts/verify_gen.mjs
-import { faceMetrics, metricsToParams, generateMask, randomParams, PRESETS, maskFromLandmarks } from "../docs/js/mask-gen.js";
+import {
+  faceMetrics, metricsToParams, generateMask, randomParams, PRESETS,
+  maskFromLandmarks, crownSVG, mouthOpenRatio,
+} from "../docs/js/mask-gen.js";
 import { dataChallenges } from "../docs/js/open-data.js";
 import { lookup } from "../docs/js/prosody.js";
 import { readFileSync } from "fs";
@@ -87,6 +90,7 @@ function synthFace({ rx = 0.24, ry = 0.32, eyeY = 0.44, eyeDX = 0.09 } = {}) {
   // nose + mouth
   set(168, 0.5, eyeY); set(1, 0.5, 0.56); set(98, 0.47, 0.565); set(327, 0.53, 0.565);
   set(61, 0.45, 0.66); set(291, 0.55, 0.66); set(0, 0.5, 0.645); set(17, 0.5, 0.675);
+  set(13, 0.5, 0.655); set(14, 0.5, 0.665); // inner lips (mouth-open detector)
   set(234, 0.5 - rx, 0.5); set(454, 0.5 + rx, 0.5); set(10, 0.5, 0.5 - ry); set(152, 0.5, 0.5 + ry);
   return lm;
 }
@@ -121,6 +125,18 @@ check("eye position moves the sockets (identifiable)",
 
 const saltA = maskFromLandmarks(synthFace(), 11), saltB = maskFromLandmarks(synthFace(), 22);
 check("salt changes the paint but keeps THEIR silhouette", outlineOf(saltA.svg) === outlineOf(saltB.svg) && saltA.svg !== saltB.svg);
+
+// --- AR spectacle: crown + mouth-open detector ---
+const crown = crownSVG(port.params, 200);
+check("crownSVG renders (band+jewel+poms, NaN-free)",
+  crown.startsWith("<svg") && !crown.includes("NaN") &&
+  crown.includes('data-part="band"') && crown.includes('data-part="jewel"') &&
+  (crown.match(/data-part="pom"/g) || []).length === 2);
+check("crown uses the mask's role colour", crown.includes(port.params.role.primary));
+const closedFace = synthFace();
+const openFace = synthFace(); openFace[13] = { x: 0.5, y: 0.63 }; openFace[14] = { x: 0.5, y: 0.71 };
+check("mouthOpenRatio: open mouth > closed mouth and crosses 0.09 trigger",
+  mouthOpenRatio(openFace) > 0.09 && mouthOpenRatio(closedFace) < 0.09);
 
 // --- picture glossary + matching game ---
 const { TERMS, buildMatchRound } = await import("../docs/js/glossary.js");

@@ -7,18 +7,25 @@ import { t } from "./i18n.js";
 const WORKLET = `
 class CantoShifter extends AudioWorkletProcessor {
   static get parameterDescriptors() {
-    return [{ name: "ratio", defaultValue: 1.4, minValue: 1.0, maxValue: 2.5 }];
+    return [
+      { name: "ratio", defaultValue: 1.4, minValue: 1.0, maxValue: 3.0 },
+      { name: "vibHz", defaultValue: 5.5, minValue: 0, maxValue: 8 },
+      { name: "vibDepth", defaultValue: 0, minValue: 0, maxValue: 0.8 }, // semitones
+    ];
   }
   constructor() {
     super();
     this.N = 8192; this.buf = new Float32Array(this.N);
-    this.w = 0; this.tc = 0; this.G = 2048;
+    this.w = 0; this.tc = 0; this.G = 2048; this.ph = 0;
     this.taps = [{ start: 0, prev: 0 }, { start: 0, prev: 0.5 }];
   }
   process(inputs, outputs, params) {
     const inp = inputs[0][0], outL = outputs[0][0], outR = outputs[0][1];
     if (!inp || !outL) return true;
-    const ratio = params.ratio[0], G = this.G, N = this.N;
+    // operatic vibrato: modulate the pitch ratio a few cents around the target
+    this.ph += (inp.length / sampleRate) * params.vibHz[0] * 2 * Math.PI;
+    const ratio = params.ratio[0] * Math.pow(2, (params.vibDepth[0] * Math.sin(this.ph)) / 12);
+    const G = this.G, N = this.N;
     for (let i = 0; i < inp.length; i++) {
       this.buf[this.w % N] = inp[i];
       let s = 0;
@@ -68,8 +75,13 @@ export function openVoice(app, onExit) {
       <div class="controls" style="justify-content:center">
         <button class="primary" id="v-toggle">${t("voice.start")}</button>
       </div>
-      <label class="v-slider">${t("voice.pitch")} <b id="v-st">+6</b>
-        <input id="v-pitch" type="range" min="2" max="10" step="1" value="6" />
+      <div class="v-presets">
+        <button class="m-label" data-st="4" data-vib="0.15">${t("voice.p1")}</button>
+        <button class="m-label sel" data-st="9" data-vib="0.30">${t("voice.p2")}</button>
+        <button class="m-label" data-st="13" data-vib="0.38">${t("voice.p3")}</button>
+      </div>
+      <label class="v-slider">${t("voice.pitch")} <b id="v-st">+9</b>
+        <input id="v-pitch" type="range" min="2" max="14" step="1" value="9" />
       </label>
       <p class="note" style="text-align:left">${t("voice.headphones")}</p>
       <p class="privacy">${t("privacy")}</p>
@@ -106,14 +118,24 @@ export function openVoice(app, onExit) {
     const src = ctx.createMediaStreamSource(stream);
     node = new AudioWorkletNode(ctx, "canto-shifter", { outputChannelCount: [2] });
     node.parameters.get("ratio").value = stToRatio(Number($("#v-pitch").value));
-    const dry = ctx.createGain(); dry.gain.value = 0.85;
-    const wet = ctx.createGain(); wet.gain.value = 0.22;
+    node.parameters.get("vibDepth").value = 0.3;
+    // stage voicing: brightness + presence (the "ring" of an opera voice),
+    // gentle compression for loudness, then dry + 戲棚 reverb
+    const bright = ctx.createBiquadFilter();
+    bright.type = "highshelf"; bright.frequency.value = 1800; bright.gain.value = 6;
+    const presence = ctx.createBiquadFilter();
+    presence.type = "peaking"; presence.frequency.value = 3300; presence.Q.value = 1.1; presence.gain.value = 4;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -22; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.18;
+    const dry = ctx.createGain(); dry.gain.value = 0.9;
+    const wet = ctx.createGain(); wet.gain.value = 0.26;
     const verb = ctx.createConvolver(); verb.buffer = makeImpulse(ctx);
     analyser = ctx.createAnalyser(); analyser.fftSize = 512;
     src.connect(node);
-    node.connect(dry).connect(ctx.destination);
-    node.connect(verb).connect(wet).connect(ctx.destination);
-    node.connect(analyser);
+    node.connect(bright).connect(presence).connect(comp);
+    comp.connect(dry).connect(ctx.destination);
+    comp.connect(verb).connect(wet).connect(ctx.destination);
+    comp.connect(analyser);
     on = true;
     $("#v-toggle").textContent = t("voice.stop");
     $("#v-status").textContent = t("voice.live");
@@ -134,6 +156,15 @@ export function openVoice(app, onExit) {
     $("#v-st").textContent = `+${e.target.value}`;
     node?.parameters.get("ratio").setValueAtTime(stToRatio(Number(e.target.value)), ctx.currentTime);
   });
+  app.querySelectorAll(".v-presets .m-label").forEach((b) => b.addEventListener("click", () => {
+    app.querySelectorAll(".v-presets .m-label").forEach((x) => x.classList.toggle("sel", x === b));
+    const st = Number(b.dataset.st), vib = Number(b.dataset.vib);
+    $("#v-pitch").value = st; $("#v-st").textContent = `+${st}`;
+    if (node && ctx) {
+      node.parameters.get("ratio").setValueAtTime(stToRatio(st), ctx.currentTime);
+      node.parameters.get("vibDepth").setValueAtTime(vib, ctx.currentTime);
+    }
+  }));
   $("#v-quit").addEventListener("click", () => { stop(); onExit(); });
 
   return { destroy: stop };

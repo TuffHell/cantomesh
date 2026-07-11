@@ -138,6 +138,21 @@ const openFace = synthFace(); openFace[13] = { x: 0.5, y: 0.63 }; openFace[14] =
 check("mouthOpenRatio: open mouth > closed mouth and crosses 0.09 trigger",
   mouthOpenRatio(openFace) > 0.09 && mouthOpenRatio(closedFace) < 0.09);
 
+// --- story immersion + LORE + encyclopedia integrity ---
+const { WORLD_STORIES, LORE } = await import("../docs/js/stories.js");
+const { WORLDS } = await import("../docs/js/levels.js");
+const { ENCYCLOPEDIA, CATS, EXTRA_TERMS } = await import("../docs/js/glossary.js");
+const { lookup: lk } = await import("../docs/js/prosody.js");
+check("every quest world has a 劇目 story (zh+en+tie)",
+  WORLDS.every((w) => { const s = WORLD_STORIES[w.id]; return s && s.title && s.zh && s.en_syn && s.tie && s.tie_en; }));
+check("every LORE entry has word/jp/zh/en", Object.values(LORE).every((l) => l.word && l.jp && l.zh && l.en));
+check("every LORE key is a real dictionary character", Object.keys(LORE).every((ch) => !!lk(ch)));
+check("encyclopedia has >= 19 illustrated entries across 4 categories",
+  ENCYCLOPEDIA.length >= 19 && CATS.length === 4 &&
+  CATS.every((c) => ENCYCLOPEDIA.some((x) => x.cat === c)));
+check("all new instrument/costume entries have svg + bilingual text",
+  EXTRA_TERMS.every((x) => x.svg.length > 30 && x.ex_zh && x.ex_en && x.cat));
+
 // --- co-learning quiz round (pure; fake held-out samples) ---
 const { quizRound } = await import("../docs/js/tone-ai.js");
 const fakeVal = Array.from({ length: 40 }, (_, i) => ({ ch: String.fromCharCode(0x4e00 + i), x: new Float32Array(4), y: i % 16 }));

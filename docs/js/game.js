@@ -12,6 +12,11 @@ import { openAiLab } from "./ai-lab.js";
 import { getMistakes, recordMistake, clearMistakes } from "./mistakes.js";
 import { t, getLang, setLang, LANGS } from "./i18n.js";
 import { heroScene, mountainFooter } from "./ornaments.js";
+import { WORLD_STORIES } from "./stories.js";
+import { ENCYCLOPEDIA, CATS } from "./glossary.js";
+import { renderJournal } from "./journal.js";
+import { speak, speakSlow, speakStatus } from "./speak.js";
+import { enableCharTap, provideExemplars } from "./wordinfo.js";
 
 const SAVE_KEY = "cantomesh.quest.v1";
 const app = document.getElementById("app");
@@ -143,11 +148,38 @@ const BUILDERS = { tone: buildTone, rhyme: buildRhyme, verify: buildVerify };
 const buildRound = (r) => BUILDERS[r.kind](r);
 
 /* ---------------- screens ---------------- */
-function renderMap() {
-  clearFigures();
+// ---------------- app shell: 4-tab commercial IA ----------------
+let view = "quest";
+let acadCat = "role";
+const NAV_VIEWS = ["quest", "academy", "studio", "journal"];
+
+function setView(v) { view = v; renderMap(); window.scrollTo(0, 0); }
+
+function navBar() {
+  return `<nav class="appnav" aria-label="main">` + NAV_VIEWS.map((v) =>
+    `<button class="nv ${view === v ? "on" : ""}" data-v="${v}">
+      <span class="nv-ic">${t("nav." + v + ".ic")}</span><small>${t("nav." + v)}</small></button>`).join("") + `</nav>`;
+}
+
+// Ytong-style story immersion: each world opens inside a 劇目 story panel.
+function storyPanel(wid) {
+  const s = WORLD_STORIES[wid];
+  if (!s) return "";
+  const lang = getLang();
+  const title = [...s.title].map((c) => `<span data-char="${c}">${c}</span>`).join("");
+  return `<div class="story-panel">
+    <svg class="sp-cloud" viewBox="0 0 200 60" aria-hidden="true"><path d="M10 44 q-6 -18 16 -16 q6 -16 26 -8 q18 -14 30 4 q22 -4 18 16 q14 6 2 16 q-40 8 -92 0 q-10 -4 0 -12 Z" fill="none" stroke="rgba(216,178,90,0.4)" stroke-width="1.6"/></svg>
+    <p class="sp-era">${s.era}</p>
+    <h3 class="sp-title">${title}</h3>
+    <p class="sp-en">${s.en}</p>
+    <p class="sp-syn">${lang === "en" ? s.en_syn : s.zh}</p>
+    <p class="sp-tie">${lang === "en" ? s.tie_en : s.tie}</p>
+  </div>`;
+}
+
+function heroHtml() {
   const pct = Math.round((totalStars() / maxStars()) * 100);
-  let html = `
-    <header class="g-hero">${heroScene()}
+  return `<header class="g-hero">${heroScene()}
       <div class="hero-figure" id="hero-fig" aria-hidden="true"></div>
       <div class="g-hero-in">
         <p class="kicker">${t("map.kicker")}</p>
@@ -157,64 +189,35 @@ function renderMap() {
           <button class="primary big" id="cta-play">${t("hero.play")}</button>
           <button class="ghost big" id="cta-train">${t("hero.train")}</button>
         </div>
-        <div class="hero-badges">
-          <span><b>20,865</b>${t("badge.dict")}</span>
-          <span><b>5</b>${t("badge.studios")}</span>
-          <span><b>100%</b>${t("badge.offline")}</span>
-          <span><b>中/EN</b>${t("badge.lang")}</span>
-        </div>
         <div class="statline">
           <span>★ ${totalStars()} / ${maxStars()}</span>
           <span>${t("map.masks")} ${progress.masks.length} / 4</span>
           <a href="#" id="replay-intro">${t("map.replay")}</a>
           <a href="#" id="lang-toggle">${getLang() === "en" ? "中文" : "EN"}</a>
-          <a class="tools-link" href="tools.html">${t("map.tools")}</a>
         </div>
         <div class="pbar"><i style="width:${pct}%"></i></div>
       </div>
-    </header>
-    <main class="wrap">
-      <section class="impact">
-        <div class="impact-card stats-card">
-          <h3>${t("stats.title")}</h3>
-          <div class="stat-row">
-            <div><b>${masteredCount()}</b><span>${t("stats.learned")}</span></div>
-            <div><b>${accuracy()}%</b><span>${t("stats.acc")}</span></div>
-            <div><b>${progress.stats.total}</b><span>${t("stats.total")}</span></div>
-          </div>
-        </div>
-        <div class="impact-card mission-card">
-          <h3>${t("mission.title")}</h3>
-          <p>${t("mission.body")}</p>
-        </div>
-      </section>
-      ${getMistakes().length ? `<section class="mistake-cta">
-        <div class="impact-card train-card mistake-card">
-          <div><h3>${t("mist.title")} · ${getMistakes().length}</h3><p>${t("mist.body")}</p></div>
-          <button class="primary" id="open-mistakes">${t("mist.btn")}</button>
-        </div>
-      </section>` : ""}
-      <section class="studio">
-        <h3 class="studio-h">${t("studio.h")}</h3>
-        <div class="studio-row">
-          <button class="studio-tile" id="open-trainer"><span class="st-ic">身</span><b>${t("tile.train.t")}</b><small>${t("tile.train.s")}</small></button>
-          <button class="studio-tile" id="open-ar"><span class="st-ic">臉</span><b>${t("tile.ar.t")}</b><small>${t("tile.ar.s")}</small></button>
-          <button class="studio-tile" id="open-gloss"><span class="st-ic">圖</span><b>${t("tile.gloss.t")}</b><small>${t("tile.gloss.s")}</small></button>
-          <button class="studio-tile" id="open-voice"><span class="st-ic">聲</span><b>${t("tile.voice.t")}</b><small>${t("tile.voice.s")}</small></button>
-          <button class="studio-tile" id="open-lab"><span class="st-ic">腦</span><b>${t("tile.lab.t")}</b><small>${t("tile.lab.s")}</small></button>
-          <button class="studio-tile" id="open-heritage"><span class="st-ic">港</span><b>${t("tile.heritage.t")}</b><small>${t("tile.heritage.s")}</small></button>
-        </div>
-      </section>`;
+    </header>`;
+}
 
+function questHtml() {
+  let html = heroHtml() + `<main class="wrap">`;
+  if (getMistakes().length) {
+    html += `<section class="mistake-cta">
+      <div class="impact-card train-card mistake-card">
+        <div><h3>${t("mist.title")} · ${getMistakes().length}</h3><p>${t("mist.body")}</p></div>
+        <button class="primary" id="open-mistakes">${t("mist.btn")}</button>
+      </div></section>`;
+  }
   if (progress.masks.length) {
     html += `<section class="mask-shelf"><h3>${t("masks.shelf")}</h3><div class="masks">` +
       progress.masks.map((m) => `<figure>${maskSVG(m, 70)}<figcaption>${MASKS[m].name}</figcaption></figure>`).join("") +
       `</div></section>`;
   }
-
   let idx = 0;
   for (const w of WORLDS) {
-    html += `<section class="world"><div class="world-head"><span class="wmask">${maskSVG(w.mask, 44)}</span>
+    html += `<section class="world">${storyPanel(w.id)}
+      <div class="world-head"><span class="wmask">${maskSVG(w.mask, 44)}</span>
       <div><h2>${w.name}</h2><p>${w.subtitle}</p></div></div><div class="stages">`;
     for (const s of w.stages) {
       const gi = idx++;
@@ -237,7 +240,6 @@ function renderMap() {
       <nav class="f-col"><h4>${t("footer.explore")}</h4>
         <button id="f-trainer">${t("tile.train.t")}</button>
         <button id="f-ar">${t("tile.ar.t")}</button>
-        <button id="f-gloss">${t("tile.gloss.t")}</button>
         <a href="tools.html">${t("map.tools")}</a>
       </nav>
       <nav class="f-col"><h4>${t("footer.tech")}</h4>
@@ -247,20 +249,85 @@ function renderMap() {
       </nav>
     </div>
     <p class="f-legal">© 2026 CANTOMESH · 唱念做打 · ${t("footer.rights")}</p></footer>`;
-  app.innerHTML = html;
+  return html;
+}
 
+function studioHtml() {
+  return `<main class="wrap page">
+    <h1 class="page-title">${t("nav.studio")}</h1><p class="page-sub">${t("studio.h")}</p>
+    <section class="impact">
+      <div class="impact-card stats-card">
+        <h3>${t("stats.title")}</h3>
+        <div class="stat-row">
+          <div><b>${masteredCount()}</b><span>${t("stats.learned")}</span></div>
+          <div><b>${accuracy()}%</b><span>${t("stats.acc")}</span></div>
+          <div><b>${progress.stats.total}</b><span>${t("stats.total")}</span></div>
+        </div>
+      </div>
+      <div class="impact-card mission-card"><h3>${t("mission.title")}</h3><p>${t("mission.body")}</p></div>
+    </section>
+    <section class="studio"><div class="studio-row">
+      <button class="studio-tile" id="open-trainer"><span class="st-ic">身</span><b>${t("tile.train.t")}</b><small>${t("tile.train.s")}</small></button>
+      <button class="studio-tile" id="open-ar"><span class="st-ic">臉</span><b>${t("tile.ar.t")}</b><small>${t("tile.ar.s")}</small></button>
+      <button class="studio-tile" id="open-voice"><span class="st-ic">聲</span><b>${t("tile.voice.t")}</b><small>${t("tile.voice.s")}</small></button>
+      <button class="studio-tile" id="open-lab"><span class="st-ic">腦</span><b>${t("tile.lab.t")}</b><small>${t("tile.lab.s")}</small></button>
+      <button class="studio-tile" id="open-heritage"><span class="st-ic">港</span><b>${t("tile.heritage.t")}</b><small>${t("tile.heritage.s")}</small></button>
+      <button class="studio-tile" id="open-gloss"><span class="st-ic">圖</span><b>${t("tile.gloss.t")}</b><small>${t("tile.gloss.s")}</small></button>
+    </div></section>
+  </main>`;
+}
+
+function academyHtml() {
+  const lang = getLang();
+  const cats = CATS.map((c) =>
+    `<button class="ptab ${acadCat === c ? "active" : ""}" data-cat="${c}">${t("cat." + c)}</button>`).join("");
+  const items = ENCYCLOPEDIA.filter((x) => x.cat === acadCat).map((x) =>
+    `<button class="g-card" data-id="${x.id}">
+      <svg viewBox="0 0 100 100">${x.svg}</svg>
+      <b>${x.zh}</b><i>${x.jp}</i><span>${lang === "en" ? x.en : ""}</span></button>`).join("");
+  return `<main class="wrap page">
+    <h1 class="page-title">${t("nav.academy")}</h1><p class="page-sub">${t("acad.sub")}</p>
+    <section class="card speak-card">
+      <h2 class="g-title">${t("acad.speakTitle")} <small>SPEAK</small></h2>
+      <p class="hint">${t("acad.speakSub")}</p>
+      <textarea id="sp-in" rows="2" maxlength="40" placeholder="帝女花 香夭"></textarea>
+      <div class="controls">
+        <button class="primary" id="sp-say">🔊 ${t("acad.say")}</button>
+        <button class="ghost" id="sp-slow">🐢 ${t("acad.slow")}</button>
+        <span class="hint" id="sp-note"></span>
+      </div>
+      <div class="verse" id="sp-chips"></div>
+      <p class="hint">${t("acad.tapHint")}</p>
+    </section>
+    <section class="card">
+      <h2 class="g-title">${t("acad.encTitle")} <small>ENCYCLOPEDIA</small></h2>
+      <p class="hint">${t("acad.encSub")}</p>
+      <div class="pose-tabs acad-tabs">${cats}</div>
+      <div class="g-grid">${items}</div>
+      <div class="g-explain" id="acad-explain">${t("gloss.tap")}</div>
+      <div class="controls"><button class="primary" id="acad-match">${t("gloss.play")}</button></div>
+    </section>
+  </main>`;
+}
+
+function renderMap() {
+  clearFigures();
+  let html = "";
+  if (view === "quest") html = questHtml();
+  else if (view === "studio") html = studioHtml();
+  else if (view === "academy") html = academyHtml();
+  else html = `<main class="wrap page"><h1 class="page-title">${t("nav.journal")}</h1><p class="page-sub">${t("jr.sub")}</p><div id="jr-root"></div></main>`;
+  app.innerHTML = html + navBar();
+
+  // nav
+  app.querySelectorAll(".appnav .nv").forEach((b) => b.addEventListener("click", () => setView(b.dataset.v)));
+
+  // quest wiring
   app.querySelectorAll(".stage:not(.locked)").forEach((b) =>
     b.addEventListener("click", () => startStage(b.dataset.stage)));
   $("#replay-intro")?.addEventListener("click", (e) => { e.preventDefault(); renderIntro(); });
-  $("#open-trainer")?.addEventListener("click", startTrainer);
-  $("#open-ar")?.addEventListener("click", startFaceAR);
-  $("#open-heritage")?.addEventListener("click", startHeritage);
-  $("#open-gloss")?.addEventListener("click", () => { clearFigures(); openGlossary(app, renderMap); });
-  $("#open-voice")?.addEventListener("click", () => { clearFigures(); openVoice(app, renderMap); });
-  $("#open-lab")?.addEventListener("click", () => { clearFigures(); openAiLab(app, renderMap); });
   $("#open-mistakes")?.addEventListener("click", () =>
     playRounds(t("mist.playTitle"), getMistakes().slice(0, 8).map((ch) => ({ kind: "tone", char: ch }))));
-  // hero CTAs + footer quick-links
   $("#cta-play")?.addEventListener("click", () => {
     const next = STAGES.find((s, i) => isUnlocked(i) && !progress.cleared[s.id]) || STAGES[0];
     startStage(next.id);
@@ -268,12 +335,46 @@ function renderMap() {
   $("#cta-train")?.addEventListener("click", startTrainer);
   $("#f-trainer")?.addEventListener("click", startTrainer);
   $("#f-ar")?.addEventListener("click", startFaceAR);
-  $("#f-gloss")?.addEventListener("click", () => { clearFigures(); openGlossary(app, renderMap); });
   $("#f-heritage")?.addEventListener("click", startHeritage);
   $("#lang-toggle")?.addEventListener("click", (e) => {
     e.preventDefault(); setLang(getLang() === "en" ? "zh" : "en"); renderMap();
   });
-  mountFigure("#hero-fig", { role: "daan", size: 210 });
+  if (view === "quest") mountFigure("#hero-fig", { role: "daan", size: 210 });
+
+  // studio wiring
+  $("#open-trainer")?.addEventListener("click", startTrainer);
+  $("#open-ar")?.addEventListener("click", startFaceAR);
+  $("#open-heritage")?.addEventListener("click", startHeritage);
+  $("#open-gloss")?.addEventListener("click", () => { clearFigures(); openGlossary(app, renderMap); });
+  $("#open-voice")?.addEventListener("click", () => { clearFigures(); openVoice(app, renderMap); });
+  $("#open-lab")?.addEventListener("click", () => { clearFigures(); openAiLab(app, renderMap); });
+
+  // academy wiring
+  app.querySelectorAll(".acad-tabs .ptab").forEach((b) =>
+    b.addEventListener("click", () => { acadCat = b.dataset.cat; renderMap(); }));
+  app.querySelectorAll(".page .g-grid .g-card").forEach((b) => b.addEventListener("click", () => {
+    const x = ENCYCLOPEDIA.find((k) => k.id === b.dataset.id);
+    if (!x) return;
+    app.querySelectorAll(".g-card").forEach((c) => c.classList.toggle("sel", c === b));
+    $("#acad-explain").innerHTML =
+      `<b>${x.zh}</b> <code>${x.jp}</code> · ${x.en}<br>${getLang() === "en" ? x.ex_en : x.ex_zh}`;
+  }));
+  $("#acad-match")?.addEventListener("click", () => { clearFigures(); openGlossary(app, renderMap); });
+  const spStatus = typeof speakStatus === "function" ? speakStatus() : "unsupported";
+  if ($("#sp-note")) {
+    if (spStatus === "unsupported" || spStatus === "novoice") $("#sp-note").textContent = t("acad.novoice");
+    else if (spStatus === "fallback") $("#sp-note").textContent = t("wi.fallbackVoice");
+  }
+  const spChips = () => {
+    const txt = $("#sp-in").value.trim();
+    $("#sp-chips").innerHTML = `<div class="verse-line">${[...txt].filter((c) => c >= "一" && c <= "鿿").map(charChip).join("")}</div>`;
+  };
+  $("#sp-in")?.addEventListener("input", spChips);
+  $("#sp-say")?.addEventListener("click", () => { spChips(); speak($("#sp-in").value.trim()); });
+  $("#sp-slow")?.addEventListener("click", () => { spChips(); speakSlow($("#sp-in").value.trim()); });
+
+  // journal
+  if (view === "journal") renderJournal($("#jr-root"));
 }
 
 function startTrainer() {
@@ -450,3 +551,12 @@ function maskReward(id) {
 if (!getLang()) renderLangPicker();
 else if (progress.seenIntro) renderMap();
 else renderIntro();
+
+// tap any character anywhere → teach it (jyutping, tone contour, lore, 🔊)
+enableCharTap(document);
+setTimeout(async () => {
+  try {
+    const { rimeGroups } = await import("./tone-ai.js");
+    provideExemplars(rimeGroups().exemplars);
+  } catch { /* exemplars are optional garnish */ }
+}, 400);

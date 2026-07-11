@@ -36,6 +36,51 @@ export const TERMS = [
     svg: `<circle cx="50" cy="26" r="9" fill="${PAPER}" stroke="${INK}" stroke-width="2"/><path d="M50 35 l0 28 M50 42 l-20 -12 M50 42 l18 -20 M50 63 l-12 24 M50 63 l12 24" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/><path d="M74 14 l4 -8 M80 22 l8 -4 M70 8 l0 -6" stroke="${VER}" stroke-width="2.4" stroke-linecap="round"/>` },
 ];
 
+// ---- 戲寶百科: categories + instruments & costumes --------------------------
+const CATMAP = {
+  seoi_zau: "stage", ling_zi: "costume", man_coeng: "music", mou_coeng: "music",
+  saang: "role", daan: "role", zing: "role", cau: "role", loeng_soeng: "stage",
+};
+
+export const EXTRA_TERMS = [
+  { id: "gou_wu", cat: "music", zh: "高胡", jp: "gou1 wu4", en: "Gaohu fiddle",
+    ex_zh: "粵樂「頭架」——兩弦高音胡琴，夾於兩膝間拉奏，音色清亮，領奏全場。", ex_en: "The lead two-string fiddle, held between the knees — bright, singing, and in charge.",
+    svg: `<ellipse cx="42" cy="70" rx="13" ry="15" fill="${GOLD}" stroke="${INK}" stroke-width="2"/><rect x="39" y="8" width="6" height="50" rx="2" fill="${INK}"/><path d="M32 16 l50 48" stroke="${VER}" stroke-width="2.4"/><circle cx="45" cy="14" r="3" fill="${GOLD}"/><circle cx="45" cy="22" r="3" fill="${GOLD}"/>` },
+  { id: "joeng_kam", cat: "music", zh: "揚琴", jp: "joeng4 kam4", en: "Hammered dulcimer",
+    ex_zh: "梯形擊弦樂器，雙竹輕敲，如珠落玉盤，是文場的骨幹。", ex_en: "A trapezoid of strings struck with bamboo hammers — pearls on a jade plate.",
+    svg: `<path d="M22 34 L78 34 L88 72 L12 72 Z" fill="${PAPER}" stroke="${INK}" stroke-width="2.4"/><path d="M28 42 h44 M25 52 h50 M22 62 h56" stroke="${GOLD}" stroke-width="1.6"/><path d="M36 26 l10 14 M64 26 l-10 14" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>` },
+  { id: "bok_jyu", cat: "music", zh: "卜魚 · 板", jp: "buk1 jyu4", en: "Woodblock & clapper",
+    ex_zh: "掌板師傅的令旗——卜魚定節拍，全團看它一聲下槌。", ex_en: "The percussion leader's baton — the whole company breathes on its tick.",
+    svg: `<ellipse cx="50" cy="58" rx="24" ry="16" fill="${VER}" stroke="${INK}" stroke-width="2.4"/><path d="M30 58 q20 -10 40 0" stroke="${INK}" stroke-width="1.6" fill="none"/><rect x="62" y="18" width="6" height="30" rx="3" fill="${INK}" transform="rotate(24 65 33)"/>` },
+  { id: "so_naa", cat: "music", zh: "嗩吶", jp: "so2 naa1", en: "Suona horn",
+    ex_zh: "高亢的簧管，出將入相、婚喪喜慶皆由它開路，聲震戲棚。", ex_en: "The piercing double-reed horn that announces generals, weddings and gods alike.",
+    svg: `<path d="M46 12 L54 12 L58 62 L42 62 Z" fill="${GOLD}" stroke="${INK}" stroke-width="2"/><path d="M42 62 Q30 78 24 92 Q50 84 76 92 Q70 78 58 62 Z" fill="${VER}" stroke="${INK}" stroke-width="2.2"/><circle cx="50" cy="26" r="1.8" fill="${INK}"/><circle cx="50" cy="36" r="1.8" fill="${INK}"/><circle cx="50" cy="46" r="1.8" fill="${INK}"/>` },
+  { id: "caa", cat: "music", zh: "鈸", jp: "bat6", en: "Cymbals",
+    ex_zh: "武場之翼，與大鑼一呼一應。開打時鈸聲如浪，逐拍推高。", ex_en: "The crash that answers the gong — combat scenes surge on its waves.",
+    svg: `<circle cx="42" cy="50" r="24" fill="${GOLD}" stroke="${INK}" stroke-width="2.2"/><circle cx="42" cy="50" r="6" fill="${VER}"/><circle cx="60" cy="60" r="24" fill="${GOLD}" stroke="${INK}" stroke-width="2.2" opacity="0.85"/><circle cx="60" cy="60" r="6" fill="${VER}"/>` },
+  { id: "mong_pou", cat: "costume", zh: "蟒袍", jp: "mong5 pou4", en: "Python robe",
+    ex_zh: "帝王將相的禮服，滿身蟒紋雲海。黃者至尊，非帝不服。", ex_en: "Court robe of emperors and generals, embroidered with four-clawed dragons; yellow is reserved for the throne.",
+    svg: `<path d="M30 20 L70 20 L82 34 L72 42 L72 88 L28 88 L28 42 L18 34 Z" fill="${VER}" stroke="${INK}" stroke-width="2.2"/><path d="M40 46 q10 -8 20 0 q-10 10 -20 0 Z" fill="${GOLD}"/><path d="M34 66 q16 8 32 0" stroke="${GOLD}" stroke-width="2.4" fill="none"/><path d="M30 20 L70 20 L64 30 L36 30 Z" fill="${GOLD}" opacity="0.7"/>` },
+  { id: "daai_kaau", cat: "costume", zh: "大靠", jp: "daai6 kaau3", en: "Battle armour",
+    ex_zh: "武將鎧甲，背插四面三角靠旗——旗隨身轉，威風凜凜。", ex_en: "Stage armour with four banner flags rising from the back, wheeling as the general turns.",
+    svg: `<path d="M36 40 L64 40 L68 88 L32 88 Z" fill="${JADE}" stroke="${INK}" stroke-width="2.2"/><path d="M40 40 L24 14 L44 30 Z M60 40 L76 14 L56 30 Z M46 36 L38 8 L52 26 Z M54 36 L62 8 L48 26 Z" fill="${VER}" stroke="${INK}" stroke-width="1.4"/><circle cx="50" cy="56" r="7" fill="${GOLD}" stroke="${INK}" stroke-width="1.4"/>` },
+  { id: "pei_fung", cat: "costume", zh: "帔風", jp: "pei3 fung1", en: "Cape robe",
+    ex_zh: "文場便服，對襟長帔，繡花淡雅——生旦居家相見，多着帔風。", ex_en: "The elegant informal robe for domestic scenes — soft embroidery, quiet grace.",
+    svg: `<path d="M34 18 L66 18 L74 88 L26 88 Z" fill="${PAPER}" stroke="${INK}" stroke-width="2.2"/><path d="M50 18 L50 88" stroke="${VER}" stroke-width="2"/><path d="M38 40 q6 -6 10 0 M52 40 q6 -6 10 0" stroke="${JADE}" stroke-width="1.8" fill="none"/><circle cx="42" cy="60" r="3" fill="${VER}" opacity="0.7"/><circle cx="58" cy="60" r="3" fill="${VER}" opacity="0.7"/>` },
+  { id: "kwai_tau", cat: "costume", zh: "盔頭", jp: "kwai1 tau4", en: "Headdress",
+    ex_zh: "冠、盔、巾、帽四大類逾百款——鳳冠珠搖，帥盔翎立，一頂盔頭一個身份。", ex_en: "Crowns, helmets, kerchiefs and hats — over a hundred kinds; the headdress names the character.",
+    svg: `<path d="M26 62 Q50 30 74 62 L74 70 Q50 54 26 70 Z" fill="${VER}" stroke="${GOLD}" stroke-width="2.4"/><path d="M50 26 q-8 10 0 20 q8 -10 0 -20 Z" fill="${GOLD}" stroke="${INK}" stroke-width="1.4"/><circle cx="32" cy="56" r="4.5" fill="${GOLD}"/><circle cx="68" cy="56" r="4.5" fill="${GOLD}"/><path d="M30 50 Q14 34 20 16 M70 50 Q86 34 80 16" stroke="${JADE}" stroke-width="2.6" fill="none" stroke-linecap="round"/>` },
+  { id: "daai_lo", cat: "music", zh: "大鑼", jp: "daai6 lo4", en: "Great gong",
+    ex_zh: "武場之王——亮相、升堂、開打，全憑一鑼斷句。", ex_en: "King of the pit: one stroke seals a freeze, a verdict, a charge.",
+    svg: `<circle cx="50" cy="48" r="27" fill="${GOLD}" stroke="${INK}" stroke-width="2.6"/><circle cx="50" cy="48" r="11" fill="${VER}" stroke="${INK}" stroke-width="1.6"/><path d="M76 20 l10 -10 M80 28 l10 -6" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>` },
+];
+
+export const CATS = ["role", "stage", "music", "costume"];
+export const ENCYCLOPEDIA = [
+  ...TERMS.map(x => ({ ...x, cat: CATMAP[x.id] || "stage" })),
+  ...EXTRA_TERMS,
+];
+
 // Pure round-builder for the matching game: n pairs, pictures & terms shuffled.
 export function buildMatchRound(terms, n = 4, rand = Math.random) {
   const pool = [...terms];

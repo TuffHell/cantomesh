@@ -701,7 +701,23 @@ body { padding-bottom: 5.5rem; } /* keep content clear of the nav */
   margin: 0 0 1rem;
   box-shadow: inset 0 0 0 1px rgba(216, 178, 90, 0.12), inset 0 0 60px rgba(0, 0, 0, 0.35), var(--shadow);
 }
-.sp-cloud { position: absolute; right: -10px; top: -6px; width: 170px; opacity: 0.8; }
+/* illustrated scene: composed on the right, melting into the panel */
+.sp-scene {
+  position: absolute; right: 0; top: 0; bottom: 0; width: min(52%, 340px);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 26%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 26%);
+}
+.sp-scene svg { width: 100%; height: 100%; }
+.story-panel .sp-era, .story-panel .sp-title, .story-panel .sp-en,
+.story-panel .sp-syn, .story-panel .sp-tie { position: relative; z-index: 1; max-width: 60%; }
+@media (max-width: 640px) {
+  .sp-scene { width: 100%; opacity: 0.34;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 45%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 45%); }
+  .story-panel .sp-era, .story-panel .sp-title, .story-panel .sp-en,
+  .story-panel .sp-syn, .story-panel .sp-tie { max-width: 100%; }
+}
 .sp-era { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.2em; color: rgba(216, 178, 90, 0.75); margin: 0 0 0.4rem; }
 .sp-title { font-family: var(--kai); font-weight: 900; font-size: clamp(2rem, 1rem + 4.5vw, 3.2rem); letter-spacing: 0.22em; margin: 0;
   background: linear-gradient(170deg, #ecd18a 20%, #c9a24a 55%, #a67f2e 85%);

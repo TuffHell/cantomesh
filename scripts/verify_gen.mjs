@@ -152,6 +152,9 @@ check("encyclopedia has >= 19 illustrated entries across 4 categories",
   CATS.every((c) => ENCYCLOPEDIA.some((x) => x.cat === c)));
 check("all new instrument/costume entries have svg + bilingual text",
   EXTRA_TERMS.every((x) => x.svg.length > 30 && x.ex_zh && x.ex_en && x.cat));
+const { storyScene } = await import("../docs/js/story-scenes.js");
+check("every world has an illustrated scene (svg, NaN-free, substantial)",
+  WORLDS.every((w) => { const s = storyScene(w.id); return s.startsWith("<svg") && !s.includes("NaN") && s.length > 800; }));
 
 // --- co-learning quiz round (pure; fake held-out samples) ---
 const { quizRound } = await import("../docs/js/tone-ai.js");

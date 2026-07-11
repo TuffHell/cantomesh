@@ -13,6 +13,7 @@ import { getMistakes, recordMistake, clearMistakes } from "./mistakes.js";
 import { t, getLang, setLang, LANGS } from "./i18n.js";
 import { heroScene, mountainFooter } from "./ornaments.js";
 import { WORLD_STORIES } from "./stories.js";
+import { storyScene } from "./story-scenes.js";
 import { ENCYCLOPEDIA, CATS } from "./glossary.js";
 import { renderJournal } from "./journal.js";
 import { speak, speakSlow, speakStatus } from "./speak.js";
@@ -168,7 +169,7 @@ function storyPanel(wid) {
   const lang = getLang();
   const title = [...s.title].map((c) => `<span data-char="${c}">${c}</span>`).join("");
   return `<div class="story-panel">
-    <svg class="sp-cloud" viewBox="0 0 200 60" aria-hidden="true"><path d="M10 44 q-6 -18 16 -16 q6 -16 26 -8 q18 -14 30 4 q22 -4 18 16 q14 6 2 16 q-40 8 -92 0 q-10 -4 0 -12 Z" fill="none" stroke="rgba(216,178,90,0.4)" stroke-width="1.6"/></svg>
+    <div class="sp-scene" aria-hidden="true">${storyScene(wid)}</div>
     <p class="sp-era">${s.era}</p>
     <h3 class="sp-title">${title}</h3>
     <p class="sp-en">${s.en}</p>

@@ -105,6 +105,18 @@ docs/          ARCHITECTURE.md
 - [ ] Pose-tracked 水墨 canvas service (MediaPipe BlazePose)
 - [ ] Vocal & Cantonese tone-contour assessment
 
+## Hosting
+
+- **GitHub Pages (live):** pushed to `main` → https://tuffhell.github.io/cantomesh/
+- **Firebase Hosting:** config is ready (`firebase.json` serves `docs/` with cache
+  headers for the dictionary + pretrained model). One-time setup:
+
+  ```bash
+  npx firebase-tools login                       # opens browser OAuth (interactive)
+  npx firebase-tools projects:create cantomesh-app   # or reuse an existing project id in .firebaserc
+  npx firebase-tools deploy --only hosting       # → https://cantomesh-app.web.app
+  ```
+
 ## Status & license
 
 Early-stage competition prototype. **Not yet licensed** — all rights reserved

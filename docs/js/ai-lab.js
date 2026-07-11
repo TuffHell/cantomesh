@@ -3,8 +3,9 @@
 import { t } from "./i18n.js";
 import {
   buildDataset, baseline, trainLive, newNet, predictChar,
-  saveModel, loadModel, glyphTensor, GLYPH, N_GROUPS, PARAM_COUNT, rimeGroups, quizRound,
+  saveModel, loadModel, loadPretrained, glyphTensor, GLYPH, N_GROUPS, PARAM_COUNT, rimeGroups, quizRound,
 } from "./tone-ai.js";
+import { recordMistake, clearMistakes } from "./mistakes.js";
 
 const LOOP_KEY = "cantomesh.colearn.v1";
 const loadLoop = () => { try { return JSON.parse(localStorage.getItem(LOOP_KEY)) || { rounds: [] }; } catch { return { rounds: [] }; } };
@@ -128,7 +129,8 @@ export function openAiLab(app, onExit) {
     const q = round[qi];
     const aiPick = net.predict(q.x).argmax;
     const userRight = gi === q.answer, aiRight = aiPick === q.answer;
-    if (userRight) userHits++;
+    if (userRight) { userHits++; clearMistakes([q.ch]); }
+    else recordMistake(q.ch);
     if (aiRight) aiHits++;
     app.querySelectorAll(".loop-opt").forEach((b) => {
       const g = Number(b.dataset.g);
@@ -184,6 +186,17 @@ export function openAiLab(app, onExit) {
 
   $("#loop-start").addEventListener("click", startRound);
   loopStats();
+
+  // no local model? load the pre-trained weights shipped with the site
+  if (!net) {
+    loadPretrained().then((m) => {
+      if (destroyed || net || !m) return;
+      net = m.net;
+      $("#l-status").textContent = t("lab.pretrained", { p: Math.round((m.meta.acc || 0) * 100) });
+      $("#l-playground").hidden = false;
+      $("#l-loop").hidden = false;
+    });
+  }
 
   function renderStats() {
     const n = ds ? ds.train.length + ds.val.length : 0;

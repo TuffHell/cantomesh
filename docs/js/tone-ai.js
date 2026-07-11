@@ -157,3 +157,14 @@ export function loadModel() {
     return j ? { meta: j.meta, net: GlyphCNN.fromJSON(j.net) } : null;
   } catch { return null; }
 }
+
+// Pre-trained weights shipped with the site — first-time visitors get a working
+// model instantly; training in the Lab stays as the live demonstration.
+export async function loadPretrained() {
+  try {
+    const res = await fetch("models/rimenet.json", { cache: "force-cache" });
+    if (!res.ok) return null;
+    const j = await res.json();
+    return { meta: j.meta || {}, net: GlyphCNN.fromJSON(j.net) };
+  } catch { return null; }
+}

@@ -9,6 +9,7 @@ import { openHeritage } from "./open-data.js";
 import { openGlossary } from "./glossary.js";
 import { openVoice } from "./voice.js";
 import { openAiLab } from "./ai-lab.js";
+import { getMistakes, recordMistake, clearMistakes } from "./mistakes.js";
 import { t, getLang, setLang, LANGS } from "./i18n.js";
 import { heroScene, mountainFooter } from "./ornaments.js";
 
@@ -187,6 +188,12 @@ function renderMap() {
           <p>${t("mission.body")}</p>
         </div>
       </section>
+      ${getMistakes().length ? `<section class="mistake-cta">
+        <div class="impact-card train-card mistake-card">
+          <div><h3>${t("mist.title")} · ${getMistakes().length}</h3><p>${t("mist.body")}</p></div>
+          <button class="primary" id="open-mistakes">${t("mist.btn")}</button>
+        </div>
+      </section>` : ""}
       <section class="studio">
         <h3 class="studio-h">${t("studio.h")}</h3>
         <div class="studio-row">
@@ -251,6 +258,8 @@ function renderMap() {
   $("#open-gloss")?.addEventListener("click", () => { clearFigures(); openGlossary(app, renderMap); });
   $("#open-voice")?.addEventListener("click", () => { clearFigures(); openVoice(app, renderMap); });
   $("#open-lab")?.addEventListener("click", () => { clearFigures(); openAiLab(app, renderMap); });
+  $("#open-mistakes")?.addEventListener("click", () =>
+    playRounds(t("mist.playTitle"), getMistakes().slice(0, 8).map((ch) => ({ kind: "tone", char: ch }))));
   // hero CTAs + footer quick-links
   $("#cta-play")?.addEventListener("click", () => {
     const next = STAGES.find((s, i) => isUnlocked(i) && !progress.cleared[s.id]) || STAGES[0];
@@ -367,6 +376,9 @@ function renderRound(stage, run) {
     const res = r.reveal(btn.dataset.v);
     if (res.ok) run.correct++;
     recordAnswer(res.ok, roundChars(stage.rounds[run.i]));
+    // tone-round mistakes feed the 錯題重練 deck; correct answers heal it
+    const r0 = stage.rounds[run.i];
+    if (r0.kind === "tone") (res.ok ? clearMistakes([r0.char]) : recordMistake(r0.char));
     app.querySelectorAll(".opt").forEach((b) => {
       b.disabled = true;
       if (b.dataset.v === r.answer) b.classList.add("correct");

@@ -392,6 +392,8 @@ button.big { font-size: 1.12rem; padding: 0.78rem 1.9rem; letter-spacing: 0.14em
 .train-card button { margin-left: auto; white-space: nowrap; }
 .train-cta { display: grid; gap: 1rem; }
 .ar-card { border-left-color: var(--gold); }
+.mistake-cta { margin-top: 1rem; }
+.mistake-card { border-left-color: var(--jade); }
 #lang-toggle { text-decoration: none; color: var(--vermilion); font-family: var(--mono); font-size: 0.9rem; }
 
 /* first-run language picker */

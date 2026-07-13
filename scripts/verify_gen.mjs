@@ -155,6 +155,12 @@ check("all new instrument/costume entries have svg + bilingual text",
 const { storyScene } = await import("../docs/js/story-scenes.js");
 check("every world has an illustrated scene (svg, NaN-free, substantial)",
   WORLDS.every((w) => { const s = storyScene(w.id); return s.startsWith("<svg") && !s.includes("NaN") && s.length > 800; }));
+const { CHAPTERS, FAMOUS_LINES } = await import("../docs/js/stories.js");
+check("every world has >= 3 story chapters with bilingual prose",
+  WORLDS.every((w) => (CHAPTERS[w.id] || []).length >= 3 &&
+    CHAPTERS[w.id].every((c) => c.t && c.t_en && c.p.length && c.p_en.length === c.p.length)));
+check("every famous line resolves fully in the dictionary",
+  WORLDS.every((w) => [...FAMOUS_LINES[w.id].line].every((ch) => !!lk(ch))));
 
 // --- co-learning quiz round (pure; fake held-out samples) ---
 const { quizRound } = await import("../docs/js/tone-ai.js");

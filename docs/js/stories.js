@@ -37,6 +37,63 @@ export const WORLD_STORIES = {
   },
 };
 
+// Full tales for story mode — 3 chapters each, bilingual, scroll-reader style.
+// 唐滌生 (d. 1959) lyrics are public domain in HK (life + 50); 關漢卿 is ancient.
+export const CHAPTERS = {
+  prologue: [
+    { t: "鳳台驚變", t_en: "The Palace Falls",
+      p: ["明末崇禎年間，闖軍破城，江山傾覆。長平公主奉旨許婚太僕之子周世顯，鳳台初遇，兩心相許。", "誰知花燭未成，宮牆已陷。帝命公主自盡殉國，劍下未死的長平，流落尼庵，改名慧清。"],
+      p_en: ["As the Ming dynasty collapses, Princess Changping is betrothed to Zhou Shixian — two hearts meet on the phoenix terrace.", "Before the wedding candles are lit, the palace falls. Ordered to die for the dynasty, the princess survives the sword and hides in a nunnery."] },
+    { t: "庵遇重逢", t_en: "Reunion at the Nunnery",
+      p: ["周世顯訪遍山河，終在庵中認出扮作尼姑的公主。長平恐累故人，堅拒相認；世顯以死明志，一句一淚。", "相認之夜，清室以厚祿誘降。二人將計就計，허諾還朝——只求清帝善葬先帝、釋放太子。"],
+      p_en: ["Zhou searches the ruined land and finds her disguised as a nun. Fearing for him, she denies her name — until his tears break her silence.", "The new dynasty offers riches for their surrender. The lovers feign consent, trading their return for a proper burial of the old emperor."] },
+    { t: "香夭殉國", t_en: "The Fragrant Sacrifice",
+      p: ["含樟樹下，花燭高燒。二人拜堂成親，同飲砒霜於合卺酒中——以新婚之夜，殉故國之亡。", "「落花滿天蔽月光」——一曲香夭，自此傳唱七十年，成為粵劇的靈魂之聲。"],
+      p_en: ["Beneath the fragrant tree, they wed by candlelight — and drink poison in the nuptial wine, giving their wedding night to their fallen nation.", "The aria they sing — 香夭 — has been sung for seventy years since: the very soul of Cantonese opera."] },
+  ],
+  sang: [
+    { t: "燈市拾釵", t_en: "The Hairpin at the Lantern Fair",
+      p: ["元宵燈市，霍小玉墮下紫玉釵；才子李益拾釵相還，一見傾心，以釵為聘。"],
+      p_en: ["At the Lantern Festival, Huo Xiaoyu drops her purple jade hairpin; the scholar Li Yi returns it — and offers it back as a betrothal gift."] },
+    { t: "強權拆散", t_en: "Torn Apart by Power",
+      p: ["李益高中，卻遭太尉盧燕貞強招為婿，軟禁府中。小玉變賣紫釵尋夫，釵落盧府，音書斷絕。", "小玉病臥危樓，典盡釵環；一腔痴念，只換得長安月冷。"],
+      p_en: ["Li Yi tops the imperial exams — and is imprisoned as a forced son-in-law by the powerful Lord Lu. Xiaoyu sells the hairpin to search for him.", "She falls ill in a crumbling tower, her keepsakes pawned, her devotion answered only by the cold moon over the capital."] },
+    { t: "劍合釵圓", t_en: "Sword and Hairpin Reunited",
+      p: ["黃衫客仗義，挾李益夜奔危樓。釵還人聚，真相大白；黃衫客原是四王爺，一紙賜婚，有情人終成眷屬。"],
+      p_en: ["A mysterious knight in yellow spirits Li Yi to her tower by night. The hairpin returns, the truth outs — and the knight, a prince in disguise, decrees their marriage."] },
+  ],
+  daan: [
+    { t: "紅梅驚艷", t_en: "Beauty at the Red Plum",
+      p: ["書生裴禹遊湖，遇賈似道姬妾李慧娘。慧娘一句「美哉少年」，竟招殺身之禍——奸相沉她於西湖。"],
+      p_en: ["The scholar Pei Yu is glimpsed by Li Huiniang, a concubine of the tyrant Jia Sidao. One murmured word of admiration costs her life."] },
+    { t: "幽魂再世", t_en: "The Returning Spirit",
+      p: ["慧娘冤魂不散，得判官憐憫，允她再世人間。她夜訪書齋，人鬼相隔一燈之光，情卻愈燃愈熾。", "奸相追殺裴禹，慧娘鬼魂顯聖，脫穽救裴，陰風滅燭，嚇退爪牙。"],
+      p_en: ["Pitied by the underworld judge, Huiniang's spirit returns. She visits Pei's study by night — one lamp between the living and the dead.", "When assassins come for Pei, her ghost blows out their torches and spirits him away."] },
+    { t: "梅開二度", t_en: "The Plum Blooms Twice",
+      p: ["慧娘借新死的盧昭容之身還魂，紅梅樹下與裴禹重逢。前世今生，兩世紅梅，終成眷屬。"],
+      p_en: ["Reborn in another's body, Huiniang meets Pei once more beneath the red plum — two lifetimes, one blossom, finally united."] },
+  ],
+  zing: [
+    { t: "魯肅設宴", t_en: "The Banquet Trap",
+      p: ["三國之時，東吳魯肅設宴江亭，名為修好，實欲索還荊州——請關雲長單刀赴會。"],
+      p_en: ["Lu Su of Wu lays a banquet by the river — a courtesy in name, an ambush in truth — and invites Guan Yu to attend with a single blade."] },
+    { t: "大江東去", t_en: "The Great River Flows East",
+      p: ["關公攜周倉，一舟渡江。望大江東去，浪千疊，感英雄血、離人淚，盡付江流。", "「這也不是江水——二十年流不盡的英雄血！」一句唱詞，唱盡三國蒼涼。"],
+      p_en: ["Crossing with only his standard-bearer, Guan Yu watches the great river roll east — twenty years of heroes' blood in its waves.", "'This is no river — it is twenty years of heroes' blood that will not stop flowing.'"] },
+    { t: "單刀退敵", t_en: "One Blade Turns the Ambush",
+      p: ["席間伏兵四起。關公談笑自若，一手按刀，一手挽住魯肅——「今日宴無好宴，某家去也。」揚長登舟，千軍不敢動。"],
+      p_en: ["The hidden soldiers rise. Guan Yu laughs, one hand on his blade, the other on his host's arm — and walks to his boat untouched. No one dares move."] },
+  ],
+};
+
+// One line to read aloud per tale — the 跟讀 finale of story mode.
+export const FAMOUS_LINES = {
+  prologue: { line: "落花滿天蔽月光", src: "〈香夭〉首句 · 唐滌生", src_en: "Opening of the aria 香夭" },
+  sang: { line: "霧月夜抱泣落紅", src: "〈劍合釵圓〉 · 唐滌生", src_en: "From 劍合釵圓" },
+  daan: { line: "梅開二度燕歸來", src: "劇旨句 · 本站撰", src_en: "The tale's motto (ours)" },
+  zing: { line: "大江東去浪千疊", src: "〈駐馬聽〉 · 關漢卿", src_en: "From Guan Hanqing's aria" },
+};
+
 // Curated hard words: tap → meaning + historical context (beyond dictionary).
 export const LORE = {
   "香": { word: "香夭", jp: "hoeng1 jiu1", zh: "《帝女花》終曲。「夭」謂早逝——花燭之夜同殉家國，是粵劇最著名的唱段。", en: "The final duet of Princess Changping — wedding and death in one night; the most famous aria in the repertoire." },

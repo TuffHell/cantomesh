@@ -14,6 +14,7 @@ import { t, getLang, setLang, LANGS } from "./i18n.js";
 import { heroScene, mountainFooter } from "./ornaments.js";
 import { WORLD_STORIES } from "./stories.js";
 import { storyScene } from "./story-scenes.js";
+import { openStory, getReadStories } from "./story-mode.js";
 import { ENCYCLOPEDIA, CATS } from "./glossary.js";
 import { renderJournal } from "./journal.js";
 import { speak, speakSlow, speakStatus } from "./speak.js";
@@ -175,6 +176,22 @@ function storyPanel(wid) {
     <p class="sp-en">${s.en}</p>
     <p class="sp-syn">${lang === "en" ? s.en_syn : s.zh}</p>
     <p class="sp-tie">${lang === "en" ? s.tie_en : s.tie}</p>
+    ${storyActions(wid)}
+  </div>`;
+}
+
+// Story-mode gate: 帝女花 is free; the rest unlock when their world is cleared.
+function storyUnlocked(wid) {
+  if (wid === "prologue") return true;
+  const w = WORLDS.find((x) => x.id === wid);
+  return !!w && w.stages.every((st) => progress.cleared[st.id]);
+}
+function storyActions(wid) {
+  const read = !!getReadStories()[wid];
+  if (!storyUnlocked(wid)) return `<p class="sp-locked">🔒 ${t("story.locked")}</p>`;
+  return `<div class="sp-actions">
+    <button class="primary" data-story="${wid}">📖 ${t("story.read")}</button>
+    ${read ? `<span class="read-badge">✓ ${t("story.readBadge")}</span>` : ""}
   </div>`;
 }
 
@@ -322,6 +339,9 @@ function renderMap() {
 
   // nav
   app.querySelectorAll(".appnav .nv").forEach((b) => b.addEventListener("click", () => setView(b.dataset.v)));
+  // story mode
+  app.querySelectorAll("[data-story]").forEach((b) =>
+    b.addEventListener("click", () => { clearFigures(); openStory(app, b.dataset.story, renderMap); }));
 
   // quest wiring
   app.querySelectorAll(".stage:not(.locked)").forEach((b) =>

@@ -94,7 +94,11 @@ app/
   main.py      app entrypoint (serves the web demo)
 web/index.html single-file ink-wash demo UI
 tests/         deterministic unit + API tests
-docs/          ARCHITECTURE.md
+docs/          public GitHub Pages site (bilingual) + ARCHITECTURE.md
+  index.html   expanded landing page: 願景 · 運作 · 校驗 · 生態 · 技術
+  js/          prosody.js (parity-checked verifier) · i18n.js · auth.js · app.js
+  FIREBASE_SETUP.md   Google sign-in / Firestore setup (what you must do)
+  SUBMISSION.md       competition copy: EN + 中文 intros + criteria write-ups
 ```
 
 ## Roadmap
@@ -102,7 +106,8 @@ docs/          ARCHITECTURE.md
 - [x] 平仄 / 押韻 symbolic verifier (offline, tested)
 - [x] Claude-backed generate→verify→repair pipeline
 - [x] Web demo + REST API
-- [x] Animated public site (GitHub Pages) — Traditional-Chinese / Cantonese UI, browser-side 平仄 verifier with 九聲六調 annotation
+- [x] Animated public site (GitHub Pages) — **bilingual 繁中／English** UI, browser-side 平仄 verifier with 九聲六調 annotation, expanded 願景／運作／生態／技術 sections
+- [x] Google sign-in (Firebase Auth) + cloud-synced **我的唱詞集** verse collection — additive; offline core needs neither (see [docs/FIREBASE_SETUP.md](docs/FIREBASE_SETUP.md))
 - [ ] 依字行腔 melody mapping → Singing-Voice-Synthesis guide track
 - [ ] Pose-tracked 水墨 canvas service (MediaPipe BlazePose)
 - [ ] Vocal & Cantonese tone-contour assessment

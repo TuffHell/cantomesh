@@ -22,38 +22,140 @@
 <body>
 <canvas id="ink" aria-hidden="true"></canvas>
 
-<div class="wrap">
+<!-- ───────── Sticky top bar ───────── -->
+<nav class="topbar" aria-label="主導覽">
+  <div class="topbar-inner">
+    <a class="brand" href="#top"><span class="seal-mini" aria-hidden="true">粵</span>粵脈·鏡</a>
+    <div class="nav-links">
+      <a href="#vision" data-i18n="nav.vision">願景</a>
+      <a href="#verify" data-i18n="nav.verify">校驗</a>
+      <a href="#ecosystem" data-i18n="nav.ecosystem">生態</a>
+      <a href="#tech" data-i18n="nav.tech">技術</a>
+    </div>
+    <div class="topbar-actions">
+      <div class="lang-toggle" role="group" aria-label="語言 / Language">
+        <button type="button" data-lang="zh" aria-pressed="true">中</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <!-- Signed-out: sign-in button. Signed-in: user chip. Toggled by app.js. -->
+      <button id="btn-signin" class="btn-auth" type="button">
+        <svg class="g-icon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.4 0 24 0 14.6 0 6.4 5.4 2.5 13.2l7.9 6.1C12.3 13.2 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7C43.7 37.9 46.5 31.8 46.5 24.5z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.4 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.3 0-11.7-3.7-13.6-9.1l-7.9 6.1C6.4 42.6 14.6 48 24 48z"/></svg>
+        <span data-i18n="auth.signin">以 Google 登入</span>
+      </button>
+      <div id="user-chip" class="user-chip" hidden>
+        <img class="avatar" id="user-avatar" alt="" />
+        <span class="uname" id="user-name"></span>
+        <button class="link-btn" id="btn-signout" type="button" data-i18n="auth.signout">登出</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
   <header class="hero">
     <div class="seal" aria-hidden="true"><span>粵脈</span><span>之鏡</span></div>
     <h1>粵脈 · 鏡</h1>
     <div class="en">CANTOMESH · 平仄 Engine</div>
-    <p class="tagline">讓粵港澳大灣區青年，成為<span class="draw">文化主權的主動持有者</span>。
+    <p class="tagline" data-i18n="hero.tagline">讓粵港澳大灣區青年，成為<span class="draw">文化主權的主動持有者</span>。
       神經-符號引擎：Claude 起草，符號校驗器據《粵劇梆黃體》平仄與押韻裁定。</p>
-    <div class="scroll-cue" aria-hidden="true">向下 · 校驗平仄 ↓</div>
+    <div class="hero-cta">
+      <a href="#verify"><button type="button" data-i18n="hero.cta1">立即校驗平仄 ↓</button></a>
+      <a href="#vision"><button type="button" class="ghost" data-i18n="hero.cta2">了解願景</button></a>
+    </div>
+    <div class="stat-ribbon">
+      <div class="stat"><b>UNESCO</b><span data-i18n="hero.stat1b">2009 年列入人類非物質文化遺產 — 香港首項世界非遺</span></div>
+      <div class="stat"><b data-i18n="hero.stat2">60–80</b><span data-i18n="hero.stat2b">觀眾平均年齡（業界所述）— 一代之隔，幾近失傳</span></div>
+      <div class="stat"><b data-i18n="hero.stat3">逾 2 億</b><span data-i18n="hero.stat3b">港元資助逾 1,200 個項目，惟「好劇本」仍是業界最大短缺</span></div>
+    </div>
   </header>
 
   <main>
-    <section class="panel" aria-labelledby="verify-h">
+    <!-- ───────── ① Vision ───────── -->
+    <section id="vision" class="panel" aria-labelledby="vision-h">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="vision.eyebrow">① 願景 · 問題所在</span>
+        <h2 id="vision-h" data-i18n="vision.h">世界級非遺，卻只差一代人便歸於寂靜</h2>
+        <p class="lead" data-i18n="vision.lead">粵劇自 2009 年列入聯合國教科文組織人類非物質文化遺產，觀眾卻日漸老化、新劇本近乎斷流。CANTOMESH 正對準香港政府自身列為「最迫切」的兩大缺口：創作接班與年輕觀眾。</p>
+      </div>
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="big">2009</div>
+          <div class="cap" data-i18n="vision.c1.cap">香港首項世界非遺</div>
+          <p data-i18n="vision.c1.p">由聯合國教科文組織於 2009 年列入（決議 4.COM 13.27），粵港澳三地聯合申報 — 香港歷來首項世界非物質文化遺產。</p>
+        </div>
+        <div class="stat-card">
+          <div class="big">60–80</div>
+          <div class="cap" data-i18n="vision.c2.cap">老化的觀眾</div>
+          <p data-i18n="vision.c2.p">業界人士指出，核心觀眾平均年齡已達六十至八十歲；大多數年輕一代視之為「老套」— 代溝日深。</p>
+        </div>
+        <div class="stat-card">
+          <div class="big">1959</div>
+          <div class="cap" data-i18n="vision.c3.cap">編劇的斷層</div>
+          <p data-i18n="vision.c3.p">業界最常提及的短缺，是好劇本與新編劇 — 自唐滌生（1959 年逝世）之後，出現至今未接的「斷層」。</p>
+        </div>
+        <div class="stat-card">
+          <div class="big">HK$200M</div>
+          <div class="cap" data-i18n="vision.c4.cap">公帑投入，需求未解</div>
+          <p data-i18n="vision.c4.p">粵劇發展基金已資助逾 1,200 個項目、約 2 億港元；政府諮詢委員會更把培訓編劇、培養年輕觀眾列為首要工作。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── ② How it works ───────── -->
+    <section id="how" class="panel" aria-labelledby="how-h">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="how.eyebrow">② 運作 · 神經-符號回路</span>
+        <h2 id="how-h" data-i18n="how.h">創意由 AI，裁定用真規則</h2>
+        <p class="lead" data-i18n="how.lead">神經的一半負責創意；符號的一半確定、離線、且經單元測試 — 讓非遺規則得以「執行」而非「近似」。起草 → 校驗 → 重寫，直至逐句可唱。</p>
+      </div>
+      <div class="loop-steps">
+        <div class="loop-step neural">
+          <div class="n">STEP 01</div>
+          <h3 data-i18n="how.s1.t">起草</h3>
+          <p data-i18n="how.s1.p">Claude 將現代中文起草為候選粵劇唱詞 — 創意、生成的一半。</p>
+          <span class="tag" data-i18n="how.s1.tag">神經 · 生成</span>
+        </div>
+        <div class="loop-step symbolic">
+          <div class="n">STEP 02</div>
+          <h3 data-i18n="how.s2.t">校驗</h3>
+          <p data-i18n="how.s2.p">透明的符號引擎逐句按平仄與押韻評分 — 離線、確定、可審計。</p>
+          <span class="tag" data-i18n="how.s2.tag">符號 · 確定</span>
+        </div>
+        <div class="loop-step">
+          <div class="n">STEP 03</div>
+          <h3 data-i18n="how.s3.t">重寫</h3>
+          <p data-i18n="how.s3.p">違規之處回饋重寫，循環往復，直至合律 — 或誠實地說明何以未能。</p>
+          <span class="tag" data-i18n="how.s3.tag">回饋回路</span>
+        </div>
+      </div>
+      <p class="loop-note" data-i18n="how.note">整個回路可離線運行。生成在設有 <code>ANTHROPIC_API_KEY</code> 時調用 Claude；沒有密鑰時退化為仍然有用的「純評估」模式。下方的校驗器<strong>完全在你的瀏覽器內</strong>運行。</p>
+    </section>
+
+    <!-- ───────── ③ Verify (interactive) ───────── -->
+    <section id="verify" class="panel" aria-labelledby="verify-h">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="verify.eyebrow">③ 校驗 · 平仄裁定</span>
+        <h2 id="verify-h" data-i18n="verify.h">逐字裁定 平仄與押韻</h2>
+        <p class="lead" data-i18n="verify.hint">貼上任意中文唱詞，引擎逐字標註平仄、粵拼與九聲，並據規則評分。完全離線運行 — 符號化的規則，就是可審計的非遺誠信。</p>
+      </div>
+
       <div class="card">
-        <div class="eyebrow">② Verify · 平仄校驗</div>
-        <h2 id="verify-h">逐字裁定 平仄與押韻</h2>
-        <p class="hint">貼上任意中文唱詞，引擎逐字標註平仄、粵拼與九聲，並據規則評分。完全離線運行——
-          符號化的規則，就是可審計的非遺誠信。</p>
         <textarea id="verse-in" placeholder="大灣花開千川月&#10;粵韻聲聲愛國家" aria-label="輸入唱詞"></textarea>
         <div class="controls">
-          <button id="btn-analyze">校驗平仄</button>
-          <span class="ex-label">示例</span>
+          <button id="btn-analyze" data-i18n="verify.btn">校驗平仄</button>
+          <span class="ex-label" data-i18n="verify.ex">示例</span>
           <div id="examples" class="examples"></div>
           <span class="hint kbd">⌘/Ctrl + Enter</span>
         </div>
         <div class="legend">
-          <span><b class="ping">平</b> 陰平 · 陽平（非入聲）</span>
-          <span><b class="ze">仄</b> 上 · 去 · 入聲</span>
+          <span><b class="ping">平</b> <span data-i18n="verify.legend.ping">陰平 · 陽平（非入聲）</span></span>
+          <span><b class="ze">仄</b> <span data-i18n="verify.legend.ze">上 · 去 · 入聲</span></span>
         </div>
+        <p class="hint" style="margin:0.6rem 0 0" data-i18n="verify.rule">聯句之律：上句收仄、下句收平，押韻由各下句的平聲句腳承接。</p>
 
         <details class="tones" open>
-          <summary>九聲六調 · 粵語聲調體系</summary>
-          <p class="hint">粵語有「九聲六調」：六個舒聲調，加上三個收 -p／-t／-k 的入聲。平仄之分，全繫於此。</p>
+          <summary data-i18n="verify.tones.summary">九聲六調 · 粵語聲調體系</summary>
+          <p class="hint" data-i18n="verify.tones.p">粵語有「九聲六調」：六個舒聲調，加上三個收 -p／-t／-k 的入聲。平仄之分，全繫於此。</p>
           <div class="tone-grid">
             <span class="t ping">陰平<b>詩</b><i>si1</i></span>
             <span class="t ze">陰上<b>史</b><i>si2</i></span>
@@ -76,31 +178,118 @@
         </div>
         <div id="verse" class="verse"></div>
         <ul id="violations" class="violations"></ul>
+        <div class="result-actions">
+          <button id="btn-save" class="btn-small" type="button" data-i18n="verify.save">★ 收藏此曲</button>
+          <button id="btn-copy" class="btn-small" type="button" data-i18n="verify.copy">複製報告</button>
+        </div>
+      </div>
+
+      <!-- My verse collection (revealed once something is saved) -->
+      <div class="collection card" id="collection" hidden>
+        <h3 data-i18n="coll.h">我的唱詞集</h3>
+        <p class="hint" id="coll-hint" data-i18n="coll.hint.local">已存於此瀏覽器。以 Google 登入即可跨裝置同步。</p>
+        <div class="verse-cards" id="verse-cards"></div>
       </div>
     </section>
 
-    <section class="panel" aria-labelledby="translate-h">
+    <!-- ───────── Cross-era translation note ───────── -->
+    <section id="translate" class="panel" aria-labelledby="translate-h">
       <div class="card note-card">
-        <div class="eyebrow">① Translate · 跨代翻譯</div>
-        <h2 id="translate-h">現代心聲 → 粵劇唱詞</h2>
-        <p class="hint">將現代白話或流行歌詞，經 <strong>Claude 起草 → 平仄校驗 → 違規重寫</strong>
+        <div class="eyebrow" data-i18n="translate.eyebrow">跨代翻譯 · Cross-Era Translation</div>
+        <h2 id="translate-h" data-i18n="translate.h">現代心聲 → 粵劇唱詞</h2>
+        <p class="hint" data-i18n="translate.p">將現代白話或流行歌詞，經 <strong>Claude 起草 → 平仄校驗 → 違規重寫</strong>
           的神經-符號回路，生成地道唱詞。生成需 API 密鑰，運行於
           <a href="https://github.com/tuffhell/cantomesh" target="_blank" rel="noopener">FastAPI 後端</a>；
           本頁為公開靜態演示，專注離線平仄校驗。</p>
-        <p class="hint" style="margin:0">
+        <p class="hint" style="margin:0" data-i18n="translate.run">
           本地啟用：<code>uvicorn app.main:app --reload</code> ·
           設置 <code>ANTHROPIC_API_KEY</code> 即開啟生成。詳見
           <a href="https://github.com/tuffhell/cantomesh#quickstart" target="_blank" rel="noopener">倉庫說明</a>。
         </p>
       </div>
     </section>
+
+    <!-- ───────── ④ Ecosystem roadmap ───────── -->
+    <section id="ecosystem" class="panel" aria-labelledby="eco-h">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="eco.eyebrow">④ 生態 · 路線圖</span>
+        <h2 id="eco-h" data-i18n="eco.h">活態傳承生態系統的第一塊拼圖</h2>
+        <p class="lead" data-i18n="eco.lead">這具平仄引擎，是更宏大的粵港澳大灣區「活態傳承」平台的首個可運行切片 — 未來每個模組都接入同一閘道。</p>
+      </div>
+      <div class="timeline">
+        <div class="milestone shipped">
+          <div class="phase" data-i18n="eco.m1.phase">已交付 · 現在</div>
+          <h3 data-i18n="eco.m1.t">平仄／押韻校驗引擎 <span class="badge shipped">SHIPPED</span></h3>
+          <p data-i18n="eco.m1.p">離線、經單元測試的符號校驗器，附九聲六調標註；並含 Claude 起草→校驗→重寫回路與本公開網站。</p>
+        </div>
+        <div class="milestone">
+          <div class="phase" data-i18n="eco.m2.phase">下一步</div>
+          <h3 data-i18n="eco.m2.t">依字行腔 旋律映射 → 歌聲合成 <span class="badge next">NEXT</span></h3>
+          <p data-i18n="eco.m2.p">從已校驗的聲調輪廓推導梆黃旋律骨架，餵入歌聲合成導唱軌 — 讓合律唱詞化為可聽之聲。</p>
+        </div>
+        <div class="milestone">
+          <div class="phase" data-i18n="eco.m3.phase">規劃中</div>
+          <h3 data-i18n="eco.m3.t">AR 尋面面網 + 動態追蹤水墨畫布</h3>
+          <p data-i18n="eco.m3.p">端側人臉面網與姿態追蹤的水墨演出，把做打、亮相等舞台功架帶入手機原生的互動體驗。</p>
+        </div>
+        <div class="milestone">
+          <div class="phase" data-i18n="eco.m4.phase">規劃中</div>
+          <h3 data-i18n="eco.m4.t">唱功與聲調輪廓評分</h3>
+          <p data-i18n="eco.m4.p">以音高與 DTW 聲調輪廓評分，讓學習者就唱腔與粵語聲調獲得客觀回饋 — 補上教學閉環。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── ⑤ Tech / why it wins ───────── -->
+    <section id="tech" class="panel" aria-labelledby="tech-h">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="tech.eyebrow">⑤ 何以致勝</span>
+        <h2 id="tech-h" data-i18n="tech.h">可審計的誠信，而非黑箱</h2>
+        <p class="lead" data-i18n="tech.lead">六項設計抉擇，讓 CANTOMESH 在技術評審前站得住腳，也讓傳統承傳者願意信任。</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="ico">🧮</div>
+          <h3 data-i18n="tech.f1.t">神經-符號 · 可審計</h3>
+          <p data-i18n="tech.f1.p">規則寫在約 200 行、零依賴、經測試的 Python 中。評審可親自讀出「月 jyut6」為何判仄 — 絕非黑箱。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🔌</div>
+          <h3 data-i18n="tech.f2.t">零數據 · 零密鑰</h3>
+          <p data-i18n="tech.f2.p">符號校驗器無需訓練語料、無需網絡。內建粵拼字典，連標音都無需笨重安裝。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🎓</div>
+          <h3 data-i18n="tech.f3.t">它會教你聲調</h3>
+          <p data-i18n="tech.f3.p">每字皆標註完整九聲六調調名（陰平…陽入）與粵拼 — 引擎在教授聲調體系，而非僅作把關。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">📜</div>
+          <h3 data-i18n="tech.f4.t">徹頭徹尾用正體字</h3>
+          <p data-i18n="tech.f4.p">介面與語料皆為繁體字 — 粵劇本就以正體書寫 — 輸入則兼收簡體。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🎯</div>
+          <h3 data-i18n="tech.f5.t">對 AI 誠實</h3>
+          <p data-i18n="tech.f5.p">生成僅在有密鑰時調用 Claude，否則退化為純評估。所有論述皆有出處、可押上信譽，較軟的數字亦如實標明。</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🕸️</div>
+          <h3 data-i18n="tech.f6.t">為整個生態而建</h3>
+          <p data-i18n="tech.f6.p">一個 FastAPI 閘道，AR 面網、聲學引擎與評分模組皆可接入 — 是平台，而非一次性演示。</p>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
 <footer>
-  粵脈·鏡 CANTOMESH · 唱念做打 · 文場／武場 · 平仄 · 亮相 — 非遺活態傳承 · 端側多模態 AI 生態<br />
+  <span data-i18n="footer.tagline">唱念做打 · 文場／武場 · 平仄 · 亮相 — 非遺活態傳承 · 端側多模態 AI 生態</span><br />
   <a href="https://github.com/tuffhell/cantomesh" target="_blank" rel="noopener">github.com/tuffhell/cantomesh</a>
+  <br /><small class="src-line" data-i18n="footer.sources">資料來源：UNESCO ICH 檔案 00203 · 香港政府新聞公報（2009-10-02）· 立法會答覆（2024-12-18）· 文匯報（2021）· Luo 等，《人文社會科學通訊》（2024）。</small>
 </footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <noscript>
   <p style="text-align:center;color:#8f2c22">本頁的平仄校驗於瀏覽器端運行，請啟用 JavaScript 以使用。</p>

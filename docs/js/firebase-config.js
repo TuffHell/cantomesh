@@ -22,12 +22,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyCMG5Eb8vaJVCJeWkkBIA7_0kjiYANfZtA",
+  authDomain: "cantomesh-d1146.firebaseapp.com",
+  projectId: "cantomesh-d1146",
+  storageBucket: "cantomesh-d1146.firebasestorage.app",
+  messagingSenderId: "959677613724",
+  appId: "1:959677613724:web:a0ed0f0f93848b49548f59",
+  measurementId: "G-F40Y1E1ZSR",
 };
 
 // Pin the Firebase JS SDK version loaded from the gstatic CDN.

@@ -69,7 +69,7 @@ $("#verify-run").addEventListener("click", () => {
   if (text) renderReport(verifyText(text), $("#verify-out"));
 });
 $("#verify-sample").addEventListener("click", () => {
-  $("#verify-in").value = "大湾花开千川月\n粤韵声声爱国家";
+  $("#verify-in").value = "大灣花開千川月\n粵韻聲聲愛國家";
   renderReport(verifyText($("#verify-in").value), $("#verify-out"));
 });
 $("#verify-in").addEventListener("keydown", (e) => {
@@ -82,7 +82,7 @@ $("#annotate-run").addEventListener("click", () => {
   const out = $("#annotate-out");
   out.innerHTML = "";
   out.append(el("div", "meta",
-    `共 ${total} 字 · 标音覆盖 <b>${Math.round(coverage * 100)}%</b>`));
+    `共 ${total} 字 · 標音覆蓋 <b>${Math.round(coverage * 100)}%</b>`));
   const grid = el("div", "verse");
   let row = el("div", "verse-line");
   tokens.forEach((tk) => {
@@ -94,7 +94,7 @@ $("#annotate-run").addEventListener("click", () => {
   out.append(grid);
 });
 $("#annotate-sample").addEventListener("click", () => {
-  $("#annotate-in").value = "我哋一齐撑粤剧，唱到全世界。";
+  $("#annotate-in").value = "我哋一齊撐粵劇，唱到全世界。";
   $("#annotate-run").click();
 });
 
@@ -106,7 +106,7 @@ function rhymeColumn(title, items) {
   items.forEach((r) => {
     const c = el("button", "rchip" + (r.pingze === "平" ? " ping" : " ze"),
       `${r.char}<small>${r.jyutping}</small>`);
-    c.title = "点按填入「韵脚」";
+    c.title = "點按填入「韻腳」";
     c.addEventListener("click", () => { $("#rhyme-in").value = r.char; });
     wrap.append(c);
   });
@@ -118,15 +118,15 @@ $("#rhyme-run").addEventListener("click", () => {
   const out = $("#rhyme-out");
   out.innerHTML = "";
   if (!res.target) {
-    out.append(el("div", "meta", res.unknown ? `未收录「${res.unknown}」` : "请输入一个汉字或粤拼"));
+    out.append(el("div", "meta", res.unknown ? `未收錄「${res.unknown}」` : "請輸入一個漢字或粵拼"));
     return;
   }
   out.append(el("div", "meta",
-    `韵母组 <b>${res.group}</b> · 目标 <code>${res.target}</code> · 共 ${res.total} 字（显示前 ${res.results.length}）`));
+    `韻母組 <b>${res.group}</b> · 目標 <code>${res.target}</code> · 共 ${res.total} 字（顯示前 ${res.results.length}）`));
   const cols = el("div", "rhyme-cols");
   cols.append(
-    rhymeColumn("平声 韵脚", res.results.filter((r) => r.pingze === "平")),
-    rhymeColumn("仄声 韵脚", res.results.filter((r) => r.pingze === "仄"))
+    rhymeColumn("平聲 韻腳", res.results.filter((r) => r.pingze === "平")),
+    rhymeColumn("仄聲 韻腳", res.results.filter((r) => r.pingze === "仄"))
   );
   out.append(cols);
 });
@@ -141,7 +141,7 @@ $("#tmpl-run").addEventListener("click", () => {
   const out = $("#tmpl-out");
   out.innerHTML = "";
   const lenNote = res.lengthOk ? "" :
-    ` · <span class="warn">字数 ${res.actualLen}/${res.expectedLen}</span>`;
+    ` · <span class="warn">字數 ${res.actualLen}/${res.expectedLen}</span>`;
   out.append(el("div", "meta",
     `模板 <code>${tmpl}</code> · 合律 <b>${res.matches}/${res.compared}</b>${lenNote}`));
   const grid = el("div", "tmpl-grid");
@@ -155,11 +155,11 @@ $("#tmpl-run").addEventListener("click", () => {
   });
   out.append(grid);
   out.append(el("div", "hint",
-    "注：传统「一三五不论，二四六分明」——单数字位可较宽松，重点看双数字位与句末。"));
+    "註：傳統「一三五不論，二四六分明」——單數字位可較寬鬆，重點看雙數字位與句末。"));
 });
 $("#tmpl-sample").addEventListener("click", () => {
   sel.value = "七字 · 上句（仄收）";
-  $("#tmpl-in").value = "大湾花开千川月";
+  $("#tmpl-in").value = "大灣花開千川月";
   $("#tmpl-run").click();
 });
 

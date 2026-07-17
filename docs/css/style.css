@@ -824,3 +824,15 @@ body { padding-bottom: 5.5rem; } /* keep content clear of the nav */
 .jr-signin-btn:hover { border-color: #b23a2e; }
 .jr-g { width: 14px; height: 14px; }
 .jr-note { margin: .2rem 0 .6rem; }
+
+/* --- 毛筆 brush display type for the big words --- */
+:root { --brush: "Kaiti TC", "Kaiti SC", "STKaiti", "DFKai-SB", "BiauKai", "Ma Shan Zheng", "Noto Serif TC", serif; }
+.g-hero h1,
+.lang-card h1,
+.hero h1,
+.page-title,
+.sp-title,
+.mask-name,
+.mask-reward .unlock-label,
+.result .kicker,
+.qtitle { font-family: var(--brush); letter-spacing: 0.06em; }

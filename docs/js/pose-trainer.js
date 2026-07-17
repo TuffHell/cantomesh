@@ -9,7 +9,7 @@ const MP = "0.10.20";
 const MODEL =
   "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
 const POSE_KEY = "cantomesh.pose.v1";
-const PASS = 74; // score needed to count as a clean attempt
+const PASS = 65; // score needed to count as a clean attempt
 
 const loadBest = () => { try { return JSON.parse(localStorage.getItem(POSE_KEY)) || {}; } catch { return {}; } };
 const saveBest = (b) => { try { localStorage.setItem(POSE_KEY, JSON.stringify(b)); } catch { /* ignore */ } };

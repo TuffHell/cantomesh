@@ -95,10 +95,10 @@ export const POSES = [
     hold: 0,
     ghost: { le: [0.28, 0.35], lw: [0.43, 0.30], re: [0.72, 0.35], rw: [0.57, 0.30] },
     variants: [[
-      { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 110, tol: 60, hint: "hint.bendElbow" },
-      { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 110, tol: 60, hint: "hint.bendElbow" },
-      { kind: "level", a: LM.L_WRI, b: LM.L_SHO, tol: 0.17, hint: "hint.handsShoulder" },
-      { kind: "level", a: LM.R_WRI, b: LM.R_SHO, tol: 0.17, hint: "hint.handsShoulder" },
+      { kind: "angle", joints: [LM.L_SHO, LM.L_ELB, LM.L_WRI], target: 110, tol: 78, hint: "hint.bendElbow" },
+      { kind: "angle", joints: [LM.R_SHO, LM.R_ELB, LM.R_WRI], target: 110, tol: 78, hint: "hint.bendElbow" },
+      { kind: "level", a: LM.L_WRI, b: LM.L_SHO, tol: 0.28, hint: "hint.handsShoulder" },
+      { kind: "level", a: LM.R_WRI, b: LM.R_SHO, tol: 0.28, hint: "hint.handsShoulder" },
     ]],
   },
   {
@@ -122,7 +122,7 @@ export const POSES = [
   {
     id: "liongseong", name: "亮相", role: "定格",
     cue: "一臂高指，一臂橫展，凝神定格——穩住一秒。",
-    hold: 1200,
+    hold: 900,
     ghost: { le: [0.30, 0.31], lw: [0.13, 0.33], re: [0.62, 0.14], rw: [0.66, 0.02] },
     variants: [
       [

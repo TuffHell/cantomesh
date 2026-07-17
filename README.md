@@ -101,6 +101,7 @@ docs/          ARCHITECTURE.md
 - [x] Animated public site (GitHub Pages) with browser-side 平仄 verifier
 - [x] 20,000+ char Jyutping dictionary (pycantonese + simplified fallback) + 3 more tools: 粤拼 annotate, 韵脚 rhyme finder, 句式 template checker
 - [x] **梨園闖關 educational game** — engine-graded levels (辨平仄 / 對句押韵 / 判合律), 九聲六調 tone names, star progression, 寻面 opera-mask unlocks, localStorage save
+- [x] Google sign-in (Firebase Auth) + cloud-synced **學藝手記** journal (Firestore); offline-first, additive
 - [ ] 依字行腔 melody mapping → Singing-Voice-Synthesis guide track
 - [ ] Pose-tracked 水墨 canvas service (MediaPipe BlazePose)
 - [ ] Vocal & Cantonese tone-contour assessment
@@ -108,14 +109,21 @@ docs/          ARCHITECTURE.md
 ## Hosting
 
 - **GitHub Pages (live):** pushed to `main` → https://tuffhell.github.io/cantomesh/
-- **Firebase Hosting:** config is ready (`firebase.json` serves `docs/` with cache
-  headers for the dictionary + pretrained model). One-time setup:
+- **Firebase Hosting + Google sign-in:** `firebase.json` serves `docs/` (cache
+  headers for the dictionary + pretrained model) and now also ships **Google
+  sign-in** — signing in syncs your 學藝手記 journal to Firestore
+  (`firestore.rules` locks each user to their own doc). It's additive: the game
+  works fully offline without it. One-time setup (see
+  [docs/FIREBASE_SETUP.md](docs/FIREBASE_SETUP.md)):
 
   ```bash
-  npx firebase-tools login                       # opens browser OAuth (interactive)
-  npx firebase-tools projects:create cantomesh-app   # or reuse an existing project id in .firebaserc
-  npx firebase-tools deploy --only hosting       # → https://cantomesh-app.web.app
+  npx firebase-tools login                     # opens browser OAuth (interactive)
+  # Firebase console: Authentication → enable Google · Firestore → create database
+  npx firebase-tools deploy                    # hosting + Firestore rules → https://<project>.web.app
   ```
+
+  The web config lives in `docs/js/firebase-config.js` (public identifiers, safe to
+  commit); swap it and `.firebaserc` to target your own Firebase project.
 
 ## Status & license
 

@@ -1,15 +1,36 @@
 // 學藝手記 — an Instagram-style learning feed: post thoughts, each entry
 // auto-attaches a snapshot of your real progress (stars, accuracy, masks,
 // co-learn rounds), renders as feed cards, and exports a designed share PNG.
-// Local-first (localStorage); Firebase sync is the documented next step.
+// Local-first (localStorage); signing in with Google syncs it to Firestore.
 import { t, getLang } from "./i18n.js";
 import { maskSVG } from "./masks.js";
+import {
+  authConfigured, initAuth, onUser, getUser, signIn, signOutUser,
+  pullJournal, pushJournal,
+} from "./auth.js";
 
 const KEY = "cantomesh.journal.v1";
 const CAP = 50;
 
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
 const save = (posts) => { try { localStorage.setItem(KEY, JSON.stringify(posts.slice(0, CAP))); } catch { /* ignore */ } };
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+// Compact Google "G" mark for the sign-in button.
+const GICON = `<svg class="jr-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.4 0 24 0 14.6 0 6.4 5.4 2.5 13.2l7.9 6.1C12.3 13.2 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7C43.7 37.9 46.5 31.8 46.5 24.5z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.8z"/><path fill="#34A853" d="M24 48c6.4 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.3 0-11.7-3.7-13.6-9.1l-7.9 6.1C6.4 42.6 14.6 48 24 48z"/></svg>`;
+
+// Merge two journals by id (unique timestamps), newest first, capped.
+function mergePosts(a, b) {
+  const byId = new Map();
+  [...(a || []), ...(b || [])].forEach((p) => { if (p && p.id != null) byId.set(p.id, p); });
+  return [...byId.values()].sort((x, y) => (y.when || 0) - (x.when || 0)).slice(0, CAP);
+}
+
+// Save locally, and (if signed in) mirror to the cloud.
+function persist(posts) {
+  save(posts);
+  if (getUser()) pushJournal(posts.slice(0, CAP)).catch(() => { /* stay local */ });
+}
 
 function snapshot() {
   let quest = {}, loop = {}, best = {};
@@ -35,12 +56,51 @@ function chips(s) {
     (s.poses ? `<span>身段 ${s.poses}/3</span>` : "");
 }
 
+// Sign-in status shown in the compose card header.
+function authStatus() {
+  if (!authConfigured()) return `<small>${t("jr.local")}</small>`;
+  const u = getUser();
+  if (u) {
+    const avatar = u.photoURL ? `<img class="jr-avatar" src="${u.photoURL}" alt="" referrerpolicy="no-referrer">` : "";
+    return `<small class="jr-auth in">${avatar}<b>${esc(u.displayName || u.email || "")}</b>` +
+      `<span class="jr-synced">${t("jr.synced")}</span>` +
+      `<button class="jr-linkbtn" id="jr-signout">${t("jr.signout")}</button></small>`;
+  }
+  return `<small class="jr-auth out"><button class="jr-signin-btn" id="jr-signin">${GICON}${t("jr.signin")}</button></small>`;
+}
+
+// ── Auth wiring (registered once) ─────────────────────────────────────────────
+let currentEl = null;
+let authWired = false;
+
+function wireAuth() {
+  if (authWired) return;
+  authWired = true;
+  if (!authConfigured()) return;
+  initAuth();
+  onUser(async (user) => {
+    if (user) {
+      try {
+        const cloud = await pullJournal();
+        const merged = mergePosts(load(), cloud || []);
+        save(merged);
+        await pushJournal(merged);
+      } catch { /* keep local copy */ }
+    }
+    if (currentEl && document.contains(currentEl)) renderJournal(currentEl);
+  });
+}
+
 export function renderJournal(el) {
+  currentEl = el;
+  wireAuth();
   const lang = getLang();
   const posts = load();
+  const showNote = authConfigured() && !getUser();
   el.innerHTML = `
     <div class="card jr-compose">
-      <div class="jr-head">${maskSVG("tongsang", 40)}<div><b>${t("jr.title")}</b><small>${t("jr.local")}</small></div></div>
+      <div class="jr-head">${maskSVG("tongsang", 40)}<div><b>${t("jr.title")}</b>${authStatus()}</div></div>
+      ${showNote ? `<p class="hint jr-note">${t("jr.signinNote")}</p>` : ""}
       <textarea id="jr-text" rows="3" maxlength="280" placeholder="${t("jr.ph")}"></textarea>
       <div class="jr-snapshot">${chips(snapshot())}</div>
       <div class="controls">
@@ -57,17 +117,21 @@ export function renderJournal(el) {
     if (!text) return;
     const posts2 = load();
     posts2.unshift({ id: Date.now(), text, snap: snapshot(), when: Date.now() });
-    save(posts2);
+    persist(posts2);
     renderJournal(el);
   });
   el.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => {
-    save(load().filter((p) => p.id !== Number(b.dataset.del)));
+    persist(load().filter((p) => p.id !== Number(b.dataset.del)));
     renderJournal(el);
   }));
   el.querySelectorAll("[data-share]").forEach((b) => b.addEventListener("click", () => {
     const post = load().find((p) => p.id === Number(b.dataset.share));
     if (post) sharePNG(post, lang);
   }));
+  $("#jr-signin")?.addEventListener("click", async () => {
+    try { await signIn(); } catch (e) { if (e && e.code !== "auth/popup-closed-by-user") console.warn(e); }
+  });
+  $("#jr-signout")?.addEventListener("click", () => signOutUser());
 }
 
 function postCard(p) {
@@ -79,7 +143,7 @@ function postCard(p) {
         <button data-del="${p.id}" title="delete">🗑</button>
       </div>
     </header>
-    <p class="jr-body">${p.text.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]))}</p>
+    <p class="jr-body">${esc(p.text)}</p>
     <footer class="jr-snapshot">${chips(p.snap)}</footer>
   </article>`;
 }

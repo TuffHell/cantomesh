@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// CANTOMESH journal sync: each signed-in user can read/write ONLY their own
+// document at users/{uid} (which holds their 學藝手記 journal array). No
+// cross-user access; nothing else is exposed.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

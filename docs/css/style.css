@@ -814,3 +814,13 @@ body { padding-bottom: 5.5rem; } /* keep content clear of the nav */
   *, *::before, *::after { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
 }
+
+/* --- Journal Google sign-in (auth.js / journal.js) --- */
+.jr-auth { display: inline-flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.jr-avatar { width: 20px; height: 20px; border-radius: 50%; }
+.jr-synced { color: #3f6f5f; }
+.jr-linkbtn { background: none; border: none; padding: 0; font: inherit; color: #8f2c22; cursor: pointer; text-decoration: underline; }
+.jr-signin-btn { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid #d8cdb8; background: #fff; color: #1a1714; border-radius: 999px; padding: .25rem .7rem; font: inherit; font-size: .82rem; cursor: pointer; }
+.jr-signin-btn:hover { border-color: #b23a2e; }
+.jr-g { width: 14px; height: 14px; }
+.jr-note { margin: .2rem 0 .6rem; }

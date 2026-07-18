@@ -1,4 +1,4 @@
-// Interactive cartoon 粤剧 performer — a chibi opera character with flowing
+// Interactive cartoon 粵劇 performer — a chibi opera character with flowing
 // 水袖 (water sleeves) that drift toward the cursor, blink, sway (idle), and
 // strike a 亮相 (frozen pose) on tap. Pure SVG + a light rAF loop; honors
 // prefers-reduced-motion (renders a calm static pose, no loop).
@@ -27,7 +27,7 @@ export function createOperaFigure({ role = "daan", size = 220 } = {}) {
   svg.setAttribute("height", size * 1.45);
   svg.setAttribute("class", "opera-figure");
   svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", "粤剧角色");
+  svg.setAttribute("aria-label", "粵劇角色");
   svg.innerHTML = markup(p);
 
   // animated handles
@@ -137,7 +137,7 @@ function markup(p) {
       <!-- eyes -->
       <g class="of-eye" style="transform-origin:86px 86px"><ellipse cx="86" cy="86" rx="5.4" ry="6" fill="#fff"/><circle cx="86" cy="87" r="3.2" fill="#1c1410"/></g>
       <g class="of-eye" style="transform-origin:114px 86px"><ellipse cx="114" cy="86" rx="5.4" ry="6" fill="#fff"/><circle cx="114" cy="87" r="3.2" fill="#1c1410"/></g>
-      <!-- 额妆 dot + lips -->
+      <!-- 額妝 dot + lips -->
       <path d="M100 64 q3 4 0 8 q-3 -4 0 -8 Z" fill="${p.lip}"/>
       <path d="M93 102 Q100 108 107 102 Q100 99 93 102 Z" fill="${p.lip}"/>
     </g>`;

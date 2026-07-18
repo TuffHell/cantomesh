@@ -1,4 +1,4 @@
-// Procedural SVG 臉譜 (opera masks) awarded as 寻面 unlocks.
+// Procedural SVG 臉譜 (opera masks) awarded as 尋面 unlocks.
 // Symmetrical, role-coloured faces built from simple shapes — no image assets.
 
 const FACE = "M50 6 C24 6 12 28 12 52 C12 82 30 116 50 116 C70 116 88 82 88 52 C88 28 76 6 50 6 Z";

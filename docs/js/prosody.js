@@ -90,10 +90,10 @@ function analyzeLines(linesSyllables) {
 
     lines.push({ index: i, role, pingze, end_pingze: endPz, end_rime: end ? rime(end) : null, coverage });
 
-    if (endPz === null) { violations.push(`L${i} (${role}): 无法标音，无法判定句末平仄`); return; }
-    if (role === "上句" && endPz !== ZE) violations.push(`L${i} (上句): 句末应为仄，实为${PING}`);
+    if (endPz === null) { violations.push(`L${i} (${role}): 無法標音，無法判定句末平仄`); return; }
+    if (role === "上句" && endPz !== ZE) violations.push(`L${i} (上句): 句末應為仄，實為${PING}`);
     if (role === "下句") {
-      if (endPz !== PING) violations.push(`L${i} (下句): 句末应为平，实为${ZE}`);
+      if (endPz !== PING) violations.push(`L${i} (下句): 句末應為平，實為${ZE}`);
       xiaRimes.push([i, groupOf(end)]);
     }
   });
@@ -101,7 +101,7 @@ function analyzeLines(linesSyllables) {
   if (xiaRimes.length >= 2) {
     const anchor = xiaRimes[0][1];
     for (const [idx, grp] of xiaRimes.slice(1))
-      if (grp !== anchor) violations.push(`L${idx} (下句): 韵脚 '${grp}' 与首个下句韵脚 '${anchor}' 不押韵`);
+      if (grp !== anchor) violations.push(`L${idx} (下句): 韻腳 '${grp}' 與首個下句韻腳 '${anchor}' 不押韻`);
   }
 
   return { lines, violations, score: Math.max(0, 100 - 15 * violations.length) };
@@ -185,7 +185,7 @@ export function findRhymes(query, { limit = 160 } = {}) {
   return { target: targetJp, group: g, total: results.length, results: results.slice(0, limit) };
 }
 
-// Classic 平仄 line templates (一三五不论 flexibility noted in UI).
+// Classic 平仄 line templates (一三五不論 flexibility noted in UI).
 export const TEMPLATES = {
   "七字 · 上句（仄收）": "仄仄平平平仄仄",
   "七字 · 下句（平收）": "平平仄仄仄平平",

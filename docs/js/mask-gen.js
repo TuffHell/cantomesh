@@ -1,5 +1,5 @@
 // Procedural 臉譜 engine. A face's geometry drives not just colour but the whole
-// 谱式 (pattern structure) — 整臉 / 三塊瓦 / 十字門 / 碎臉 — plus motif, eye shape,
+// 譜式 (pattern structure) — 整臉 / 三塊瓦 / 十字門 / 碎臉 — plus motif, eye shape,
 // brow, and accent, so different faces yield structurally different masks.
 // Pure (no DOM), unit-testable. Also exposes curated PRESETS of traditional masks.
 
@@ -17,7 +17,7 @@ const ROLES = [
   { id: "purple", primary: "#6f4a7a", secondary: "#e8b84b", zh: "紫面 · 智勇", en: "Violet · Wise", trait_zh: "沉穩剛毅，智勇雙全", trait_en: "Steady, wise and brave" },
 ];
 const ACCENTS = ["#2f6f5f", "#2f5f8f", "#b8893a", "#6f4a7a", "#b23a2e", "#e8b84b", "#2c2824"];
-const STYLES = ["zheng", "sankuaiwa", "shizimen", "sui"]; // 谱式
+const STYLES = ["zheng", "sankuaiwa", "shizimen", "sui"]; // 譜式
 
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
@@ -33,7 +33,7 @@ export function faceMetrics(lm) {
 }
 
 // salt=0 → fully deterministic from the face. A non-zero salt keeps the
-// face-DRIVEN parts (谱式 structure, eye shape, brow, face width — your actual
+// face-DRIVEN parts (譜式 structure, eye shape, brow, face width — your actual
 // features) but reshuffles the expressive parts (role colour, motif, cheek,
 // accent), so every generation is a NEW mask still built on your face.
 export function metricsToParams(m, salt = 0) {
@@ -44,7 +44,7 @@ export function metricsToParams(m, salt = 0) {
   return {
     seed,
     role: ROLES[seed % ROLES.length],
-    // face shape drives the structural 谱式 (wide → bolder patterns)
+    // face shape drives the structural 譜式 (wide → bolder patterns)
     style: STYLES[(m.aspect > 0.78 ? 1 : m.aspect < 0.66 ? 2 : (faceSeed >> 1) % 4) % 4],
     motif: (seed >> 2) % 8,
     eyeStyle: m.eyeSpacing > 0.36 ? 0 : m.eyeSpacing < 0.30 ? 2 : 1,
@@ -58,7 +58,7 @@ export function metricsToParams(m, salt = 0) {
 
 const P = (a) => `${a[0]},${a[1]}`;
 
-// ---- structural 谱式 colour regions ----
+// ---- structural 譜式 colour regions ----
 function styleRegions(p) {
   const k = p.role.primary, s = p.role.secondary, a = p.accent, fw = p.faceW, L = 50 - fw * 0.62, R = 50 + fw * 0.62;
   switch (p.style) {
@@ -99,9 +99,9 @@ function motifShape(i, p) {
 
 function eyes(style) {
   switch (style) {
-    case 1: return `<path d="M29 56 q10 -10 20 -2 q-10 6 -20 2 Z" fill="${INK}"/><path d="M51 54 q10 -8 20 2 q-11 6 -20 0 Z" fill="${INK}"/>`; // 凤眼 upturned
+    case 1: return `<path d="M29 56 q10 -10 20 -2 q-10 6 -20 2 Z" fill="${INK}"/><path d="M51 54 q10 -8 20 2 q-11 6 -20 0 Z" fill="${INK}"/>`; // 鳳眼 upturned
     case 2: return `<path d="M30 52 q10 5 20 2 q-8 8 -20 2 Z" fill="${INK}"/><path d="M50 54 q10 -3 20 -2 q-12 9 -20 2 Z" fill="${INK}"/>`;   // drooping
-    default: return `<path d="M30 54 q10 -9 20 -1 q-9 8 -20 1 Z" fill="${INK}"/><path d="M50 53 q10 -8 20 1 q-11 7 -20 0 Z" fill="${INK}"/>`; // round 净
+    default: return `<path d="M30 54 q10 -9 20 -1 q-9 8 -20 1 Z" fill="${INK}"/><path d="M50 53 q10 -8 20 1 q-11 7 -20 0 Z" fill="${INK}"/>`; // round 淨
   }
 }
 function brows(style, p) {
@@ -168,7 +168,7 @@ export function randomParams() {
 // PORTRAIT MASK — painted directly from the person's 468 FaceMesh landmarks.
 // The silhouette IS their jaw/forehead; sockets sit on their real eyes (with
 // transparent holes so their own eyes look through); brows follow their arch;
-// the 谱式 pattern is clipped to their true face shape. Identifiable, not a
+// the 譜式 pattern is clipped to their true face shape. Identifiable, not a
 // recoloured template.
 // ===========================================================================
 
@@ -201,7 +201,7 @@ const smoothOpen = (pts) => {
 };
 const r1 = (v) => Math.round(v * 10) / 10;
 
-// One exaggerated 净-style eye socket over the REAL eye, with a transparent
+// One exaggerated 淨-style eye socket over the REAL eye, with a transparent
 // hole (fill-rule evenodd) so the wearer's own eye shows through the mask.
 // NOTE: takes landmark INDICES + the lm array — mapping indices directly was
 // the NaN bug that made sockets vanish.
@@ -240,7 +240,7 @@ function browStroke(idxs, lm, M, lateralDir) {
     `<path d="${d}" stroke="${INK}" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round" data-part="brow"/>`;
 }
 
-// 谱式 regions painted RELATIVE to the real features, clipped to the real face.
+// 譜式 regions painted RELATIVE to the real features, clipped to the real face.
 function portraitRegions(p, a) {
   const k = p.role.primary, s = p.role.secondary, ac = p.accent;
   const browY = a.browY, eyeBotY = a.eyeBotY, topY = a.topY, chinY = a.chinY;
@@ -266,7 +266,7 @@ function portraitRegions(p, a) {
   }
 }
 
-// Light "muzzle" panel — 脸谱 keep the nose/mouth zone on pale ground so the
+// Light "muzzle" panel — 臉譜 keep the nose/mouth zone on pale ground so the
 // features stay legible; patterns radiate AROUND them, not over them.
 function muzzlePanel(a, mouthHalfW) {
   const cx = a.nose.x, top = a.noseTopY, bot = a.mouthY + 5;

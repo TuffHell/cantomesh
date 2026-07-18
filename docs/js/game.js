@@ -252,7 +252,7 @@ function questHtml() {
   html += `</main>${mountainFooter()}
     <footer class="site-footer"><div class="wrap f-grid">
       <div class="f-brand">
-        <div class="brandline"><span class="seal" aria-hidden="true">粤脉<br/>之鏡</span><b>粤脉 · 鏡 CANTOMESH</b></div>
+        <div class="brandline"><span class="seal" aria-hidden="true">粵脈<br/>之鏡</span><b>粵脈 · 鏡 CANTOMESH</b></div>
         <p>${t("footer.tag")}</p>
       </div>
       <nav class="f-col"><h4>${t("footer.explore")}</h4>
@@ -418,8 +418,8 @@ function renderLangPicker() {
   clearFigures();
   app.innerHTML = `<main class="wrap lang-pick">
     <div class="lang-card">
-      <div class="seal big" aria-hidden="true">粤脉<br/>之鏡</div>
-      <h1>粤脉 · 鏡 · CANTOMESH</h1>
+      <div class="seal big" aria-hidden="true">粵脈<br/>之鏡</div>
+      <h1>粵脈 · 鏡 · CANTOMESH</h1>
       <p class="lang-sub">Choose your language　·　選擇語言</p>
       <p class="lang-note">Learn Cantonese opera from zero — no Chinese needed.</p>
       <div class="lang-grid">

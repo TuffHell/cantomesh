@@ -259,6 +259,7 @@ function questHtml() {
         <button id="f-trainer">${t("tile.train.t")}</button>
         <button id="f-ar">${t("tile.ar.t")}</button>
         <a href="tools.html">${t("map.tools")}</a>
+        <a href="reference.html">${t("ref.link")}</a>
       </nav>
       <nav class="f-col"><h4>${t("footer.tech")}</h4>
         <button id="f-heritage">${t("tile.heritage.t")}</button>

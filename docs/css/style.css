@@ -836,3 +836,56 @@ body { padding-bottom: 5.5rem; } /* keep content clear of the nav */
 .mask-reward .unlock-label,
 .result .kicker,
 .qtitle { font-family: var(--brush); letter-spacing: 0.06em; }
+
+/* ===== Reference page (reference.html / reference.js) ===== */
+.wrap.ref { max-width: 980px; }
+.ref .ping { color: #3a6a5a; } .ref .ze { color: #b23a2e; }
+.ref-sec { margin: 2.4rem 0; }
+.ref-h { font-family: var(--brush); font-size: 1.5rem; letter-spacing: .06em; border-bottom: 2px solid #e6ddc9; padding-bottom: .4rem; }
+.ref-h small, .sub-h small, .cat-h small { font-family: "Noto Serif TC", serif; font-weight: 400; color: #8a7f6b; font-size: .7em; margin-left: .5rem; }
+.sub-h { font-family: var(--brush); font-size: 1.15rem; margin: 1.4rem 0 .6rem; }
+.ref .hint { color: #6b6152; font-size: .92rem; line-height: 1.65; }
+.ref .hint.rule b { color: #221d18; }
+.ref-tone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin: 1rem 0; }
+.rt { border: 1px solid #e0d7c2; border-radius: 12px; padding: .7rem .8rem; background: #fffdf8; display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: .1rem .5rem; }
+.rt b { font-family: var(--brush); font-size: 1.7rem; grid-row: span 2; }
+.rt i { font-family: ui-monospace, monospace; font-style: normal; font-size: .8rem; color: #8a7f6b; }
+.rt span { font-size: .82rem; }
+.rt em { font-style: normal; font-weight: 700; grid-row: span 2; align-self: center; }
+.rt.ping { border-color: rgba(58,106,90,.4); } .rt.ping b, .rt.ping em { color: #3a6a5a; }
+.rt.ze b, .rt.ze em { color: #b23a2e; }
+@media (max-width: 560px) { .ref-tone-grid { grid-template-columns: repeat(2, 1fr); } }
+.ref-tbl-wrap { overflow-x: auto; }
+.ref-tbl { border-collapse: collapse; width: 100%; font-size: .9rem; }
+.ref-tbl th, .ref-tbl td { border: 1px solid #e0d7c2; padding: .4rem .7rem; text-align: center; }
+.ref-tbl th { background: #f3ecdd; font-weight: 600; }
+.ref-tbl td.ping { color: #3a6a5a; font-weight: 700; } .ref-tbl td.ze { color: #b23a2e; font-weight: 700; }
+.ref-rules { list-style: none; padding: 0; display: grid; gap: .6rem; }
+.ref-rules li { border-left: 3px solid #a9802f; padding: .5rem .9rem; background: #fffdf8; border-radius: 0 8px 8px 0; font-size: .95rem; }
+.ref-tmpl { display: grid; gap: .5rem; }
+.tmpl-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.tmpl-row .tname { font-size: .9rem; color: #6b6152; min-width: 12ch; }
+.tcells { display: inline-flex; gap: .3rem; }
+.tcells b { display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 8px; font-weight: 700; border: 1px solid #e0d7c2; }
+.tcells b.ping { color: #3a6a5a; background: rgba(58,106,90,.08); }
+.tcells b.ze { color: #b23a2e; background: rgba(178,58,46,.08); }
+.ref-rhyme { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.rgroup { border: 1px solid #e0d7c2; border-radius: 12px; padding: .8rem; background: #fffdf8; }
+.rgroup h4 { margin: 0 0 .5rem; font-size: .95rem; display: flex; align-items: center; gap: .5rem; }
+.rgroup h4 code { font-family: ui-monospace, monospace; color: #a9802f; }
+.rgroup .cnt { margin-left: auto; font-size: .75rem; color: #8a7f6b; }
+.rchips { display: flex; flex-wrap: wrap; gap: .35rem; }
+.rchip { display: inline-flex; flex-direction: column; align-items: center; padding: .2rem .35rem; border-radius: 7px; border: 1px solid #eee3cf; font-size: 1.05rem; line-height: 1.1; }
+.rchip i { font-family: ui-monospace, monospace; font-style: normal; font-size: .58rem; color: #8a7f6b; }
+.rchip.ping { color: #3a6a5a; } .rchip.ze { color: #b23a2e; }
+.cat-block { margin-top: 1.4rem; }
+.cat-h { font-family: var(--brush); font-size: 1.2rem; margin: 0 0 .6rem; }
+.rterms { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: .9rem; }
+.rterm { display: flex; gap: .8rem; border: 1px solid #e0d7c2; border-radius: 12px; padding: .8rem; background: #fffdf8; }
+.rterm svg { width: 64px; height: 64px; flex: 0 0 64px; }
+.rt-body { font-size: .9rem; min-width: 0; }
+.rt-head b { font-family: var(--brush); font-size: 1.2rem; }
+.rt-head i { font-family: ui-monospace, monospace; font-style: normal; font-size: .72rem; color: #8a7f6b; margin: 0 .3rem; }
+.rt-body p { margin: .25rem 0 0; color: #4a4236; line-height: 1.55; }
+.rt-body .en { color: #8a7f6b; font-size: .85em; }
+@media print { .topbar, footer, #ink { display: none !important; } .hero { min-height: auto; padding: 1rem 0; } .ref-sec, .rterm, .rgroup, .rt { break-inside: avoid; } }

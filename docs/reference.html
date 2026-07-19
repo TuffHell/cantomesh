@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>速查 · 平仄韻律與戲寶 — CANTOMESH</title>
+<meta name="description" content="CANTOMESH 速查：九聲六調、平仄之法、聯句格律與句式模板、韻部速查，以及戲寶百科（行當／身段／樂器／戲服）。由平仄引擎與圖解字庫實時生成。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html">
+    <span class="seal" aria-hidden="true">粵脈<br/>之鏡</span>
+    <span class="word"><b>粵脈 · 鏡</b><i>CANTOMESH</i></span>
+  </a>
+  <nav class="top-links">
+    <span class="dictstat" id="dictstat">粵拼庫 · 載入中…</span>
+    <a href="index.html">🎭 闖關</a>
+    <a href="tools.html">🛠 工具</a>
+    <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">GitHub ↗</a>
+  </nav>
+</div>
+
+<header class="hero" id="top">
+  <div id="ink" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <p class="kicker">粵劇 · 平仄韻律速查 · Prosody &amp; Opera Reference</p>
+    <h1>速查</h1>
+    <p class="lede">一頁看懂粵劇平仄：<b>九聲六調</b>、<b>平仄之法</b>、<b>聯句格律</b>與<b>韻部</b>，附<b>戲寶百科</b>。
+      全部由平仄引擎與圖解字庫即時生成——A one-page reference to Cantonese-opera tone, rhyme and stagecraft.</p>
+    <p class="legend"><b class="ping">平</b> level (陰平 · 陽平，非入聲) ·　<b class="ze">仄</b> oblique (上 · 去 · 入聲)</p>
+  </div>
+</header>
+
+<main class="wrap ref">
+
+  <!-- 1 · 九聲六調 -->
+  <section class="ref-sec">
+    <h2 class="ref-h">一 · 九聲六調 <small>The nine tones, six contours</small></h2>
+    <p class="hint">粵語有六個舒聲調，加上三個收 -p／-t／-k 的入聲，共九聲。平仄之分，全繫於此。
+      Cantonese has six smooth tones plus three checked (入聲) tones; every 平/仄 call rests on them.</p>
+    <div class="ref-tone-grid" id="ref-tones"></div>
+
+    <h3 class="sub-h">平仄之法 <small>How a tone becomes 平 or 仄</small></h3>
+    <div class="ref-tbl-wrap">
+      <table class="ref-tbl">
+        <thead><tr><th>粵拼調 tone</th><th>舒聲 smooth</th><th>平/仄</th><th>入聲 checked (-p/-t/-k)</th><th>平/仄</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>陰平</td><td class="ping">平</td><td>陰入</td><td class="ze">仄</td></tr>
+          <tr><td>2</td><td>陰上</td><td class="ze">仄</td><td>—</td><td>—</td></tr>
+          <tr><td>3</td><td>陰去</td><td class="ze">仄</td><td>中入</td><td class="ze">仄</td></tr>
+          <tr><td>4</td><td>陽平</td><td class="ping">平</td><td>—</td><td>—</td></tr>
+          <tr><td>5</td><td>陽上</td><td class="ze">仄</td><td>—</td><td>—</td></tr>
+          <tr><td>6</td><td>陽去</td><td class="ze">仄</td><td>陽入</td><td class="ze">仄</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hint rule">口訣：<b>一、四為平，餘皆仄；凡入聲（收 -p/-t/-k）一律仄。</b>
+      Rule: tones 1 &amp; 4 are 平 — everything else, and any checked syllable, is 仄.</p>
+  </section>
+
+  <!-- 2 · 聯句格律 -->
+  <section class="ref-sec">
+    <h2 class="ref-h">二 · 聯句格律 <small>The rules of the couplet (梆黃／板腔體)</small></h2>
+    <ul class="ref-rules">
+      <li><b>上句（單數句）收仄聲。</b> The upper line (odd) ends on an oblique tone.</li>
+      <li><b>下句（雙數句）收平聲。</b> The lower line (even) ends on a level tone.</li>
+      <li><b>押韻：各下句的平聲句腳，同屬一韻部。</b> Rhyme is carried by the level-tone endings of the lower lines, all sharing one rhyme group.</li>
+    </ul>
+    <h3 class="sub-h">句式模板 <small>Classic 平/仄 line templates</small></h3>
+    <div class="ref-tmpl" id="ref-tmpl"></div>
+    <p class="hint">傳統「一三五不論，二四六分明」——單數字位可較寬鬆，重點看雙數字位與句末。
+      By convention, odd positions are flexible; even positions and the line-ending are what count.</p>
+  </section>
+
+  <!-- 3 · 韻部速查 -->
+  <section class="ref-sec">
+    <h2 class="ref-h">三 · 韻部速查 <small>Rhyme groups</small></h2>
+    <p class="hint">同一韻部的字方能押韻。以下按字庫規模列出主要韻部，每組例字<b class="ping">平</b>聲在前、<b class="ze">仄</b>聲在後。
+      Only characters in the same rhyme group rhyme; the biggest groups are shown, 平 before 仄.</p>
+    <div class="ref-rhyme" id="ref-rhyme"></div>
+  </section>
+
+  <!-- 4 · 戲寶百科 -->
+  <section class="ref-sec">
+    <h2 class="ref-h">四 · 戲寶百科 <small>Opera treasury: roles, stagecraft, instruments, costumes</small></h2>
+    <div id="ref-enc"></div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <a href="https://github.com/TuffHell/cantomesh" target="_blank" rel="noopener">github.com/TuffHell/cantomesh</a>
+</footer>
+
+<noscript><p style="text-align:center;padding:2rem">本頁由瀏覽器端引擎生成，請啟用 JavaScript。</p></noscript>
+<script type="module" src="js/reference.js"></script>
+</body>
+</html>

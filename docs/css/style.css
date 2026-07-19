@@ -889,3 +889,11 @@ body { padding-bottom: 5.5rem; } /* keep content clear of the nav */
 .rt-body p { margin: .25rem 0 0; color: #4a4236; line-height: 1.55; }
 .rt-body .en { color: #8a7f6b; font-size: .85em; }
 @media print { .topbar, footer, #ink { display: none !important; } .hero { min-height: auto; padding: 1rem 0; } .ref-sec, .rterm, .rgroup, .rt { break-inside: avoid; } }
+
+/* credits list (reference.html §五) */
+.credits { list-style: none; padding: 0; margin: .3rem 0 0; display: grid; gap: .5rem; }
+.credits li { font-size: .92rem; line-height: 1.55; padding-left: 1rem; position: relative; }
+.credits li::before { content: "·"; position: absolute; left: .1rem; color: #a9802f; font-weight: 700; }
+.credits a { color: #b23a2e; text-underline-offset: 2px; }
+.lic { display: inline-block; font-size: .68rem; color: #6b6152; background: #f3ecdd; border: 1px solid #e0d7c2; border-radius: 6px; padding: 0 .4rem; margin-left: .4rem; white-space: nowrap; }
+.hint.small { font-size: .82rem; margin-top: 1rem; border-top: 1px dashed #e0d7c2; padding-top: .7rem; }
